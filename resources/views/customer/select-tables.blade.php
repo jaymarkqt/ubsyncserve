@@ -117,7 +117,7 @@
                         return;
                     }
 
-                    window.location.href = `{{ route('order.setup', ':table') }}`.replace(':table', table.id);
+                    window.location.href = `{{ route('order.menu', ':table') }}`.replace(':table', table.id);
                 }
             }
         }

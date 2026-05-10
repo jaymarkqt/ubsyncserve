@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code | Table {{ $table }}</title>
+    <title>QR Code Access | UB Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,8 +16,8 @@
     <div class="min-h-screen flex items-center justify-center px-4 py-10">
         <div class="w-full max-w-md bg-white rounded-[2rem] border border-gray-200 shadow-2xl p-6 text-center">
             <p class="text-xs uppercase tracking-[0.35em] text-gray-400">QR Code Scan Test</p>
-            <h1 class="mt-4 text-4xl font-black uppercase tracking-tight text-[#800000]">Table {{ $table }}</h1>
-            <p class="mt-3 text-sm text-gray-500">Scan this QR or press <span class="font-black">TEST</span> to open the customer menu for this table.</p>
+            <h1 class="mt-4 text-4xl font-black uppercase tracking-tight text-[#800000]">UB Sync</h1>
+            <p class="mt-3 text-sm text-gray-500">Scan this QR code or press <span class="font-black">TEST</span> to access the booking system.</p>
 
             <div class="mt-10 mb-8">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={{ urlencode(url('/order/choice')) }}" alt="QR Code" class="mx-auto rounded-[1.75rem] border border-gray-200 shadow-sm" />
