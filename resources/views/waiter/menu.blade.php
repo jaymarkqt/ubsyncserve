@@ -79,9 +79,17 @@
                 </template>
             </div>
 
-            <div class="flex justify-between items-center">
-                <span class="text-xl font-black text-[#800000]" x-text="'₱' + p.price.toFixed(2)"></span>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider" x-text="'Stock: ' + p.stock"></span>
+            <div class="flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xl font-black text-[#800000]" x-text="'₱' + p.price.toFixed(2)"></span>
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider" x-text="'Stock: ' + p.stock"></span>
+                </div>
+                <div class="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-slate-50 px-2 py-2">
+                    <button type="button" @click="p.qty = Math.max(1, p.qty - 1)" class="h-8 w-8 rounded-2xl bg-white text-[#800000] font-black transition hover:bg-[#f3d0d0]">-</button>
+                    <input type="number" x-model.number="p.qty" min="1" class="w-14 bg-transparent text-center text-sm font-black text-gray-700 outline-none" />
+                    <button type="button" @click="p.qty = (p.qty || 1) + 1" class="h-8 w-8 rounded-2xl bg-white text-[#800000] font-black transition hover:bg-[#f3d0d0]">+</button>
+                </div>
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Quantity</div>
             </div>
         </div>
 
@@ -188,13 +196,38 @@
         selectedFood: null,
         tempSelectedAddOns: [],
         
-    products: [
-    { id: 1, name: 'Burger Steak', price: 99, cat: 'Lunch', img: 'burgersteak.png', addOns: [{name: 'Extra Rice', price: 20}] },
-    { id: 2, name: 'Tapa & Egg', price: 120, cat: 'Breakfast', img: 'tapa.png', addOns: [{name: 'Extra Egg', price: 15}] },
-    { id: 3, name: 'Fries', price: 65, cat: 'Snacks', img: 'fries.png', addOns: [{name: 'Cheese Sauce', price: 10}] },
-    { id: 4, name: 'Fried Chicken', price: 150, cat: 'Dinner', img: 'chicken.png', addOns: [{name: 'Extra Gravy', price: 10}] },
-    { id: 5, name: 'Ice Tea', price: 45, cat: 'Drinks', img: 'icetea.png', addOns: [{name: 'Large Cup', price: 15}] }
-],
+    products: [],
+
+      defaultProducts() {
+            return [
+                { id: 1, name: 'Burger Steak', price: 99, cat: 'Lunch', img: 'burgersteak.png', stock: 24, qty: 1, addOns: [{ name: 'Extra Rice', price: 20 }, { name: 'Cheese', price: 15 }] },
+                { id: 2, name: 'Tapa & Egg', price: 120, cat: 'Breakfast', img: 'tapa.png', stock: 18, qty: 1, addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
+                { id: 3, name: 'Fries', price: 65, cat: 'Snacks', img: 'fries.png', stock: 30, qty: 1, addOns: [{ name: 'Cheese Sauce', price: 10 }, { name: 'Bacon Bits', price: 15 }] },
+                { id: 4, name: 'Fried Chicken', price: 150, cat: 'Dinner', img: 'chicken.png', stock: 12, qty: 1, addOns: [{ name: 'Extra Gravy', price: 10 }, { name: 'Spicy Dip', price: 10 }] },
+                { id: 5, name: 'Ice Tea', price: 45, cat: 'Drinks', img: 'icetea.png', stock: 40, qty: 1, addOns: [{ name: 'Large Cup', price: 15 }] }
+            ];
+        },
+
+        loadProducts() {
+            const savedProducts = localStorage.getItem('product_catalog');
+            if (savedProducts) {
+                try {
+                    const parsed = JSON.parse(savedProducts);
+                    this.products = parsed.map(product => ({
+                        ...product,
+                        price: product.price ?? product.sellingPrice ?? 0,
+                        qty: product.qty || 1,
+                        selectedAddOns: product.selectedAddOns || []
+                    }));
+                } catch (error) {
+                    this.products = this.defaultProducts();
+                    localStorage.setItem('product_catalog', JSON.stringify(this.products));
+                }
+            } else {
+                this.products = this.defaultProducts();
+                localStorage.setItem('product_catalog', JSON.stringify(this.products));
+            }
+        },
 
       initStore() {
             // --- REFRESH DETECTOR ---
@@ -204,12 +237,13 @@
                 localStorage.removeItem('ub_order_history');
             }
             // ------------------------
+            this.loadProducts();
+            window.addEventListener('storage', () => this.loadProducts());
 
            const params = new URLSearchParams(window.location.search);
             this.tableNumber = params.get('table');
             this.adults = parseInt(params.get('adults')) || 0;
             this.children = parseInt(params.get('children')) || 0;
-            
         },
 
 
@@ -263,6 +297,7 @@
         closeCustomizeModal() { this.showModal = false; },
 
         addToCart(product) {
+            const qty = Math.max(1, product.qty || 1);
             const selectedAddOns = product.selectedAddOns || [];
             const addOnPrice = selectedAddOns.reduce((sum, a) => sum + a.price, 0);
             const finalUnitPrice = product.price + addOnPrice;
@@ -270,14 +305,19 @@
             const cartId = product.id + (addonNameStr ? '-' + addonNameStr : '');
 
             let foundIndex = this.cart.findIndex(i => i.cartId === cartId);
-            if (foundIndex > -1) { 
-                this.cart[foundIndex].qty++;
-            } else { 
+            if (foundIndex > -1) {
+                this.cart[foundIndex].qty += qty;
+            } else {
                 this.cart.push({
-                    ...product, cartId, qty: 1, addonName: addonNameStr, price: finalUnitPrice 
+                    ...product,
+                    cartId,
+                    qty,
+                    addonName: addonNameStr,
+                    price: finalUnitPrice
                 });
             }
-            product.selectedAddOns = []; 
+            product.selectedAddOns = [];
+            product.qty = 1;
         },
 
         removeFromCart(index) { this.cart.splice(index, 1); },

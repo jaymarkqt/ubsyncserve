@@ -20,12 +20,12 @@
             <p class="mt-3 text-sm text-gray-500">Scan this QR or press <span class="font-black">TEST</span> to open the customer menu for this table.</p>
 
             <div class="mt-10 mb-8">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={{ urlencode(url('/order/setup' . $table)) }}" alt="QR Code for Table {{ $table }}" class="mx-auto rounded-[1.75rem] border border-gray-200 shadow-sm" />
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&data={{ urlencode(url('/order/choice')) }}" alt="QR Code" class="mx-auto rounded-[1.75rem] border border-gray-200 shadow-sm" />
             </div>
 
-            <a href="{{ route('order.setup', $table) }}" class="inline-flex items-center justify-center w-full gap-3 rounded-3xl bg-[#800000] px-6 py-4 text-sm font-black uppercase text-white shadow-lg hover:bg-[#9a0000] transition-all">
-                <i class="fas fa-vial text-base"></i>
-                Test Menu
+            <a href="{{ route('order.booking-choice') }}" class="inline-flex items-center justify-center w-full gap-3 rounded-3xl bg-[#800000] px-6 py-4 text-sm font-black uppercase text-white shadow-lg hover:bg-[#9a0000] transition-all">
+                <i class="fas fa-sign-in-alt text-base"></i>
+                Continue to Booking
             </a>
         </div>
     </div>

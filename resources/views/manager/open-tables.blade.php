@@ -47,10 +47,12 @@
 
    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
   <template x-for="(table, index) in openTables" :key="index">
-    <div @click="table.status === 'occupied' ? handleTableClick(table) : null"
+    <div @click="table.status !== 'available' ? handleTableClick(table) : null"
          class="w-full max-w-[170px] h-[170px] mx-auto transition-all flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
          :class="{
             'bg-[#ccfad8] border-[#4ade80] cursor-not-allowed opacity-80': table.status === 'available',
+            'bg-[#fef3c7] border-[#f59e0b] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-advance',
+            'bg-[#ffedd5] border-[#fb923c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-booking',
             'bg-[#ffdada] border-[#f87171] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'occupied'
          }">
 
@@ -58,16 +60,18 @@
              x-text="table.tableNumber"></div>
 
         <p class="text-[11px] font-extrabold uppercase tracking-widest"
-           :class="table.status === 'available' ? 'text-emerald-700' : 'text-[#cc0000]'"
-           x-text="table.status"></p>
+           :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-amber-700' : (table.status === 'reserved-booking' ? 'text-orange-700' : 'text-[#cc0000]'))"
+           x-text="table.status.replace('-', ' ')"></p>
 
-        <template x-if="table.status === 'occupied'">
+        <template x-if="table.status !== 'available'">
             <div class="text-center pt-1 w-full">
                 <p class="text-sm font-bold text-[#1e293b]">
                     <span x-text="table.guests"></span> guests
                 </p>
-                <p class="text-[10px] text-[#cc0000] font-bold mt-1 tracking-widest"
-                   x-text="table.duration"></p>
+                <template x-if="table.status === 'occupied'">
+                    <p class="text-[10px] text-[#cc0000] font-bold mt-1 tracking-widest"
+                       x-text="table.duration"></p>
+                </template>
             </div>
         </template>
     </div>

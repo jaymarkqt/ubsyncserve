@@ -238,6 +238,16 @@
 
                     localStorage.setItem('ub_tables', JSON.stringify(tables));
 
+                    const catalog = JSON.parse(localStorage.getItem('product_catalog') || '[]');
+                    this.cart.forEach(item => {
+                        const product = catalog.find(p => p.id === item.id);
+                        if (product) {
+                            product.stock = Math.max(0, (product.stock || 0) - item.qty);
+                        }
+                    });
+                    localStorage.setItem('product_catalog', JSON.stringify(catalog));
+                    window.dispatchEvent(new Event('storage'));
+
                     const analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
                     const totalAmount = this.cartTotal;
                     const transaction = {

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manager Command Center | UB-SYNC</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -147,12 +148,53 @@
              openTables: [],
                 
                 // Inventory Data
-                formData: { name: '', stock: 0, cost: 0, sellingPrice: 0, image: '' },
-                products: [
-                    { name: 'Grilled Chicken', stock: 45, cost: 40, sellingPrice: 50, image: 'https://via.placeholder.com/150' },
-                    { name: 'Beef Steak', stock: 28, cost: 80, sellingPrice: 100, image: 'https://via.placeholder.com/150' }
-                ],
-                
+                formData: { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] },
+                products: [],
+
+                defaultProducts() {
+                    return [
+                        { id: 1, name: 'Burger Steak', stock: 24, cost: 59, sellingPrice: 99, price: 99, cat: 'Lunch', img: 'burgersteak.png', addOns: [{ name: 'Extra Rice', price: 20 }, { name: 'Cheese', price: 15 }] },
+                        { id: 2, name: 'Tapa & Egg', stock: 18, cost: 75, sellingPrice: 120, price: 120, cat: 'Breakfast', img: 'tapa.png', addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
+                        { id: 3, name: 'Fries', stock: 30, cost: 28, sellingPrice: 65, price: 65, cat: 'Snacks', img: 'fries.png', addOns: [{ name: 'Cheese Sauce', price: 10 }, { name: 'Bacon Bits', price: 15 }] },
+                        { id: 4, name: 'Fried Chicken', stock: 12, cost: 95, sellingPrice: 150, price: 150, cat: 'Dinner', img: 'chicken.png', addOns: [{ name: 'Extra Gravy', price: 10 }, { name: 'Spicy Dip', price: 10 }] },
+                        { id: 5, name: 'Ice Tea', stock: 40, cost: 20, sellingPrice: 45, price: 45, cat: 'Drinks', img: 'icetea.png', addOns: [{ name: 'Large Cup', price: 15 }] },
+                    ];
+                },
+
+                normalizeProducts(products) {
+                    return products.map(product => ({
+                        ...product,
+                        price: product.price ?? product.sellingPrice ?? 0,
+                        addOns: product.addOns || []
+                    }));
+                },
+
+                loadProducts() {
+                    const savedProducts = localStorage.getItem('product_catalog');
+                    if (savedProducts) {
+                        try {
+                            this.products = JSON.parse(savedProducts);
+                        } catch (error) {
+                            this.products = this.defaultProducts();
+                            this.saveProducts();
+                        }
+                    } else {
+                        this.products = this.defaultProducts();
+                        this.saveProducts();
+                    }
+                },
+
+                saveProducts() {
+                    const normalized = this.normalizeProducts(this.products);
+                    this.products = normalized;
+                    localStorage.setItem('product_catalog', JSON.stringify(normalized));
+                    window.dispatchEvent(new Event('storage'));
+                },
+
+                resetForm() {
+                    this.formData = { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] };
+                },
+
                 formatCurrency(val) {
                     return '₱' + parseFloat(val || 0).toLocaleString(undefined, {
                         minimumFractionDigits: 2,
@@ -187,13 +229,16 @@ loadTablesFromStorage() {
 
                     this.openTables = tables.map(t => {
                         let tableOrders = Array.isArray(t.orders) ? t.orders : [];
-                        // COMPUTATION NG BILL DITO PARA LUMABAS ANG RUNNING TOTAL
                         let calculatedBill = tableOrders.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                        let status = t.status;
+                        if (!status) {
+                            status = tableOrders.length > 0 ? 'occupied' : 'available';
+                        }
 
                         return {
                             id: t.id,
                             tableNumber: t.id,
-                            status: tableOrders.length > 0 ? 'occupied' : 'available',
+                            status: status,
                             guests: (t.adults || 0) + (t.children || 0),
                             duration: this.getDuration(t),
                             orders: tableOrders,
@@ -217,21 +262,49 @@ loadTablesFromStorage() {
     let rawData = JSON.parse(stored);
     this.reservations = rawData.map(res => ({
         ...res,
-        status: res.status ? res.status.toLowerCase() : 'pending'
+        status: res.status ? res.status.toLowerCase() : 'pending',
+        createdAt: res.createdAt || res.created_at || null,
+        type: res.type || 'table-reservation'
     }));
 },
 
 
 
 
-updateReservationStatus(id, newStatus) {
+async updateReservationStatus(id, newStatus) {
     if(!confirm(`Are you sure you want to mark this reservation as ${newStatus}?`)) return;
     
     let index = this.reservations.findIndex(r => r.id === id);
-    if (index !== -1) {
-        this.reservations[index].status = newStatus;
-        localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
-        this.loadReservationsFromStorage(); // Refresh UI
+    if (index === -1) {
+        return;
+    }
+
+    this.reservations[index].status = newStatus;
+    localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
+    this.loadReservationsFromStorage();
+
+    const reservation = this.reservations[index];
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        await fetch('{{ route('reservation.confirm.email') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                id: reservation.id,
+                name: reservation.name,
+                email: reservation.email,
+                date: reservation.date,
+                time: reservation.time,
+                type: reservation.type,
+                table: reservation.table
+            })
+        });
+    } catch (error) {
+        console.warn('Email send failed:', error);
     }
 },
 
@@ -269,12 +342,11 @@ getDuration(table) {
 
 
 handleTableClick(table) {
-    // Check kung occupied talaga bago ipakita ang modal
-    if (table.status !== 'occupied') {
-        return; // Huwag gawin ang kahit ano kung green/available
+    if (table.status === 'available') {
+        return;
     }
 
-    console.log('Viewing occupied table:', table);
+    console.log('Viewing reserved/occupied table:', table);
     this.selectedTable = table;
     this.showOrderModal = true;
 },
@@ -389,24 +461,31 @@ clearTable(tableId) {
                 },
 
                 saveProduct() {
-                    if(!this.formData.name) return alert('Name is required');
-                    if(this.editingIndex !== null) {
+                    if (!this.formData.name) return alert('Name is required');
+
+                    if (this.editingIndex !== null) {
                         this.products[this.editingIndex] = { ...this.formData };
                     } else {
-                        this.products.push({ ...this.formData });
+                        const nextId = this.products.reduce((max, product) => Math.max(max, product.id), 0) + 1;
+                        this.products.push({ ...this.formData, id: nextId });
                     }
+
+                    this.saveProducts();
                     this.closeModal();
                 },
 
                 deleteProduct(index) {
-                    if(confirm('Delete this product?')) this.products.splice(index, 1);
+                    if (confirm('Delete this product?')) {
+                        this.products.splice(index, 1);
+                        this.saveProducts();
+                    }
                 },
 
                 handleImageUpload(event) {
                     const file = event.target.files[0];
-                    if(file) {
+                    if (file) {
                         const reader = new FileReader();
-                        reader.onload = (e) => { this.formData.image = e.target.result; };
+                        reader.onload = (e) => { this.formData.img = e.target.result; };
                         reader.readAsDataURL(file);
                     }
                 },
@@ -417,8 +496,17 @@ clearTable(tableId) {
                     this.resetForm();
                 },
 
+                addAddOn() {
+                    this.formData.addOns = this.formData.addOns || [];
+                    this.formData.addOns.push({ name: '', price: 0 });
+                },
+
+                removeAddOn(index) {
+                    this.formData.addOns.splice(index, 1);
+                },
+
                 resetForm() {
-                    this.formData = { name: '', stock: 0, cost: 0, sellingPrice: 0, image: '' };
+                    this.formData = { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] };
                 },
 
 init() {
@@ -430,15 +518,16 @@ init() {
             }
             // ------------------------
 
+            this.loadProducts();
             this.loadAnalytics();
             this.loadTablesFromStorage();
-            this.loadReservationsFromStorage()
+            this.loadReservationsFromStorage();
 
             window.addEventListener('storage', () => {
+                this.loadProducts();
                 this.loadAnalytics();
                 this.loadTablesFromStorage();
                 this.loadReservationsFromStorage();
-                
             });
 
             setInterval(() => {

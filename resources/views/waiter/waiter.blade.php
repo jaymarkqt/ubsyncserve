@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Waiter Command Center | UB-SYNC</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -132,14 +133,14 @@
     <template x-for="table in tables" :key="table.id">
         <div @click="selectTable(table)" 
              class="w-full max-w-[170px] h-[170px] mx-auto cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
-             :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : 'bg-[#ffdada] border-[#f87171]'">
+             :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.status === 'reserved-advance' ? 'bg-[#fef3c7] border-[#f59e0b]' : (table.status === 'reserved-booking' ? 'bg-[#ffedd5] border-[#fb923c]' : 'bg-[#ffdada] border-[#f87171]'))">
             
             <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
             
             <p class="text-[11px] font-extrabold uppercase tracking-widest" 
-               :class="table.status === 'available' ? 'text-emerald-700' : 'text-[#cc0000]'" x-text="table.status"></p>
+               :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-amber-700' : (table.status === 'reserved-booking' ? 'text-orange-700' : 'text-[#cc0000]'))" x-text="table.status.replace('-', ' ')"></p>
             
-            <template x-if="table.status === 'occupied' || (table.adults + table.children > 0)">
+            <template x-if="table.status !== 'available'">
                 <div class="text-center pt-1 w-full">
                     <p class="text-sm font-bold text-[#1e293b]"><span x-text="table.adults + table.children"></span> guests</p>
                 </div>
@@ -315,9 +316,12 @@ function waiterSystem() {
             if (stored) {
                 let parsedTables = JSON.parse(stored);
                 
-                // AUTOMATIC STATUS CHECKER: 
-                // Magre-red (occupied) lang kung may laman ang orders. Kung wala, green (available).
+                // AUTOMATIC STATUS CHECKER:
+                // Preserve reserved states and only set occupied when there are real orders.
                 parsedTables.forEach(t => {
+                    if (t.status === 'reserved-advance' || t.status === 'reserved-booking') {
+                        return;
+                    }
                     if (t.orders && t.orders.length > 0) {
                         t.status = 'occupied';
                     } else {
@@ -454,31 +458,58 @@ startSession() {
     let rawData = JSON.parse(stored);
 
     this.reservations = rawData.map(res => {
-        // Siguraduhin na kung walang status, 'pending' lang talaga.
-        // Huwag nating baguhin ang status kung 'confirmed' na siya.
         let s = res.status ? res.status.toLowerCase() : 'pending';
         return {
             ...res,
-            status: s
+            status: s,
+            createdAt: res.createdAt || res.created_at || null,
+            table: res.table || null,
+            type: res.type || 'table-reservation'
         };
     });
 },
 
+        async confirmReservation(resId) {
+            const index = this.reservations.findIndex(r => r.id === resId);
+            if (index === -1) {
+                return;
+            }
 
+            this.reservations[index].status = 'confirmed';
+            this.updateReservationStorage();
 
-        confirmReservation(resId) {
-    const index = this.reservations.findIndex(r => r.id === resId);
-    if (index !== -1) {
-        // Gawing lowercase na 'confirmed'
-        this.reservations[index].status = 'confirmed'; 
-        this.updateReservationStorage();
-        
-        // Mag-dagdag tayo ng alert para alam ni Waiter na success
-        alert('Table for ' + this.reservations[index].name + ' is now CONFIRMED.');
-        
-        window.dispatchEvent(new Event('storage'));
-    }
-},
+            const reservation = this.reservations[index];
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const response = await fetch('{{ route('reservation.confirm.email') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: reservation.id,
+                        name: reservation.name,
+                        email: reservation.email,
+                        date: reservation.date,
+                        time: reservation.time,
+                        type: reservation.type,
+                        table: reservation.table
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.warn('Email API warning:', errorData);
+                }
+            } catch (error) {
+                console.warn('Email send failed:', error);
+            }
+
+            alert('Table for ' + reservation.name + ' is now CONFIRMED. Email notification sent if available.');
+            window.dispatchEvent(new Event('storage'));
+        },
 
 
         deleteReservation(resId) {

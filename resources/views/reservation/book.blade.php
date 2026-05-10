@@ -3,47 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book a Table | UB Sync</title>
+    <title>Make a Reservation | UB Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .bg-maroon { background-color: #800000; }
         .text-maroon { color: #800000; }
         .border-maroon { border-color: #800000; }
-        .focus-maroon:focus { border-color: #800000; box-shadow: 0 0 0 1px #800000; }
+        .focus-maroon:focus { border-color: #800000; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4 md:p-8 font-sans">
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex items-center justify-center p-4 md:p-8 font-sans">
 
     <div class="max-w-lg w-full bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100">
         
         <div class="bg-maroon p-8 text-center relative overflow-hidden">
             <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-            <h1 class="text-3xl font-black text-white uppercase tracking-widest relative z-10">Table Reservation</h1>
+            <h1 class="text-3xl font-black text-white uppercase tracking-widest relative z-10" id="formTitle">Make a Reservation</h1>
             <p class="text-white/80 text-sm mt-2 relative z-10">Secure your dining experience with us.</p>
         </div>
 
         <form class="p-6 sm:p-8 space-y-5" action="#" method="POST">
+            <input type="hidden" name="type" value="table-reservation" id="bookingTypeInput">
+
+            <!-- Booking Type Display -->
+            <div class="rounded-2xl bg-slate-50 border-2 border-slate-100 p-4">
+                <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2">Booking Type</p>
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-bookmark text-maroon text-lg"></i>
+                    <span class="text-lg font-black text-slate-800" id="bookingTypeLabel">Reservation</span>
+                </div>
+            </div>
+
+            <!-- Full Name -->
             <div>
                 <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fa-regular fa-user text-gray-400"></i>
                     </div>
-                    <input type="text" name="name" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="">
+                    <input type="text" name="name" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="Your name">
                 </div>
             </div>
 
+            <!-- Email Address -->
             <div>
                 <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Email Address</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fa-regular fa-envelope text-gray-400"></i>
                     </div>
-                    <input type="email" name="email" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="">
+                    <input type="email" name="email" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="your@email.com">
                 </div>
             </div>
 
+            <!-- Date and Time -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Date</label>
@@ -61,65 +75,141 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <i class="fa-regular fa-clock text-gray-400"></i>
                         </div>
-                        <input type="text" placeholder="Select Time" onfocus="(this.type='time')" onblur="(this.value == '' ? this.type='text' : this.type='time')" name="time" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white text-gray-700">
+                        <input type="text" placeholder="--:-- --" onfocus="(this.type='time')" onblur="(this.value == '' ? this.type='text' : this.type='time')" name="time" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white text-gray-700">
                     </div>
                 </div>
             </div>
 
+            <!-- Adults and Children -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Adults</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-user-group text-gray-400"></i>
+                        </div>
+                        <input type="number" name="adults" min="0" value="1" id="adultsInput" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Children</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-child text-gray-400"></i>
+                        </div>
+                        <input type="number" name="children" min="0" value="0" id="childrenInput" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Pax -->
             <div>
-                <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Number of Guests (Pax)</label>
+                <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Total Pax</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <i class="fa-solid fa-users text-gray-400"></i>
                     </div>
-                    <input type="number" name="pax" min="1" max="20" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="">
+                    <input type="number" name="pax" id="paxInput" readonly class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none bg-gray-100 text-gray-600 font-bold">
                 </div>
             </div>
 
+            <!-- Special Requests -->
             <div>
                 <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Special Requests (Optional)</label>
-                <textarea name="requests" rows="2" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder=""></textarea>
+                <textarea name="requests" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white resize-none" placeholder="Any special requirements or preferences?"></textarea>
             </div>
 
-            <button type="submit" class="w-full mt-2 bg-maroon hover:bg-red-900 text-white font-black py-4 rounded-xl uppercase tracking-[0.2em] shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex justify-center items-center gap-2">
-                Book Table
+            <!-- Submit Button -->
+            <button type="submit" class="w-full mt-6 bg-maroon hover:bg-red-900 text-white font-black py-4 rounded-xl uppercase tracking-[0.2em] shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex justify-center items-center gap-2">
+                <i class="fas fa-check-circle"></i> Complete Reservation
             </button>
+
+            <!-- Cancel Link -->
+            <a href="{{ route('order.booking-choice') }}" class="block text-center text-slate-500 hover:text-slate-700 font-bold text-sm uppercase tracking-wider transition-colors">
+                Go Back
+            </a>
         </form>
     </div>
 
 <script>
-        document.querySelector('form').addEventListener('submit', function(e) {
-            e.preventDefault(); // Pipigilan mag-refresh ang page
+    function updatePaxCount() {
+        const adults = parseInt(document.getElementById('adultsInput').value, 10) || 0;
+        const children = parseInt(document.getElementById('childrenInput').value, 10) || 0;
+        document.getElementById('paxInput').value = adults + children;
+    }
 
-            // 1. Kunin lahat ng nilagay ng customer sa form
-            const formData = new FormData(this);
-            
-            // 2. Gawa tayo ng bagong object para sa reservation
-            const newReservation = {
-                id: 'RES-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
-                name: formData.get('name'),
-                email: formData.get('email'), // Updated to get the email value
-                date: formData.get('date'),
-                time: formData.get('time'),
-                guests: formData.get('pax'),
-                requests: formData.get('requests'),
-               status: 'pending'
-            };
+    function setBookingTypeFromQuery() {
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get('type') || 'table-reservation';
+        
+        document.getElementById('bookingTypeInput').value = type;
+        
+        if (type === 'advance-order') {
+            document.getElementById('formTitle').textContent = 'Advance Order';
+            document.getElementById('bookingTypeLabel').textContent = 'Advance Order';
+        } else {
+            document.getElementById('formTitle').textContent = 'Make a Reservation';
+            document.getElementById('bookingTypeLabel').textContent = 'Reservation';
+        }
+    }
 
-            // 3. Kunin ang mga lumang reservations sa localStorage, tapos idagdag itong bago
-            let existingReservations = JSON.parse(localStorage.getItem('ub_reservations')) || [];
-            existingReservations.unshift(newReservation);
+    // Initialize
+    updatePaxCount();
+    setBookingTypeFromQuery();
+    
+    document.getElementById('adultsInput').addEventListener('input', updatePaxCount);
+    document.getElementById('childrenInput').addEventListener('input', updatePaxCount);
 
-            // 4. I-save pabalik sa localStorage
-            localStorage.setItem('ub_reservations', JSON.stringify(existingReservations));
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-            // 5. I-trigger ang event para malaman ng ibang tabs
-            window.dispatchEvent(new Event('storage'));
+        const formData = new FormData(this);
+        const adults = parseInt(formData.get('adults'), 10) || 0;
+        const children = parseInt(formData.get('children'), 10) || 0;
+        const guests = adults + children;
+        const type = formData.get('type') || 'table-reservation';
 
-            // 6. I-clear ang form at mag-alert sa customer
-            this.reset();
-            alert('Table booked successfully! Please wait for the cashier to confirm.');
-        });
-    </script>
+        const newReservation = {
+            id: 'RES-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
+            name: formData.get('name'),
+            email: formData.get('email'),
+            type: type,
+            adults: adults,
+            children: children,
+            guests: guests,
+            date: formData.get('date'),
+            time: formData.get('time'),
+            requests: formData.get('requests'),
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+            scheduledAt: formData.get('date') + ' ' + formData.get('time')
+        };
+
+        let existingReservations = JSON.parse(localStorage.getItem('ub_reservations')) || [];
+        existingReservations.unshift(newReservation);
+        localStorage.setItem('ub_reservations', JSON.stringify(existingReservations));
+
+        if (type === 'advance-order') {
+            let storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+            if (!Array.isArray(storedTables) || storedTables.length !== 15) {
+                storedTables = Array.from({ length: 15 }, (_, idx) => ({
+                    id: idx + 1,
+                    status: 'available',
+                    type: null,
+                    adults: 0,
+                    children: 0,
+                    bill: 0,
+                    orders: []
+                }));
+            }
+            localStorage.setItem('ub_tables', JSON.stringify(storedTables));
+        }
+
+        window.dispatchEvent(new Event('storage'));
+        this.reset();
+        updatePaxCount();
+        alert('Reservation request submitted! Please wait for confirmation. Check your email for updates.');
+    });
+</script>
 </body>
 </html>

@@ -25,6 +25,13 @@
                 <div class="p-4 flex justify-between items-start gap-4">
                     <div class="flex-1 text-left">
                         <span class="text-lg font-black text-slate-800 leading-tight block break-words" x-text="res.name"></span>
+                        <div class="mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.3em] font-black text-slate-500">
+                            <span x-text="res.type ? res.type.replace('-', ' ') : 'Table Reservation'"></span>
+                            <span x-show="res.table">| Table <span x-text="res.table"></span></span>
+                        </div>
+                        <div class="mt-2 text-[11px] text-slate-400">
+                            Booked: <span x-text="res.createdAt ? new Date(res.createdAt).toLocaleString() : 'N/A'"></span>
+                        </div>
                     </div>
                     <div class="shrink-0">
                         <span class="text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter inline-block shadow-sm" 

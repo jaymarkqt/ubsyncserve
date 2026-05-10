@@ -140,17 +140,43 @@
                 selectedProductQty: 1,
                 tempSelectedAddOns: [],
 
-                products: [
-                    { id: 1, name: 'Burger Steak', price: 99, cat: 'Lunch', img: 'burgersteak.png', stock: 24, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Rice', price: 20 }, { name: 'Cheese', price: 15 }] },
-                    { id: 2, name: 'Tapa & Egg', price: 120, cat: 'Breakfast', img: 'tapa.png', stock: 18, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
-                    { id: 3, name: 'Fries', price: 65, cat: 'Snacks', img: 'fries.png', stock: 30, qty: 1, selectedAddOns: [], addOns: [{ name: 'Cheese Sauce', price: 10 }, { name: 'Bacon Bits', price: 15 }] },
-                    { id: 4, name: 'Fried Chicken', price: 150, cat: 'Dinner', img: 'chicken.png', stock: 12, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Gravy', price: 10 }, { name: 'Spicy Dip', price: 10 }] },
-                    { id: 5, name: 'Ice Tea', price: 45, cat: 'Drinks', img: 'icetea.png', stock: 40, qty: 1, selectedAddOns: [], addOns: [{ name: 'Large Cup', price: 15 }] },
-                    { id: 6, name: 'Pancit Canton', price: 115, cat: 'Lunch', img: 'pancit.png', stock: 16, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }] },
-                    { id: 7, name: 'Latte', price: 95, cat: 'Drinks', img: 'latte.png', stock: 22, qty: 1, selectedAddOns: [], addOns: [{ name: 'Soy Milk', price: 20 }] }
-                ],
+                products: [],
+
+                defaultProducts() {
+                    return [
+                        { id: 1, name: 'Burger Steak', price: 99, cat: 'Lunch', img: 'burgersteak.png', stock: 24, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Rice', price: 20 }, { name: 'Cheese', price: 15 }] },
+                        { id: 2, name: 'Tapa & Egg', price: 120, cat: 'Breakfast', img: 'tapa.png', stock: 18, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
+                        { id: 3, name: 'Fries', price: 65, cat: 'Snacks', img: 'fries.png', stock: 30, qty: 1, selectedAddOns: [], addOns: [{ name: 'Cheese Sauce', price: 10 }, { name: 'Bacon Bits', price: 15 }] },
+                        { id: 4, name: 'Fried Chicken', price: 150, cat: 'Dinner', img: 'chicken.png', stock: 12, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Gravy', price: 10 }, { name: 'Spicy Dip', price: 10 }] },
+                        { id: 5, name: 'Ice Tea', price: 45, cat: 'Drinks', img: 'icetea.png', stock: 40, qty: 1, selectedAddOns: [], addOns: [{ name: 'Large Cup', price: 15 }] },
+                        { id: 6, name: 'Pancit Canton', price: 115, cat: 'Lunch', img: 'pancit.png', stock: 16, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }] },
+                        { id: 7, name: 'Latte', price: 95, cat: 'Drinks', img: 'latte.png', stock: 22, qty: 1, selectedAddOns: [], addOns: [{ name: 'Soy Milk', price: 20 }] }
+                    ];
+                },
+
+                loadProducts() {
+                    const saved = localStorage.getItem('product_catalog');
+                    if (saved) {
+                        try {
+                            const parsed = JSON.parse(saved);
+                            this.products = parsed.map(product => ({
+                                ...product,
+                                price: product.price ?? product.sellingPrice ?? 0,
+                                qty: product.qty || 1,
+                                selectedAddOns: product.selectedAddOns || []
+                            }));
+                        } catch (error) {
+                            this.products = this.defaultProducts();
+                            localStorage.setItem('product_catalog', JSON.stringify(this.products));
+                        }
+                    } else {
+                        this.products = this.defaultProducts();
+                        localStorage.setItem('product_catalog', JSON.stringify(this.products));
+                    }
+                },
 
                 initOrder() {
+                    this.loadProducts();
                     const params = new URLSearchParams(window.location.search);
                     const tableParam = params.get('table');
                     if (tableParam) {

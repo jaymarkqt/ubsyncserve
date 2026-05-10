@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 
@@ -55,6 +56,14 @@ Route::prefix('order')->group(function () {
         return view('customer.qr-code', ['table' => $tableNumber]);
     })->where('table', '[1-9]|1[0-5]')->name('order.qrcodes.single');
 
+    Route::get('/select/{table?}', function (?int $table = null) {
+        return view('customer.select-tables', ['table' => $table]);
+    })->where('table', '[1-9]|1[0-5]')->name('order.select-tables');
+
+    Route::get('/choice', function () {
+        return view('customer.booking-choice');
+    })->name('order.booking-choice');
+
     Route::get('/setup{table}', function (string $table) {
         $tableNumber = intval($table);
         if ($tableNumber < 1 || $tableNumber > 15) {
@@ -83,6 +92,40 @@ Route::get('/order', function () {
 Route::get('/book', function () {
     return view('reservation.book'); 
 })->name('customer.book');
+
+Route::post('/reservation/confirm-email', function (Request $request) {
+    $data = $request->validate([
+        'id' => ['required','string'],
+        'name' => ['required','string'],
+        'email' => ['required','email'],
+        'date' => ['required','string'],
+        'time' => ['required','string'],
+        'type' => ['required','string'],
+        'table' => ['nullable','string'],
+    ]);
+
+    try {
+        Mail::raw(
+            "Hello {$data['name']},\n\n" .
+            "Your reservation has been confirmed.\n" .
+            "Type: " . strtoupper($data['type']) . "\n" .
+            ($data['table'] ? "Table: {$data['table']}\n" : '') .
+            "Visit Date: {$data['date']}\n" .
+            "Visit Time: {$data['time']}\n\n" .
+            "Thank you for booking with " . config('app.name', 'UB Sync') . ".\n" .
+            "You can review your reservation here: " . url(route('order.qrcodes')) . "\n",
+            function ($message) use ($data) {
+                $message->to($data['email'])
+                        ->subject('Reservation Confirmed - ' . config('app.name', 'UB Sync'))
+                        ->from(config('mail.from.address', 'no-reply@ubsync.com'), config('mail.from.name', config('app.name', 'UB Sync')));
+            }
+        );
+
+        return response()->json(['success' => true]);
+    } catch (\Throwable $exception) {
+        return response()->json(['success' => false, 'message' => $exception->getMessage()], 500);
+    }
+})->name('reservation.confirm.email');
 
 // Redirect root to dashboard
 Route::get('/', function () {

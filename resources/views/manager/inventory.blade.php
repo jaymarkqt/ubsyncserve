@@ -42,7 +42,7 @@
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-lg bg-slate-200 overflow-hidden flex-shrink-0">
-                                        <img :src="product.image" class="w-full h-full object-cover">
+                                        <img :src="product.img ? '/img/' + product.img : product.img" class="w-full h-full object-cover" x-on:error="$el.src='https://placehold.co/100x100/f8fafc/800000?text=No+Image'">
                                     </div>
                                     <span class="font-bold text-slate-800" x-text="product.name"></span>
                                 </div>
@@ -109,19 +109,41 @@
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-black text-slate-700 uppercase mb-2">Product Image</label>
-                <div @click="$refs.imageInput.click()" class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:border-[#800000]">
-                    <input type="file" x-ref="imageInput" @change="handleImageUpload" accept="image/*" class="hidden">
-                    <template x-if="formData.image">
-                        <img :src="formData.image" class="w-24 h-24 object-cover rounded-lg mx-auto">
-                    </template>
-                    <template x-if="!formData.image">
-                        <div class="text-slate-400">
-                            <i class="fas fa-image text-3xl mb-2"></i>
-                            <p class="text-xs font-bold">Click to upload</p>
-                        </div>
-                    </template>
+            <div class="grid grid-cols-1 gap-5">
+                <div>
+                    <label class="block text-xs font-black text-slate-700 uppercase mb-2">Product Image</label>
+                    <div @click="$refs.imageInput.click()" class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:border-[#800000]">
+                        <input type="file" x-ref="imageInput" @change="handleImageUpload" accept="image/*" class="hidden">
+                        <template x-if="formData.img">
+                            <img :src="formData.img" class="w-24 h-24 object-cover rounded-lg mx-auto">
+                        </template>
+                        <template x-if="!formData.img">
+                            <div class="text-slate-400">
+                                <i class="fas fa-image text-3xl mb-2"></i>
+                                <p class="text-xs font-bold">Click to upload</p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-slate-700 uppercase mb-2">Add-ons</label>
+                    <div class="space-y-3">
+                        <template x-for="(addon, index) in formData.addOns" :key="index">
+                            <div class="grid grid-cols-12 gap-2 items-end">
+                                <div class="col-span-6">
+                                    <input type="text" x-model="addon.name" placeholder="Add-on name" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#800000] outline-none">
+                                </div>
+                                <div class="col-span-4">
+                                    <input type="number" x-model.number="addon.price" placeholder="Price" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#800000] outline-none">
+                                </div>
+                                <button type="button" @click="removeAddOn(index)" class="col-span-2 px-3 py-2 bg-red-100 text-red-700 rounded-xl font-bold">Remove</button>
+                            </div>
+                        </template>
+                        <button type="button" @click="addAddOn()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-[#800000] text-white rounded-2xl font-black uppercase text-xs hover:bg-[#660000] transition-all">
+                            <i class="fas fa-plus"></i> Add Add-on
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
