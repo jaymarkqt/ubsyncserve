@@ -19,6 +19,12 @@ class ReservationEmailController extends Controller
             'table' => ['nullable', 'string'],
         ]);
 
+        // I-format ang oras para maging 1:23 AM / PM
+        $formattedTime = date('g:i A', strtotime($data['time']));
+
+        // I-set ang pangalan ng system
+        $appName = 'UBSYNCSERVE';
+
         try {
             Mail::raw(
                 "Hello {$data['name']},\n\n" .
@@ -26,13 +32,13 @@ class ReservationEmailController extends Controller
                 "Type: " . strtoupper($data['type']) . "\n" .
                 ($data['table'] ? "Table: {$data['table']}\n" : '') .
                 "Visit Date: {$data['date']}\n" .
-                "Visit Time: {$data['time']}\n\n" .
-                "Thank you for booking with " . config('app.name', 'UB Sync') . ".\n" .
+                "Visit Time: {$formattedTime}\n\n" .
+                "Thank you for booking with {$appName}.\n" .
                 "You can review your reservation here: " . url(route('order.select-tables')) . "\n",
-                function ($message) use ($data) {
+                function ($message) use ($data, $appName) {
                     $message->to($data['email'])
-                            ->subject('Reservation Confirmed - ' . config('app.name', 'UB Sync'))
-                            ->from(config('mail.from.address', 'no-reply@ubsync.com'), config('mail.from.name', config('app.name', 'UB Sync')));
+                            ->subject("Reservation Confirmed - {$appName}")
+                            ->from(config('mail.from.address', 'no-reply@ubsync.com'), $appName);
                 }
             );
 
