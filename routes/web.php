@@ -69,7 +69,8 @@ Route::prefix('order')->group(function () {
         if ($tableNumber < 1 || $tableNumber > 15) {
             abort(404);
         }
-        return view('customer.table-setup', ['table' => $tableNumber]);
+
+        return redirect()->route('order.menu', ['table' => $tableNumber]);
     })->where('table', '[1-9]|1[0-5]')->name('order.setup');
 
     Route::get('/menu', function () {

@@ -328,12 +328,24 @@ completeOrder() {
 
     let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
     let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+    let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
 
     let idx = tables.findIndex(t => t.id == this.tableNumber);
 
     const totalAmount = this.cart.reduce(
         (sum, item) => sum + (item.price * item.qty), 0
     );
+
+    // Reduce stock for each item in the cart
+    this.cart.forEach(cartItem => {
+        let productIndex = products.findIndex(p => p.id === cartItem.id);
+        if (productIndex !== -1 && products[productIndex].stock >= cartItem.qty) {
+            products[productIndex].stock -= cartItem.qty;
+        }
+    });
+
+    // Save updated products back to localStorage
+    localStorage.setItem('product_catalog', JSON.stringify(products));
 
     // save sa waiter tables
     if (idx !== -1) {
@@ -342,7 +354,7 @@ completeOrder() {
                 tables[idx].children = this.children;    // <-- IDAGDAG ITO
                 tables[idx].orders = [...(tables[idx].orders || []), ...this.cart];
                 tables[idx].bill = totalAmount;
-            
+
     }
 
     localStorage.setItem('ub_tables', JSON.stringify(tables));

@@ -186,20 +186,14 @@
                         this.tableNumber = localStorage.getItem('customer_order_table') || null;
                     }
 
-                    // Check if guest setup is complete
-                    const savedAdults = localStorage.getItem('customer_guests_adults');
-                    const savedChildren = localStorage.getItem('customer_guests_children');
+                    // Load guest counts if available, otherwise keep defaults
+                    const savedAdults = localStorage.getItem('customer_guests_adults') || '0';
+                    const savedChildren = localStorage.getItem('customer_guests_children') || '0';
 
-                    if (!savedAdults || !savedChildren || (parseInt(savedAdults) === 0 && parseInt(savedChildren) === 0)) {
-                        // Redirect to setup if not configured
-                        const setupUrl = "{{ route('order.setup', ':table') }}".replace(':table', this.tableNumber || '1');
-                        window.location.href = setupUrl;
-                        return;
-                    }
+                    this.guestSetup.adults = parseInt(savedAdults, 10) || 0;
+                    this.guestSetup.children = parseInt(savedChildren, 10) || 0;
 
                     this.loadCart();
-                    this.guestSetup.adults = parseInt(savedAdults) || 0;
-                    this.guestSetup.children = parseInt(savedChildren) || 0;
                 },
 
                 get filteredProducts() {
