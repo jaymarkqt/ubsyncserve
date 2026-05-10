@@ -86,12 +86,12 @@ Route::get('/book', function () {
 
 // Redirect root to dashboard
 Route::get('/', function () {
-    return redirect()->route('waiter.dashboard');
+    return redirect()->route('login');
 });
 
 
 Route::middleware(['guest'])->group(function () {
-    Route::get('/login', function () { return view('auth.login'); })->name('login');
+    Route::get('/login', function () { return view('login.login'); })->name('login');
     Route::post('/login', function (Request $request) {
         $credentials = $request->validate([
             'email' => ['required', 'email'],

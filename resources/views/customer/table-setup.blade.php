@@ -15,7 +15,7 @@
         .clay-card { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05); }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4" x-data="tableSetup()" x-init="initSetup()">
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4" x-data="tableSetup()" x-init="initSetup()" data-table="{{ $table }}">
     <div class="w-full max-w-sm">
         <div class="clay-card overflow-hidden bg-white rounded-3xl shadow-2xl">
             <div class="maroon-gradient p-8 text-white text-center">
@@ -55,10 +55,14 @@
     <script>
         function tableSetup() {
             return {
-                tableNumber: {{ $table }},
+                tableNumber: null,
                 guestSetup: { adults: 0, children: 0 },
 
                 initSetup() {
+                    if (!this.tableNumber) {
+                        const app = document.querySelector('[x-data="tableSetup()"]');
+                        this.tableNumber = app ? parseInt(app.dataset.table, 10) : null;
+                    }
                     // Store table number in localStorage
                     localStorage.setItem('customer_order_table', this.tableNumber);
 
@@ -66,7 +70,7 @@
                     const savedAdults = localStorage.getItem('customer_guests_adults');
                     const savedChildren = localStorage.getItem('customer_guests_children');
 
-                    if (savedAdults && savedChildren && (parseInt(savedAdults) > 0 || parseInt(savedChildren) > 0)) {
+                    if (savedAdults && savedChildren && (parseInt(savedAdults, 10) > 0 || parseInt(savedChildren, 10) > 0)) {
                         // Already set up, redirect to menu
                         window.location.href = "{{ route('order.menu') }}";
                     }
