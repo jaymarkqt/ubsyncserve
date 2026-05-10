@@ -88,7 +88,7 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <i class="fa-solid fa-user-group text-gray-400"></i>
                         </div>
-                        <input type="number" name="adults" min="0" value="1" id="adultsInput" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white">
+                        <input type="number" name="adults" min="0" value="0" id="adultsInput" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white">
                     </div>
                 </div>
                 <div>

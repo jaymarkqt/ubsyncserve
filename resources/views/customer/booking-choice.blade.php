@@ -26,29 +26,31 @@
         <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
             <!-- Advance Ordering Card -->
             <a href="{{ route('customer.book') }}?type=advance-order" class="block hover-lift">
-                <div class="h-full rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 p-10 text-center shadow-lg">
-                    <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-utensils text-4xl text-amber-700"></i>
+                <div class="h-full rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 p-10 text-center shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-utensils text-4xl text-amber-700"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-amber-900 uppercase tracking-wide mb-3">Advance Order</h2>
+                        <p class="text-sm text-amber-800 mb-8 leading-relaxed font-medium mx-auto max-w-[22rem]">
+                            Order your food in advance and have it ready when you arrive. Your table will be reserved and your meal prepared ahead of time.
+                        </p>
                     </div>
-                    <h2 class="text-2xl font-black text-amber-900 uppercase tracking-wide mb-3">Advance Order</h2>
-                    <p class="text-sm text-amber-800 mb-8 leading-relaxed font-medium">
-                        Order your food in advance and pick it up when you visit. Select your table and start ordering now.
-                    </p>
-                    <div class="space-y-3">
+                    <div class="space-y-3 text-left mx-auto max-w-[20rem]">
                         <div class="flex items-center gap-3 text-amber-800">
-                            <i class="fas fa-check text-amber-600"></i>
-                            <span class="text-sm font-bold">No queue time</span>
+                            <i class="fas fa-check text-amber-600 mt-0.5"></i>
+                            <span class="text-sm font-bold">Order food immediately</span>
                         </div>
                         <div class="flex items-center gap-3 text-amber-800">
-                            <i class="fas fa-check text-amber-600"></i>
-                            <span class="text-sm font-bold">Quick service</span>
+                            <i class="fas fa-check text-amber-600 mt-0.5"></i>
+                            <span class="text-sm font-bold">Food ready on arrival</span>
                         </div>
                         <div class="flex items-center gap-3 text-amber-800">
-                            <i class="fas fa-check text-amber-600"></i>
-                            <span class="text-sm font-bold">Choose your table</span>
+                            <i class="fas fa-check text-amber-600 mt-0.5"></i>
+                            <span class="text-sm font-bold">Reserved table waiting</span>
                         </div>
                     </div>
-                    <div class="mt-8 inline-flex items-center gap-2 text-amber-700 font-black uppercase tracking-wider text-sm">
+                    <div class="mt-8 inline-flex items-center justify-center gap-2 text-amber-700 font-black uppercase tracking-wider text-sm">
                         Book Now <i class="fas fa-arrow-right"></i>
                     </div>
                 </div>
@@ -56,29 +58,31 @@
 
             <!-- Table Reservation Card -->
             <a href="{{ route('customer.book') }}?type=reservation" class="block hover-lift">
-                <div class="h-full rounded-3xl border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-red-50 p-10 text-center shadow-lg">
-                    <div class="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-calendar-check text-4xl text-orange-700"></i>
+                <div class="h-full rounded-3xl border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-red-50 p-10 text-center shadow-lg flex flex-col justify-between">
+                    <div>
+                        <div class="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-calendar-check text-4xl text-orange-700"></i>
+                        </div>
+                        <h2 class="text-2xl font-black text-orange-900 uppercase tracking-wide mb-3">Reservation</h2>
+                        <p class="text-sm text-orange-800 mb-8 leading-relaxed font-medium mx-auto max-w-[22rem]">
+                            Reserve your table for a specific time. Your table will be held and ready for you when you arrive.
+                        </p>
                     </div>
-                    <h2 class="text-2xl font-black text-orange-900 uppercase tracking-wide mb-3">Reservation</h2>
-                    <p class="text-sm text-orange-800 mb-8 leading-relaxed font-medium">
-                        Reserve a table for your visit. Book ahead and we'll have everything ready for you.
-                    </p>
-                    <div class="space-y-3">
+                    <div class="space-y-3 text-left mx-auto max-w-[20rem]">
                         <div class="flex items-center gap-3 text-orange-800">
-                            <i class="fas fa-check text-orange-600"></i>
-                            <span class="text-sm font-bold">Guaranteed table</span>
+                            <i class="fas fa-check text-orange-600 mt-0.5"></i>
+                            <span class="text-sm font-bold">Table reserved on arrival</span>
                         </div>
                         <div class="flex items-center gap-3 text-orange-800">
-                            <i class="fas fa-check text-orange-600"></i>
-                            <span class="text-sm font-bold">Schedule your visit</span>
+                            <i class="fas fa-check text-orange-600 mt-0.5"></i>
+                            <span class="text-sm font-bold">Schedule your visit time</span>
                         </div>
                         <div class="flex items-center gap-3 text-orange-800">
-                            <i class="fas fa-check text-orange-600"></i>
-                            <span class="text-sm font-bold">VIP treatment</span>
+                            <i class="fas fa-check text-orange-600 mt-0.5"></i>
+                            <span class="text-sm font-bold">Dedicated seating</span>
                         </div>
                     </div>
-                    <div class="mt-8 inline-flex items-center gap-2 text-orange-700 font-black uppercase tracking-wider text-sm">
+                    <div class="mt-8 inline-flex items-center justify-center gap-2 text-orange-700 font-black uppercase tracking-wider text-sm">
                         Book Now <i class="fas fa-arrow-right"></i>
                     </div>
                 </div>
