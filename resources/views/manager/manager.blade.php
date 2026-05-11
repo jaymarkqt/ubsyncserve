@@ -81,7 +81,7 @@
             <button @click="tab = 'analytics'" 
                 class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
                 :class="tab === 'analytics' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
-                <i class="fas fa-chart-pie w-5"></i> Dashboard
+                <i class="fas fa-chart-pie w-5"></i> Sales Analytics
             </button>
 
             <button @click="tab = 'tables'" 

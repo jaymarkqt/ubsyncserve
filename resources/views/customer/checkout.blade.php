@@ -199,8 +199,20 @@
                         return;
                     }
 
-                    const savedAdults = parseInt(localStorage.getItem('customer_guests_adults')) || 0;
-                    const savedChildren = parseInt(localStorage.getItem('customer_guests_children')) || 0;
+                    let adults = parseInt(localStorage.getItem('customer_guests_adults'), 10);
+                    let children = parseInt(localStorage.getItem('customer_guests_children'), 10);
+
+                    adults = Number.isInteger(adults) ? adults : 0;
+                    children = Number.isInteger(children) ? children : 0;
+
+                    if (adults === 0 && children === 0) {
+                        const storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+                        const tableData = storedTables.find(t => t.id === tableId);
+                        if (tableData) {
+                            adults = Number.isInteger(tableData.adults) ? tableData.adults : adults;
+                            children = Number.isInteger(tableData.children) ? tableData.children : children;
+                        }
+                    }
 
                     const orderItems = this.cart.map(item => {
                         const addOnTotal = (item.addOns || []).reduce((sum, addon) => sum + addon.price, 0);
@@ -215,22 +227,25 @@
 
                     let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
                     let tableIndex = tables.findIndex(t => t.id === tableId);
+                    const incomingBill = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
 
                     if (tableIndex === -1) {
                         tables.push({
                             id: tableId,
                             status: 'occupied',
-                            adults: savedAdults,
-                            children: savedChildren,
-                            bill: orderItems.reduce((sum, item) => sum + item.price * item.qty, 0),
+                            adults: adults,
+                            children: children,
+                            bill: incomingBill,
                             orders: orderItems,
                             startTime: new Date().toISOString()
                         });
                     } else {
                         const table = tables[tableIndex];
-                        table.status = 'occupied';
-                        table.adults = savedAdults;
-                        table.children = savedChildren;
+                        const isReserved = table.status === 'reserved-advance' || table.status === 'reserved-booking';
+
+                        table.status = isReserved ? table.status : 'occupied';
+                        table.adults = adults;
+                        table.children = children;
                         table.startTime = table.startTime || new Date().toISOString();
                         table.orders = Array.isArray(table.orders) ? table.orders.concat(orderItems) : orderItems;
                         table.bill = (table.orders || []).reduce((sum, item) => sum + item.price * item.qty, 0);

@@ -51,7 +51,7 @@
          class="w-full max-w-[170px] h-[170px] mx-auto transition-all flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
          :class="{
             'bg-[#ccfad8] border-[#4ade80] cursor-not-allowed opacity-80': table.status === 'available',
-            'bg-[#fef3c7] border-[#f59e0b] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-advance',
+            'bg-[#fed7aa] border-[#ea580c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-advance',
             'bg-[#ffedd5] border-[#fb923c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-booking',
             'bg-[#ffdada] border-[#f87171] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'occupied'
          }">
@@ -60,8 +60,8 @@
              x-text="table.tableNumber"></div>
 
         <p class="text-[11px] font-extrabold uppercase tracking-widest"
-           :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-amber-700' : (table.status === 'reserved-booking' ? 'text-orange-700' : 'text-[#cc0000]'))"
-           x-text="table.status.replace('-', ' ')"></p>
+           :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : 'text-[#cc0000]'))"
+           x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reserve' : (table.status === 'available' ? 'available' : 'occupied'))"></p>
 
         <template x-if="table.status !== 'available'">
             <div class="text-center pt-1 w-full">

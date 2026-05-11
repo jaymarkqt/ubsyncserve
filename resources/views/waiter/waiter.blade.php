@@ -132,13 +132,14 @@
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
     <template x-for="table in tables" :key="table.id">
         <div @click="selectTable(table)" 
-             class="w-full max-w-[170px] h-[170px] mx-auto cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
-             :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.status === 'reserved-advance' ? 'bg-[#fef3c7] border-[#f59e0b]' : (table.status === 'reserved-booking' ? 'bg-[#ffedd5] border-[#fb923c]' : 'bg-[#ffdada] border-[#f87171]'))">
+             class="w-full max-w-[170px] h-[170px] mx-auto transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
+             :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.status === 'reserved-advance' ? 'bg-[#fed7aa] border-[#ea580c]' : (table.status === 'reserved-booking' ? 'bg-[#ffedd5] border-[#fb923c]' : 'bg-[#ffdada] border-[#f87171]'))">
             
             <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
             
             <p class="text-[11px] font-extrabold uppercase tracking-widest" 
-               :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-amber-700' : (table.status === 'reserved-booking' ? 'text-orange-700' : 'text-[#cc0000]'))" x-text="table.status.replace('-', ' ')"></p>
+               :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : 'text-[#cc0000]'))"
+               x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reserve' : (table.status === 'available' ? 'available' : 'occupied'))"></p>
             
             <template x-if="table.status !== 'available'">
                 <div class="text-center pt-1 w-full">
@@ -257,6 +258,44 @@
         </div>
     </div>
 
+    <div x-show="showReservedModal" x-cloak class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-3xl shadow-2xl">
+            <div class="bg-amber-500 p-8 text-white text-center">
+                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-calendar-check text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span></h3>
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1" x-text="selectedTable?.status === 'reserved-advance' ? 'Advance Order Reserved' : 'Table Reservation'"></p>
+            </div>
+            <div class="p-8 space-y-6">
+                <div class="text-center">
+                    <p class="text-sm font-bold text-slate-600 mb-4">
+                        <span x-text="selectedTable?.adults + selectedTable?.children"></span> guests reserved
+                    </p>
+                    <template x-if="selectedTable?.status === 'reserved-advance' && selectedTable?.orders && selectedTable?.orders.length > 0">
+                        <div class="space-y-2">
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Advance Orders</p>
+                            <template x-for="order in selectedTable.orders" :key="order.id">
+                                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
+                                    <span class="text-sm font-bold" x-text="order.name"></span>
+                                    <span class="text-sm text-[#800000] font-black" x-text="'₱' + order.price.toFixed(2)"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle text-xs"></i> Finish and Clear
+                    </button>
+                    <button @click="showReservedModal = false" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-times text-xs"></i> Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
    <div x-show="showVoidModal" x-cloak class="fixed inset-0 z-[1300] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-3xl shadow-2xl">
             <div class="bg-red-600 p-8 text-white text-center">
@@ -284,6 +323,7 @@ function waiterSystem() {
         showSetupModal: false,
         selectedTable: null,
         showOrderModal: false,
+        showReservedModal: false,
         showVoidModal: false,
         voidOrderIndex: null,
         voidCodeInput: '',
@@ -350,6 +390,8 @@ function waiterSystem() {
             
             if (table.status === 'occupied' || (table.orders && table.orders.length > 0)) {
                 this.showOrderModal = true;
+            } else if (table.status === 'reserved-advance' || table.status === 'reserved-booking') {
+                this.showReservedModal = true;
             } else {
                 // GINAWANG 0 ANG DEFAULT DITO DIN
                 this.guestSetup = { adults: 0, children: 0 };
@@ -479,6 +521,11 @@ startSession() {
             this.updateReservationStorage();
 
             const reservation = this.reservations[index];
+            
+            // For advance order, send link to select-tables for table selection
+            // For table reservation, send link to select-tables for reservation confirmation
+            const selectTablesUrl = '{{ route("order.select-tables") }}?type=' + reservation.type + '&resId=' + reservation.id;
+            
             try {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 const response = await fetch('{{ route('reservation.confirm.email') }}', {
@@ -495,19 +542,27 @@ startSession() {
                         date: reservation.date,
                         time: reservation.time,
                         type: reservation.type,
-                        table: reservation.table
+                        table: reservation.table,
+                        selectTablesUrl: selectTablesUrl
                     })
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    console.warn('Email API warning:', errorData);
+                const result = await response.json().catch(() => ({ success: false }));
+
+                if (!response.ok || !result.success) {
+                    console.warn('Email API warning:', result);
+                    alert('Reservation confirmed, but email sending failed. Check server logs.');
+                    window.dispatchEvent(new Event('storage'));
+                    return;
                 }
             } catch (error) {
                 console.warn('Email send failed:', error);
+                alert('Reservation confirmed, but email sending failed. Please try again later.');
+                window.dispatchEvent(new Event('storage'));
+                return;
             }
 
-            alert('Table for ' + reservation.name + ' is now CONFIRMED. Email notification sent if available.');
+            alert('Reservation confirmed! Email with the select-tables link has been sent to the customer.');
             window.dispatchEvent(new Event('storage'));
         },
 

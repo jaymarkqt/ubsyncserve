@@ -186,12 +186,24 @@
                         this.tableNumber = localStorage.getItem('customer_order_table') || null;
                     }
 
-                    // Load guest counts if available, otherwise keep defaults
-                    const savedAdults = localStorage.getItem('customer_guests_adults') || '0';
-                    const savedChildren = localStorage.getItem('customer_guests_children') || '0';
+                    // Load guest counts if available, otherwise fall back to table reservations
+                    const savedAdults = parseInt(localStorage.getItem('customer_guests_adults'), 10);
+                    const savedChildren = parseInt(localStorage.getItem('customer_guests_children'), 10);
 
-                    this.guestSetup.adults = parseInt(savedAdults, 10) || 0;
-                    this.guestSetup.children = parseInt(savedChildren, 10) || 0;
+                    let adults = Number.isInteger(savedAdults) ? savedAdults : 0;
+                    let children = Number.isInteger(savedChildren) ? savedChildren : 0;
+
+                    if (adults === 0 && children === 0 && this.tableNumber) {
+                        const storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+                        const tableData = storedTables.find(t => t.id === Number(this.tableNumber));
+                        if (tableData) {
+                            adults = Number.isInteger(tableData.adults) ? tableData.adults : adults;
+                            children = Number.isInteger(tableData.children) ? tableData.children : children;
+                        }
+                    }
+
+                    this.guestSetup.adults = adults;
+                    this.guestSetup.children = children;
 
                     this.loadCart();
                 },

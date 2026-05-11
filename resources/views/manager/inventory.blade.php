@@ -31,8 +31,6 @@
                         <th class="px-4 py-4 text-center font-black text-slate-700 uppercase text-xs">Stock</th>
                         <th class="px-4 py-4 text-right font-black text-slate-700 uppercase text-xs">Cost</th>
                         <th class="px-4 py-4 text-right font-black text-slate-700 uppercase text-xs">Selling Price</th>
-                        <th class="px-4 py-4 text-right font-black text-slate-700 uppercase text-xs">Margin</th>
-                        <th class="px-4 py-4 text-right font-black text-slate-700 uppercase text-xs">Total Cost</th>
                         <th class="px-4 py-4 text-center font-black text-slate-700 uppercase text-xs">Actions</th>
                     </tr>
                 </thead>
@@ -54,8 +52,6 @@
                             </td>
                             <td class="px-4 py-4 text-right font-bold text-slate-700" x-text="formatCurrency(product.cost)"></td>
                             <td class="px-4 py-4 text-right font-bold text-[#800000]" x-text="formatCurrency(product.sellingPrice)"></td>
-                            <td class="px-4 py-4 text-right font-bold text-emerald-600" x-text="calculateMargin(product.cost, product.sellingPrice) + '%'"></td>
-                            <td class="px-4 py-4 text-right font-bold text-blue-600" x-text="formatCurrency(product.stock * product.cost)"></td>
                             <td class="px-4 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <button @click="editProduct(index)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">

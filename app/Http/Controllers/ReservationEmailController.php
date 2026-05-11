@@ -17,6 +17,7 @@ class ReservationEmailController extends Controller
             'time' => ['required', 'string'],
             'type' => ['required', 'string'],
             'table' => ['nullable', 'string'],
+            'selectTablesUrl' => ['nullable', 'string'],
         ]);
 
         // I-format ang oras para maging 1:23 AM / PM
@@ -27,18 +28,18 @@ class ReservationEmailController extends Controller
 
         try {
             Mail::raw(
-                "Hello {$data['name']},\n\n" .
-                "Your reservation has been confirmed.\n" .
-                "Type: " . strtoupper($data['type']) . "\n" .
-                ($data['table'] ? "Table: {$data['table']}\n" : '') .
-                "Visit Date: {$data['date']}\n" .
-                "Visit Time: {$formattedTime}\n\n" .
-                "Thank you for booking with {$appName}.\n" .
-                "You can review your reservation here: " . url(route('order.select-tables')) . "\n",
+                "Hello {$data['name']},\n\n".
+                "Your reservation has been confirmed.\n".
+                'Type: '.strtoupper(str_replace('-', ' ', $data['type']))."\n".
+                ($data['table'] ? "Table: {$data['table']}\n" : '').
+                "Visit Date: {$data['date']}\n".
+                "Visit Time: {$formattedTime}\n\n".
+                'Please select your table: '.($data['selectTablesUrl'] ?? url(route('order.select-tables')))."\n\n".
+                "Thank you for booking with {$appName}.\n",
                 function ($message) use ($data, $appName) {
                     $message->to($data['email'])
-                            ->subject("Reservation Confirmed - {$appName}")
-                            ->from(config('mail.from.address', 'no-reply@ubsync.com'), $appName);
+                        ->subject("Reservation Confirmed - {$appName}")
+                        ->from(config('mail.from.address', 'no-reply@ubsync.com'), $appName);
                 }
             );
 
