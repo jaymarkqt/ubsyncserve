@@ -15,7 +15,7 @@
 </head>
 <body class="bg-white font-sans antialiased">
     <div x-data="customerCart()" x-init="loadCart()" class="min-h-screen pb-10" x-cloak>
-        <div class="max-w-[1080px] mx-auto px-4 pt-6">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 pt-8">
             <div class="mb-6 rounded-[2rem] bg-white p-5 shadow-lg border border-gray-200">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -27,7 +27,7 @@
                 </div>
             </div>
 
-            <div class="grid gap-6 lg:grid-cols-[1.6fr_0.9fr]">
+            <div class="grid gap-6">
                 <div class="space-y-5">
                     <template x-if="cart.length === 0">
                         <div class="rounded-[2rem] border border-dashed border-gray-300 bg-white p-10 text-center text-gray-500">
@@ -38,28 +38,54 @@
                     </template>
 
                     <template x-for="(item, index) in cart" :key="index">
-                        <div class="rounded-[2rem] bg-white p-5 shadow-sm border border-gray-200">
-                            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-28 w-28 overflow-hidden rounded-[1.5rem] bg-white p-3 border border-gray-100">
+                        <div class="rounded-[2rem] bg-white p-6 shadow-xl border border-gray-200/70">
+                            <div class="grid gap-4 items-center grid-cols-1 sm:grid-cols-[minmax(200px,1.5fr)_minmax(160px,1fr)_minmax(140px,auto)_auto_auto]">
+                                <div class="flex items-center gap-4 min-w-0">
+                                    <div class="h-28 w-28 overflow-hidden rounded-[1.5rem] bg-white p-3 border border-gray-100 flex items-center justify-center">
                                         <img :src="'/img/' + item.img" class="h-full w-full object-contain" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'" />
                                     </div>
-                                    <div>
+                                    <div class="min-w-0">
                                         <p class="text-sm uppercase tracking-[0.35em] text-[#800000]" x-text="item.cat"></p>
-                                        <h2 class="mt-2 text-xl font-black uppercase tracking-tight text-gray-900" x-text="item.name"></h2>
-                                        <p class="mt-2 text-sm text-gray-600" x-text="formatCurrency(item.price)"></p>
+                                        <h2 class="mt-2 text-xl font-black uppercase tracking-tight text-gray-900 truncate" x-text="item.name"></h2>
                                     </div>
                                 </div>
-                                <div class="flex flex-col gap-3 sm:items-end">
-                                    <div class="flex items-center gap-2 rounded-3xl border border-gray-200 bg-white px-3 py-2">
-                                        <button type="button" @click="decrementQty(index)" class="h-10 w-10 rounded-2xl bg-gray-100 text-gray-600 hover:bg-gray-200">-</button>
-                                        <span class="w-10 text-center text-sm font-black text-gray-900" x-text="item.qty"></span>
-                                        <button type="button" @click="incrementQty(index)" class="h-10 w-10 rounded-2xl bg-gray-100 text-gray-600 hover:bg-gray-200">+</button>
+
+                                <div class="flex justify-center sm:justify-start">
+                                    <button @click="editItem(index)" class="w-full sm:w-auto max-w-[220px] rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-wider text-[#800000] whitespace-nowrap" aria-label="Customize adds-on">
+                                        CUSTOMIZE ADDS-ON
+                                    </button>
+                                </div>
+
+                                <div class="flex items-center justify-center">
+                                    <div class="inline-flex items-stretch rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm h-11">
+                                        <button 
+                                            type="button" 
+                                            @click="decrementQty(index)" 
+                                            class="w-11 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition border-r border-gray-200">
+                                            <i class="fas fa-minus text-sm"></i>
+                                        </button>
+
+                                        <div class="w-16 flex items-center justify-center bg-white font-black text-gray-800">
+                                            <span class="text-sm" x-text="item.qty"></span>
+                                        </div>
+
+                                        <button 
+                                            type="button" 
+                                            @click="incrementQty(index)" 
+                                            class="w-11 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition border-l border-gray-200">
+                                            <i class="fas fa-plus text-sm"></i>
+                                        </button>
                                     </div>
-                                    <div class="flex flex-wrap gap-2 justify-end">
-                                        <button @click="editItem(index)" class="inline-flex items-center gap-2 rounded-full border border-[#800000] px-4 py-3 text-sm font-black uppercase text-[#800000] hover:bg-[#fff4f4] transition-all"><i class="fas fa-pen"></i> Edit</button>
-                                        <button @click="removeItem(index)" class="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-3 text-sm font-black uppercase text-red-600 hover:bg-red-100 transition-all"><i class="fas fa-trash"></i> Remove</button>
-                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-end text-right font-black text-[#800000]">
+                                    <p class="text-xl" x-text="formatCurrency((item.price + (item.addOns || []).reduce((sum, addon) => sum + addon.price, 0)) * item.qty)"></p>
+                                </div>
+
+                                <div class="flex items-center justify-center sm:justify-end">
+                                    <button @click="removeItem(index)" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all" aria-label="Remove item">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -73,17 +99,12 @@
                                     </div>
                                 </div>
                             </template>
-
-                            <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <p class="text-sm uppercase tracking-[0.3em] text-gray-500">Total</p>
-                                <p class="text-xl font-black text-[#800000]" x-text="formatCurrency((item.price + (item.addOns || []).reduce((sum, addon) => sum + addon.price, 0)) * item.qty)"></p>
-                            </div>
                         </div>
                     </template>
                 </div>
 
                 <div class="space-y-5">
-                    <div class="rounded-[2rem] bg-white p-5 shadow-lg border border-gray-200">
+                    <div class="rounded-[2rem] bg-white p-6 shadow-xl border border-gray-200/70">
                         <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Order Summary</h2>
                         <div class="mt-5 space-y-4">
                             <div class="flex justify-between text-sm text-gray-500"><span>Table</span><span x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span></div>

@@ -58,7 +58,7 @@
             </div>
 
             <!-- Date and Time -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                     <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Date</label>
                     <div class="relative">
@@ -81,7 +81,7 @@
             </div>
 
             <!-- Adults and Children -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                     <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Adults</label>
                     <div class="relative">

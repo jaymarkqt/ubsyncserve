@@ -15,7 +15,7 @@
 </head>
 <body class="bg-white font-sans antialiased">
     <div x-data="checkoutPage()" x-init="loadOrder()" class="min-h-screen pb-10" x-cloak>
-        <div class="max-w-[1080px] mx-auto px-4 pt-6">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 pt-8">
             <div class="mb-6 rounded-[2rem] bg-white p-5 shadow-lg border border-gray-200">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -28,7 +28,7 @@
             </div>
 
             <div class="space-y-6">
-                <div class="rounded-[2rem] bg-white p-5 shadow-lg border border-gray-200">
+                <div class="rounded-[2rem] bg-white p-6 shadow-xl border border-gray-200/70">
                     <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Order Summary</h2>
                     <template x-if="cart.length === 0">
                         <p class="mt-4 text-sm text-gray-500">Your cart is empty. Go back to menu and add items first.</p>
@@ -38,7 +38,7 @@
                             <div class="h-28 w-28 overflow-hidden rounded-[1.75rem] bg-white p-3">
                                 <img :src="'/img/' + item.img" class="h-full w-full object-contain" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'" />
                             </div>
-                            <div class="flex-1">
+                            <div class="flex-1 min-w-0">
                                 <p class="text-xs uppercase tracking-[0.35em] text-[#800000]" x-text="item.cat"></p>
                                 <h3 class="mt-2 text-lg font-black uppercase text-gray-900" x-text="item.name"></h3>
                                 <p class="mt-2 text-sm text-gray-600" x-text="item.qty + ' x ' + formatCurrency(item.price)"></p>
@@ -57,7 +57,7 @@
                     </template>
                 </div>
 
-                <div class="rounded-[2rem] bg-white p-5 shadow-lg border border-gray-200">
+                <div class="rounded-[2rem] bg-white p-6 shadow-xl border border-gray-200/70">
                     <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Order Details</h2>
                     <div class="mt-5 space-y-4">
                         <div class="flex justify-between text-sm text-gray-500"><span>Table</span><span x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span></div>
@@ -67,7 +67,7 @@
                     </div>
                 </div>
 
-                <div class="rounded-[2rem] bg-white p-5 shadow-lg border border-gray-200">
+                <div class="rounded-[2rem] bg-white p-6 shadow-xl border border-gray-200/70">
                     <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Payment Method</h2>
                     <div class="mt-5 grid gap-4 sm:grid-cols-2">
                         <label class="cursor-pointer block rounded-[1.75rem] border border-gray-200 p-4 transition-all" :class="paymentMethod === 'credit' ? 'border-[#800000] bg-[#fff4f4]' : ''">
@@ -158,6 +158,7 @@
             return {
                 cart: [],
                 tableNumber: null,
+                guestCount: 0,
                 paymentMethod: 'credit',
                 payment: {
                     credit: { cardName: '', cardNumber: '', expiry: '', cvv: '' },
@@ -176,6 +177,23 @@
                         }
                     }
                     this.tableNumber = savedTable || null;
+
+                    const savedAdults = parseInt(localStorage.getItem('customer_guests_adults'), 10);
+                    const savedChildren = parseInt(localStorage.getItem('customer_guests_children'), 10);
+
+                    let adults = Number.isInteger(savedAdults) ? savedAdults : 0;
+                    let children = Number.isInteger(savedChildren) ? savedChildren : 0;
+
+                    if (adults === 0 && children === 0 && this.tableNumber) {
+                        const storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+                        const tableData = storedTables.find(t => t.id === Number(this.tableNumber));
+                        if (tableData) {
+                            adults = Number.isInteger(tableData.adults) ? tableData.adults : adults;
+                            children = Number.isInteger(tableData.children) ? tableData.children : children;
+                        }
+                    }
+
+                    this.guestCount = adults + children;
                 },
 
                 get cartTotal() {

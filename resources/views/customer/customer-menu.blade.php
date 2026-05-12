@@ -4,128 +4,245 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Menu | Digital Ordering</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         [x-cloak] { display: none !important; }
-        .maroon-gradient { background: linear-gradient(135deg, #800000 0%, #a00000 100%); }
-        .clay-card { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05); }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        body {
+            background: #f8f8f8;
+        }
+
+        .glass-card {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+        }
+
+        .menu-card {
+            transition: all .3s ease;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        .maroon-gradient {
+            background: linear-gradient(135deg, #6b0000 0%, #900000 100%);
+        }
     </style>
 </head>
-<body class="bg-white font-sans antialiased">
-    <div x-data="digitalOrdering()" x-init="initOrder()" class="min-h-screen pb-28" x-cloak>
-        <div class="max-w-[1080px] mx-auto px-4 pt-6">
-            <div class="mb-6 rounded-[2rem] bg-white p-5 shadow-lg border border-gray-200">
-                <div class="flex flex-col gap-4 sm:gap-6">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-xs font-black uppercase tracking-[0.3em] text-slate-500">Menu</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="inline-flex items-center gap-3 rounded-full border border-[#f1d6d6] bg-[#fff4f4] px-4 py-2 text-sm font-black uppercase text-[#800000] shadow-sm">
-                                <i class="fas fa-table text-sm"></i>
-                                <span x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
-                        <input type="text" x-model="searchQuery" placeholder="Search menu items..." class="w-full rounded-2xl border border-gray-200 bg-white py-5 pl-16 pr-6 text-base font-bold text-gray-700 outline-none shadow-sm focus:ring-4 focus:ring-[#800000]/10 focus:border-[#800000] transition-all" />
-                    </div>
+<body class="font-sans antialiased text-slate-800">
 
-                    <div class="flex justify-start lg:justify-center flex-wrap gap-3 w-full mt-1 overflow-x-auto pb-4 scrollbar-hide px-1">
-                        <template x-for="cat in categories" :key="cat">
-                            <button type="button" @click="selectedCategory = cat" :class="selectedCategory === cat ? 'bg-[#800000] text-white shadow-md border-[#800000]' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'" class="px-6 py-3.5 rounded-2xl text-sm font-black uppercase border whitespace-nowrap transition-all tracking-wide" x-text="cat"></button>
-                        </template>
-                    </div>
+<div x-data="digitalOrdering()" x-init="initOrder()" class="min-h-screen pb-32" x-cloak>
+
+    <!-- CONTAINER -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 pt-8">
+
+        <!-- HEADER -->
+        <div class="glass-card rounded-[2rem] p-6 sm:p-8 mb-8">
+
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+
+                <div>
+                    <p class="text-xs font-black tracking-[0.35em] uppercase text-slate-400">
+                        Digital Ordering
+                    </p>
+                    <h1 class="text-3xl sm:text-4xl font-black text-[#800000] tracking-tight mt-2">
+                        Customer Menu
+                    </h1>
+                </div>
+
+                <div class="inline-flex items-center gap-3 bg-[#fff5f5] rounded-3xl px-6 py-3 shadow-sm border border-[#f3d6d6]">
+                    <i class="fas fa-table text-[#800000]"></i>
+                    <span class="font-black text-[#800000] text-sm tracking-wide"
+                          x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'">
+                    </span>
                 </div>
             </div>
 
-            <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-                <template x-for="product in filteredProducts" :key="product.id">
-                    <div class="bg-white p-5 flex flex-col relative border border-gray-200 rounded-[2rem] shadow-sm hover:shadow-lg transition-all duration-300">
-                        <div class="w-full h-44 mb-4 overflow-hidden rounded-[2rem] bg-[#fdfdfd] border border-gray-100 flex items-center justify-center">
-                            <img :src="'/img/' + product.img" class="w-full h-full object-contain p-4" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'" />
-                        </div>
+            <!-- SEARCH -->
+            <div class="mt-6 relative">
+                <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input
+                    x-model="searchQuery"
+                    type="text"
+                    placeholder="Search menu items..."
+                    class="w-full rounded-2xl border border-slate-200 bg-white py-4 pl-14 pr-5 text-sm font-semibold outline-none focus:ring-4 focus:ring-[#800000]/10 focus:border-[#800000] transition"
+                >
+            </div>
 
-                        <div class="mb-4 flex-grow">
-                            <h4 class="text-base font-black text-gray-800 uppercase tracking-tight leading-tight mb-1" x-text="product.name"></h4>
-
-                            <div class="mb-2 flex flex-wrap gap-1 min-h-[20px]">
-                                <template x-if="product.selectedAddOns && product.selectedAddOns.length > 0">
-                                    <template x-for="addon in product.selectedAddOns" :key="addon.name">
-                                        <span class="bg-orange-100 text-orange-700 text-[9px] font-black px-2 py-0.5 rounded-full uppercase border border-orange-200 animate__animated animate__fadeIn">
-                                            + <span x-text="addon.name"></span>
-                                        </span>
-                                    </template>
-                                </template>
-                            </div>
-
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between gap-3">
-                                    <span class="text-xl font-black text-[#800000]" x-text="formatCurrency(product.price)"></span>
-                                    <div class="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-slate-50 px-2 py-2">
-                                        <button type="button" @click="product.qty = Math.max(1, product.qty - 1)" class="h-8 w-8 rounded-2xl bg-white text-[#800000] font-black transition hover:bg-[#f3d0d0]">-</button>
-                                        <input type="number" x-model.number="product.qty" min="1" @change="product.qty = Math.max(1, product.qty || 1)" class="w-14 bg-transparent text-center text-sm font-black text-gray-700 outline-none" />
-                                        <button type="button" @click="product.qty++" class="h-8 w-8 rounded-2xl bg-white text-[#800000] font-black transition hover:bg-[#f3d0d0]">+</button>
-                                    </div>
-                                </div>
-                                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Quantity</div>
-                            </div>
-                        </div>
-
-                        <div class="mt-auto space-y-3 pt-4 border-t border-gray-100">
-                            <button type="button" @click="openCustomizeModal(product)" class="flex items-center justify-between w-full bg-gray-50 border border-gray-200 rounded-xl p-3 hover:bg-gray-100 transition-colors">
-                                <span class="text-[11px] font-bold text-[#800000] uppercase tracking-wider">Customize Add-ons</span>
-                                <i class="fas fa-plus text-[#800000] text-xs"></i>
-                            </button>
-                            <button type="button" @click="addToCart(product)" class="w-full py-4 bg-[#800000] text-white rounded-xl text-sm font-black uppercase shadow-md active:scale-[0.98] transition-transform">Add to Order</button>
-                        </div>
-                    </div>
+            <!-- CATEGORIES -->
+            <div class="flex gap-3 overflow-x-auto scrollbar-hide mt-6 pb-2">
+                <template x-for="cat in categories" :key="cat">
+                    <button
+                        @click="selectedCategory = cat"
+                        :class="selectedCategory === cat
+                            ? 'bg-[#800000] text-white border-[#800000]'
+                            : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'"
+                        class="px-6 py-3 rounded-2xl border text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all">
+                        <span x-text="cat"></span>
+                    </button>
                 </template>
             </div>
         </div>
 
-        <a href="{{ route('order.cart') }}" class="fixed bottom-6 right-6 z-50 inline-flex items-center gap-3 rounded-full bg-[#800000] px-5 py-4 text-white shadow-2xl hover:bg-[#a00000] transition-all">
-            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#800000] shadow-sm">
-                <i class="fas fa-shopping-cart"></i>
-            </span>
-            <div class="text-left">
-                <p class="text-[10px] uppercase tracking-[0.3em] text-white/80">View Cart</p>
-                <p class="text-sm font-black" x-text="cart.length + ' item(s)'"></p>
+        <!-- PRODUCTS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
+
+            <template x-for="product in filteredProducts" :key="product.id">
+                <div class="menu-card bg-white rounded-[2rem] p-6 shadow-xl flex flex-col border border-slate-200/70">
+
+                    <!-- IMAGE -->
+                    <div class="h-52 rounded-[1.7rem] overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center mb-5">
+                        <img
+                            :src="'/img/' + product.img"
+                            class="w-full h-full object-contain p-5"
+                            x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'"
+                        >
+                    </div>
+
+                    <!-- INFO -->
+                    <div class="flex-1">
+                        <h3 class="font-black text-lg uppercase tracking-tight text-slate-800"
+                            x-text="product.name"></h3>
+
+                        <!-- ADDONS -->
+                        <div class="flex flex-wrap gap-2 mt-3 min-h-[24px]">
+                            <template x-if="product.selectedAddOns && product.selectedAddOns.length > 0">
+                                <template x-for="addon in product.selectedAddOns" :key="addon.name">
+                                    <span class="text-[10px] px-2 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200 font-black uppercase">
+                                        + <span x-text="addon.name"></span>
+                                    </span>
+                                </template>
+                            </template>
+                        </div>
+
+                        <!-- PRICE -->
+                        <div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <span class="text-2xl font-black text-[#800000]"
+                                  x-text="formatCurrency(product.price)">
+                            </span>
+
+                            <div class="inline-flex items-stretch rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+                                <button 
+                                    @click="product.qty = Math.max(1, product.qty - 1)" 
+                                    class="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition border-r border-slate-200">
+                                    <i class="fas fa-minus text-sm"></i>
+                                </button>
+
+                                <div class="w-14 h-11 flex items-center justify-center font-black text-slate-700">
+                                    <span class="text-sm" x-text="product.qty"></span>
+                                </div>
+
+                                <button 
+                                    @click="product.qty++" 
+                                    class="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition border-l border-slate-200">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ACTIONS -->
+                    <div class="space-y-3 mt-6 pt-5 border-t border-slate-100">
+
+                        <button
+                            @click="openCustomizeModal(product)"
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-wider text-[#800000] text-center">
+                            CUSTOMIZE ADDS-ON
+                        </button>
+
+                        <button
+                            @click="addToCart(product)"
+                            class="w-full maroon-gradient text-white py-4 rounded-xl font-black uppercase tracking-wider shadow-lg active:scale-[0.98] transition">
+                            Add to Order
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- FLOATING CART -->
+    <a href="{{ route('order.cart') }}"
+       class="fixed bottom-6 right-6 z-50 rounded-full maroon-gradient px-5 py-4 shadow-2xl flex items-center gap-4">
+
+        <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[#800000]">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+
+        <div>
+            <p class="text-[10px] uppercase tracking-[0.25em] text-white/70">
+                View Cart
+            </p>
+            <p class="text-sm font-black text-white" x-text="cart.length + ' item(s)'"></p>
+        </div>
+    </a>
+
+    <!-- CUSTOMIZE MODAL -->
+    <div x-show="showCustomize"
+         class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+         x-cloak>
+
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-6">
+
+            <div class="text-center mb-6">
+                <h3 class="text-xl font-black text-[#800000] uppercase"
+                    x-text="'Customize ' + (selectedProduct ? selectedProduct.name : '')">
+                </h3>
+                <p class="text-sm text-slate-400 mt-1">Select your add-ons</p>
             </div>
-        </a>
 
-        <div x-show="showCustomize" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" x-cloak>
-            <div class="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl">
-                <div class="text-center mb-6 mt-2">
-                    <h3 class="text-lg font-extrabold text-[#800000] tracking-wide leading-tight uppercase" x-text="'Customize ' + (selectedProduct ? selectedProduct.name : '')"></h3>
-                    <p class="text-xs text-gray-500 mt-1">Select add-ons for this item</p>
-                </div>
+            <div class="space-y-3 max-h-72 overflow-y-auto scrollbar-hide">
+                <template x-for="addon in (selectedProduct ? selectedProduct.addOns : [])" :key="addon.name">
+                    <label class="flex items-center gap-3 border border-slate-200 rounded-xl p-4 hover:bg-slate-50 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            class="accent-[#800000] w-5 h-5"
+                            :checked="tempSelectedAddOns.some(a => a.name === addon.name)"
+                            @change="toggleAddon(addon)"
+                        >
 
-                <div class="space-y-3 max-h-60 overflow-y-auto mb-6 px-2 scrollbar-hide">
-                    <template x-for="addon in (selectedProduct ? selectedProduct.addOns : [])" :key="addon.name">
-                        <label class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-100">
-                            <input type="checkbox" class="accent-[#800000] mr-3 w-5 h-5"
-                                   :checked="tempSelectedAddOns.some(a => a.name === addon.name)"
-                                   @change="toggleAddon(addon)">
-                            <span class="text-sm font-medium text-gray-800" x-text="addon.name"></span>
-                            <span class="text-sm text-[#800000] font-black ml-auto" x-text="'+₱' + addon.price"></span>
-                        </label>
-                    </template>
-                </div>
+                        <span class="font-semibold text-sm" x-text="addon.name"></span>
 
-                <div class="flex gap-3">
-                    <button @click="closeCustomize()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold uppercase text-sm">Cancel</button>
-                    <button @click="confirmCustomize()" class="flex-1 bg-[#800000] text-white py-3 rounded-xl font-bold uppercase text-sm transition-all">Confirm</button>
-                </div>
+                        <span class="ml-auto font-black text-[#800000]"
+                              x-text="'+₱' + addon.price"></span>
+                    </label>
+                </template>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <button
+                    @click="closeCustomize()"
+                    class="py-3 rounded-xl bg-slate-200 font-black uppercase text-sm">
+                    Cancel
+                </button>
+
+                <button
+                    @click="confirmCustomize()"
+                    class="py-3 rounded-xl maroon-gradient text-white font-black uppercase text-sm">
+                    Confirm
+                </button>
             </div>
         </div>
     </div>
+</div>
 
     <script>
         function digitalOrdering() {
@@ -139,6 +256,8 @@
                 selectedProduct: null,
                 selectedProductQty: 1,
                 tempSelectedAddOns: [],
+                guestSetup: { adults: 0, children: 0 },
+                guestCount: 0,
 
                 products: [],
 
@@ -204,6 +323,9 @@
 
                     this.guestSetup.adults = adults;
                     this.guestSetup.children = children;
+                    this.guestCount = adults + children;
+                    localStorage.setItem('customer_guests_adults', adults);
+                    localStorage.setItem('customer_guests_children', children);
 
                     this.loadCart();
                 },

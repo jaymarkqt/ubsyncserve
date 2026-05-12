@@ -45,10 +45,10 @@
         </div>
 
         <!-- Tables Grid -->
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             <template x-for="table in tables" :key="table.id">
                 <div @click="table.status === 'available' ? selectTable(table) : null" 
-                     class="w-full h-[170px] transition-all flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
+                     class="w-full min-h-[170px] transition-all flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
                          :class="getTableClass(table) + (table.status !== 'available' ? ' cursor-not-allowed opacity-80' : ' cursor-pointer hover:shadow-xl hover:-translate-y-1')">
                         
                         <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>

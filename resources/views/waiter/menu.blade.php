@@ -79,24 +79,44 @@
                 </template>
             </div>
 
-            <div class="flex flex-col gap-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-xl font-black text-[#800000]" x-text="'₱' + p.price.toFixed(2)"></span>
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider" x-text="'Stock: ' + p.stock"></span>
-                </div>
-                <div class="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-slate-50 px-2 py-2">
-                    <button type="button" @click="p.qty = Math.max(1, p.qty - 1)" class="h-8 w-8 rounded-2xl bg-white text-[#800000] font-black transition hover:bg-[#f3d0d0]">-</button>
-                    <input type="number" x-model.number="p.qty" min="1" class="w-14 bg-transparent text-center text-sm font-black text-gray-700 outline-none" />
-                    <button type="button" @click="p.qty = (p.qty || 1) + 1" class="h-8 w-8 rounded-2xl bg-white text-[#800000] font-black transition hover:bg-[#f3d0d0]">+</button>
-                </div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Quantity</div>
+       <div class="space-y-3">
+
+    <!-- NAME + STOCK -->
+    <div class="flex justify-end mb-2">
+    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider"
+          x-text="'Stock: ' + p.stock"></span>
+</div>
+
+    <!-- PRICE + QUANTITY -->
+    <div class="flex justify-between items-center">
+        <span class="text-xl font-black text-[#800000]"
+              x-text="'₱' + p.price.toFixed(2)"></span>
+
+        <div class="inline-flex items-center rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm">
+            <button 
+                @click="p.qty = Math.max(1, p.qty - 1)" 
+                class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition border-r border-slate-200">
+                <i class="fas fa-minus text-xs"></i>
+            </button>
+
+            <div class="w-12 h-10 flex items-center justify-center font-black text-slate-700 bg-slate-50">
+                <span class="text-sm" x-text="p.qty"></span>
             </div>
+
+            <button 
+                @click="p.qty++" 
+                class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition border-l border-slate-200">
+                <i class="fas fa-plus text-xs"></i>
+            </button>
         </div>
+    </div>
+
+</div>
+
 
         <div class="mt-auto space-y-3 pt-4 border-t border-gray-100">
-            <button @click="openCustomizeModal(p)" class="flex items-center justify-between w-full bg-gray-50 border border-gray-200 rounded-xl p-3 hover:bg-gray-100 transition-colors">
-                <span class="text-[11px] font-bold text-[#800000] uppercase tracking-wider">Customize Add-ons</span>
-                <i class="fas fa-plus text-[#800000] text-xs"></i>
+            <button @click="openCustomizeModal(p)" class="w-full rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-wider text-[#800000] text-center">
+                CUSTOMIZE ADDS-ON
             </button>
             
             <button x-on:click.prevent="addToCart(p)" 
