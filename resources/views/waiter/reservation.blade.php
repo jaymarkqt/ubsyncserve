@@ -1,9 +1,13 @@
 <div class="space-y-8">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 text-left">
-        <div>
-            <h2 class="text-2xl md:text-3xl font-black text-slate-800 uppercase tracking-tighter">Reservation Hub</h2>
-            <p class="flex text-sm text-slate-500 mt-2 font-medium uppercase tracking-wide">Active Bookings</p>
-        </div>
+       <div>
+                <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-none">Reservation Hub</h1>
+                <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Active Bookings
+                </p>
+            </div>
+
         <div class="flex items-center gap-3">
             <button @click="clearAllReservations()" 
                     class="bg-red-50 text-red-600 text-[10px] font-black uppercase px-4 py-3 rounded-xl border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-sm">

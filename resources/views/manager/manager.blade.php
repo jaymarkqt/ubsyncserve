@@ -133,6 +133,7 @@
                 selectedTable: null,
                 showAddModal: false,
                 showOrderModal: false,
+                showReservedModal: false,
                 showSetupModal: false,
                 editingIndex: null,
                 reservations: [], 
@@ -219,6 +220,7 @@
 
 loadTablesFromStorage() {
                     const stored = localStorage.getItem('ub_tables');
+                    const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
 
                     if (!stored) {
                         this.openTables = [];
@@ -235,11 +237,20 @@ loadTablesFromStorage() {
                             status = tableOrders.length > 0 ? 'occupied' : 'available';
                         }
 
+                        const matchedReservation = reservations.find(r => r.table == t.id)
+                            || reservations.find(r => r.status === 'pending' && ((status === 'reserved-advance' && r.type === 'advance-order') || (status === 'reserved-booking' && r.type === 'table-reservation')));
+
+                        const adults = t.adults ?? (matchedReservation ? matchedReservation.adults || 0 : 0);
+                        const children = t.children ?? (matchedReservation ? matchedReservation.children || 0 : 0);
+                        const guests = (t.guests || adults + children);
+
                         return {
                             id: t.id,
                             tableNumber: t.id,
                             status: status,
-                            guests: (t.adults || 0) + (t.children || 0),
+                            adults: adults,
+                            children: children,
+                            guests: guests,
                             duration: this.getDuration(t),
                             orders: tableOrders,
                             bill: calculatedBill 
@@ -346,15 +357,18 @@ handleTableClick(table) {
         return;
     }
 
-    console.log('Viewing reserved/occupied table:', table);
     this.selectedTable = table;
-    this.showOrderModal = true;
+    if (table.status === 'reserved-advance' || table.status === 'reserved-booking') {
+        this.showReservedModal = true;
+        this.showOrderModal = false;
+    } else {
+        this.showOrderModal = true;
+        this.showReservedModal = false;
+    }
 },
 
 
 clearTable(tableId) {
-                    if(!confirm('Finish and clear this table?')) return;
-
                     let stored = localStorage.getItem('ub_tables');
                     if (stored) {
                         let tables = JSON.parse(stored);
@@ -376,6 +390,8 @@ clearTable(tableId) {
 
                             this.loadTablesFromStorage();
                             this.showOrderModal = false;
+                            this.showReservedModal = false;
+                            this.selectedTable = null;
                         }
                     }
                 },
@@ -572,7 +588,10 @@ init() {
                     let occupiedTables = this.openTables.filter(t => t.status === 'occupied').length;
                     let availableTables = this.openTables.filter(t => t.status === 'available').length;
                     let totalTables = this.openTables.length;
-                    let totalGuests = this.openTables.reduce((sum, t) => sum + t.guests, 0);
+                    let totalGuests = this.openTables.reduce((sum, t) => {
+                        const guests = t.guests ?? ((t.adults || 0) + (t.children || 0));
+                        return sum + guests;
+                    }, 0);
                     let occupancyPercentage = totalTables > 0 ? Math.round((occupiedTables / totalTables) * 100) : 0;
 
                     return {

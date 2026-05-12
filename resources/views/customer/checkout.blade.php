@@ -13,142 +13,154 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-white font-sans antialiased">
+<body class="bg-gray-50 font-sans antialiased">
     <div x-data="checkoutPage()" x-init="loadOrder()" class="min-h-screen pb-10" x-cloak>
-        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 pt-8">
-            <div class="mb-6 rounded-[2rem] bg-white p-5 shadow-lg border border-gray-200">
+        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div class="mb-6 rounded-[2rem] bg-white p-5 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 class="text-3xl font-black uppercase tracking-tight text-gray-900">Payment</h1>
                     </div>
-                    <a href="{{ route('order.cart') }}" class="inline-flex items-center gap-2 rounded-full bg-[#800000] px-5 py-3 text-sm font-black uppercase text-white shadow-lg hover:bg-[#a00000] transition-all">
-                        <i class="fas fa-arrow-left"></i> Back to Cart
-                    </a>
+                    <a href="{{ route('order.cart') }}" class="w-fit inline-flex items-center gap-2 rounded-full bg-[#800000] px-5 py-3 text-sm font-black uppercase text-white shadow hover:bg-[#a00000] transition-all">
+    <i class="fas fa-arrow-left"></i> Back to Cart
+</a>
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <div class="rounded-[2rem] bg-white p-6 shadow-xl border border-gray-200/70">
-                    <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Order Summary</h2>
-                    <template x-if="cart.length === 0">
-                        <p class="mt-4 text-sm text-gray-500">Your cart is empty. Go back to menu and add items first.</p>
-                    </template>
-                    <template x-for="item in cart" :key="item.id">
-                            <div class="mt-5 flex flex-col gap-4 rounded-[2rem] border border-gray-100 bg-white p-4 sm:flex-row sm:items-center">
-                            <div class="h-28 w-28 overflow-hidden rounded-[1.75rem] bg-white p-3">
-                                <img :src="'/img/' + item.img" class="h-full w-full object-contain" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'" />
+            <div class="grid gap-6 lg:grid-cols-12">
+                <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+                    <div class="rounded-[2rem] bg-white p-6 shadow-sm border border-gray-200">
+                        <h2 class="text-xl font-black uppercase tracking-tight text-gray-900 mb-2">Order Summary</h2>
+                        
+                        <template x-if="cart.length === 0">
+                            <div class="py-8 text-center rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 mt-4">
+                                <p class="text-sm text-gray-500">Your cart is empty. Go back to menu and add items first.</p>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-xs uppercase tracking-[0.35em] text-[#800000]" x-text="item.cat"></p>
-                                <h3 class="mt-2 text-lg font-black uppercase text-gray-900" x-text="item.name"></h3>
-                                <p class="mt-2 text-sm text-gray-600" x-text="item.qty + ' x ' + formatCurrency(item.price)"></p>
-                                <template x-if="item.addOns && item.addOns.length">
-                                    <div class="mt-3 space-y-2 rounded-3xl bg-white p-3 text-sm text-gray-700">
-                                        <template x-for="addon in item.addOns" :key="addon.name">
-                                            <p class="flex justify-between"><span x-text="addon.name"></span><span x-text="formatCurrency(addon.price)"></span></p>
+                        </template>
+
+                        <div class="space-y-4 mt-4">
+                            <template x-for="item in cart" :key="item.id">
+                                <div class="flex flex-col sm:flex-row gap-5 rounded-[1.5rem] border border-gray-100 bg-white p-4 shadow-sm items-start sm:items-center">
+                                    
+                                    <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-50 p-2">
+                                        <img :src="'/img/' + item.img" class="h-full w-full object-contain" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'" />
+                                    </div>
+
+                                    <div class="flex flex-1 flex-col w-full">
+                                        <div class="flex justify-between items-start w-full">
+                                            <div class="pr-4">
+                                                <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-[#800000]" x-text="item.cat"></p>
+                                                <h3 class="mt-1 text-lg font-black uppercase text-gray-900 leading-tight" x-text="item.name"></h3>
+                                                <p class="mt-1 text-sm font-medium text-gray-500" x-text="item.qty + ' x ' + formatCurrency(item.price)"></p>
+                                            </div>
+                                            <div class="text-right flex-shrink-0">
+                                                <p class="text-lg font-black text-[#800000]" x-text="formatCurrency((item.price + (item.addOns || []).reduce((sum, addon) => sum + addon.price, 0)) * item.qty)"></p>
+                                            </div>
+                                        </div>
+
+                                        <template x-if="item.addOns && item.addOns.length">
+                                            <div class="mt-3 rounded-xl bg-gray-50 p-3">
+                                                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Add-ons</p>
+                                                <div class="space-y-1.5">
+                                                    <template x-for="addon in item.addOns" :key="addon.name">
+                                                        <div class="flex justify-between text-sm text-gray-600">
+                                                            <span class="font-medium" x-text="'+ ' + addon.name"></span>
+                                                            <span x-text="formatCurrency(addon.price * item.qty)"></span>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
                                         </template>
                                     </div>
-                                </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 xl:col-span-4 space-y-6">
+                    <div class="rounded-[2rem] bg-white p-6 shadow-sm border border-gray-200">
+                        <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Order Details</h2>
+                        <div class="mt-5 space-y-3">
+                            <div class="flex justify-between text-sm text-gray-500 pb-3 border-b border-gray-100">
+                                <span>Table</span>
+                                <span class="font-bold text-gray-900" x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span>
                             </div>
-                            <div class="text-right">
-                                <p class="text-lg font-black text-[#800000]" x-text="formatCurrency((item.price + (item.addOns || []).reduce((sum, addon) => sum + addon.price, 0)) * item.qty)"></p>
+                            <div class="flex justify-between text-sm text-gray-500 pb-3 border-b border-gray-100">
+                                <span>Total Items</span>
+                                <span class="font-bold text-gray-900" x-text="cart.length"></span>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-500 pb-3 border-b border-gray-100">
+                                <span>Total Quantity</span>
+                                <span class="font-bold text-gray-900" x-text="cart.reduce((sum, item) => sum + item.qty, 0)"></span>
+                            </div>
+                            <div class="flex justify-between text-xl pt-2 font-black text-gray-900">
+                                <span>Total</span>
+                                <span class="text-[#800000]" x-text="formatCurrency(cartTotal)"></span>
                             </div>
                         </div>
-                    </template>
-                </div>
-
-                <div class="rounded-[2rem] bg-white p-6 shadow-xl border border-gray-200/70">
-                    <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Order Details</h2>
-                    <div class="mt-5 space-y-4">
-                        <div class="flex justify-between text-sm text-gray-500"><span>Table</span><span x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span></div>
-                        <div class="flex justify-between text-sm text-gray-500"><span>Items</span><span x-text="cart.length"></span></div>
-                        <div class="flex justify-between text-sm text-gray-500"><span>Quantity</span><span x-text="cart.reduce((sum, item) => sum + item.qty, 0)"></span></div>
-                        <div class="flex justify-between text-base font-black text-gray-900"><span>Total</span><span x-text="formatCurrency(cartTotal)"></span></div>
-                    </div>
-                </div>
-
-                <div class="rounded-[2rem] bg-white p-6 shadow-xl border border-gray-200/70">
-                    <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Payment Method</h2>
-                    <div class="mt-5 grid gap-4 sm:grid-cols-2">
-                        <label class="cursor-pointer block rounded-[1.75rem] border border-gray-200 p-4 transition-all" :class="paymentMethod === 'credit' ? 'border-[#800000] bg-[#fff4f4]' : ''">
-                            <input type="radio" name="payment" value="credit" class="hidden" x-model="paymentMethod" />
-                            <div class="flex items-center gap-3">
-                                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#800000] text-white"><i class="fas fa-credit-card"></i></span>
-                                <div>
-                                    <p class="font-black uppercase text-gray-900">Credit Card</p>
-                                    <p class="text-sm text-gray-500">Pay with card details.</p>
-                                </div>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer block rounded-[1.75rem] border border-gray-200 p-4 transition-all" :class="paymentMethod === 'gcash' ? 'border-[#800000] bg-[#fff4f4]' : ''">
-                            <input type="radio" name="payment" value="gcash" class="hidden" x-model="paymentMethod" />
-                            <div class="flex items-center gap-3">
-                                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#800000] text-white"><i class="fas fa-mobile-screen-button"></i></span>
-                                <div>
-                                    <p class="font-black uppercase text-gray-900">GCash</p>
-                                    <p class="text-sm text-gray-500">Pay through GCash.</p>
-                                </div>
-                            </div>
-                        </label>
                     </div>
 
-                    <div class="mt-6 space-y-4">
-                        <template x-if="paymentMethod === 'credit'">
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs uppercase tracking-[0.3em] text-gray-500">Cardholder Name</label>
-                                    <input type="text" x-model="payment.credit.cardName" class="mt-2 w-full rounded-3xl border border-gray-200 bg-[#fcf6f6] p-4 outline-none focus:ring-4 focus:ring-[#f9e4e4]" placeholder="Juan dela Cruz" />
-                                </div>
-                                <div>
-                                    <label class="block text-xs uppercase tracking-[0.3em] text-gray-500">Card Number</label>
-                                    <input type="text" x-model="payment.credit.cardNumber" class="mt-2 w-full rounded-3xl border border-gray-200 bg-[#fcf6f6] p-4 outline-none focus:ring-4 focus:ring-[#f9e4e4]" placeholder="1234 5678 9012 3456" />
-                                </div>
-                                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="rounded-[2rem] bg-white p-6 shadow-sm border border-gray-200">
+                        <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Payment Method</h2>
+                        <div class="mt-5 space-y-3">
+                            <label class="cursor-pointer block rounded-[1.5rem] border-2 transition-all" :class="paymentMethod === 'credit' ? 'border-[#800000] bg-[#fff4f4]' : 'border-gray-100 bg-white hover:border-gray-200'">
+                                <input type="radio" name="payment" value="credit" class="hidden" x-model="paymentMethod" />
+                                <div class="flex items-center gap-4 p-4">
+                                    <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#800000] text-white shadow-sm"><i class="fas fa-credit-card"></i></span>
                                     <div>
-                                        <label class="block text-xs uppercase tracking-[0.3em] text-gray-500">Expiry</label>
-                                        <input type="text" x-model="payment.credit.expiry" class="mt-2 w-full rounded-3xl border border-gray-200 bg-[#fcf6f6] p-4 outline-none focus:ring-4 focus:ring-[#f9e4e4]" placeholder="MM/YY" />
+                                        <p class="font-black uppercase text-gray-900">Credit Card</p>
+                                        <p class="text-xs text-gray-500">Pay via credit/debit card</p>
                                     </div>
-                                    <div>
-                                        <label class="block text-xs uppercase tracking-[0.3em] text-gray-500">CVV</label>
-                                        <input type="text" x-model="payment.credit.cvv" class="mt-2 w-full rounded-3xl border border-gray-200 bg-[#fcf6f6] p-4 outline-none focus:ring-4 focus:ring-[#f9e4e4]" placeholder="123" />
+                                    <div class="ml-auto text-[#800000]" x-show="paymentMethod === 'credit'">
+                                        <i class="fas fa-check-circle text-xl"></i>
                                     </div>
                                 </div>
-                            </div>
-                        </template>
+                            </label>
 
-                        <template x-if="paymentMethod === 'gcash'">
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-xs uppercase tracking-[0.3em] text-gray-500">GCash Mobile Number</label>
-                                    <input type="text" x-model="payment.gcash.mobile" class="mt-2 w-full rounded-3xl border border-gray-200 bg-[#fcf6f6] p-4 outline-none focus:ring-4 focus:ring-[#f9e4e4]" placeholder="09XX XXX XXXX" />
+                            <label class="cursor-pointer block rounded-[1.5rem] border-2 transition-all" :class="paymentMethod === 'gcash' ? 'border-[#800000] bg-[#fff4f4]' : 'border-gray-100 bg-white hover:border-gray-200'">
+                                <input type="radio" name="payment" value="gcash" class="hidden" x-model="paymentMethod" />
+                                <div class="flex items-center gap-4 p-4">
+                                    <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-sm"><i class="fas fa-mobile-screen-button"></i></span>
+                                    <div>
+                                        <p class="font-black uppercase text-gray-900">GCash</p>
+                                        <p class="text-xs text-gray-500">Pay using e-wallet</p>
+                                    </div>
+                                    <div class="ml-auto text-[#800000]" x-show="paymentMethod === 'gcash'">
+                                        <i class="fas fa-check-circle text-xl"></i>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label class="block text-xs uppercase tracking-[0.3em] text-gray-500">Reference Number</label>
-                                    <input type="text" x-model="payment.gcash.reference" class="mt-2 w-full rounded-3xl border border-gray-200 bg-[#fcf6f6] p-4 outline-none focus:ring-4 focus:ring-[#f9e4e4]" placeholder="Transaction ID" />
-                                </div>
-                            </div>
-                        </template>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <button @click="placeOrder()" class="w-full rounded-3xl bg-[#800000] py-4 text-sm font-black uppercase text-white shadow-lg hover:bg-[#a00000] transition">Place Order</button>
+                    <button @click="placeOrder()" class="w-full rounded-full bg-[#800000] py-4 text-base font-black uppercase tracking-wide text-white shadow-lg hover:bg-[#a00000] transition active:scale-[0.98]">
+                        Place Order
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div x-show="orderComplete" class="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 p-4" x-cloak>
-            <div class="w-full max-w-lg rounded-[2rem] bg-white p-6 shadow-2xl text-center">
-                <div class="mb-5 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-700 mx-auto">
-                    <i class="fas fa-check text-3xl"></i>
+        <div x-show="orderComplete" class="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
+            <div class="w-full max-w-md rounded-[2rem] bg-white p-8 shadow-2xl text-center transform transition-all">
+                <div class="mb-5 inline-flex h-24 w-24 items-center justify-center rounded-full bg-green-100 text-green-600 mx-auto border-4 border-white shadow-sm">
+                    <i class="fas fa-check text-4xl"></i>
                 </div>
-                <h2 class="text-2xl font-black text-gray-900">Order Confirmed!</h2>
-                <p class="mt-3 text-gray-500">Your payment has been received. The kitchen will begin preparing your order.</p>
-                <div class="mt-6 rounded-[1.75rem] bg-[#f8f3f3] p-5 text-left">
-                    <p class="text-sm uppercase tracking-[0.3em] text-gray-400">Summary</p>
-                    <p class="mt-3 text-sm text-gray-700"><span class="font-black">Table:</span> <span x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span></p>
-                    <p class="mt-2 text-sm text-gray-700"><span class="font-black">Payment:</span> <span x-text="paymentMethod === 'credit' ? 'Credit Card' : 'GCash'"></span></p>
-                    <p class="mt-2 text-sm text-gray-700"><span class="font-black">Total Paid:</span> <span x-text="formatCurrency(cartTotal)"></span></p>
+                <h2 class="text-2xl font-black uppercase text-gray-900">Order Confirmed!</h2>
+                <p class="mt-2 text-sm text-gray-500">Your payment has been received. The kitchen will begin preparing your order.</p>
+                
+                <div class="mt-6 rounded-[1.5rem] bg-gray-50 p-5 text-left border border-gray-100">
+                    <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 mb-3 border-b border-gray-200 pb-2">Receipt Summary</p>
+                    <div class="space-y-2">
+                        <div class="flex justify-between"><span class="text-sm text-gray-500">Table:</span> <span class="text-sm font-black text-gray-900" x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span></div>
+                        <div class="flex justify-between"><span class="text-sm text-gray-500">Method:</span> <span class="text-sm font-black text-gray-900" x-text="paymentMethod === 'credit' ? 'Credit Card' : 'GCash'"></span></div>
+                        <div class="flex justify-between pt-2 border-t border-gray-200 mt-2"><span class="text-base font-bold text-gray-900">Total Paid:</span> <span class="text-base font-black text-[#800000]" x-text="formatCurrency(cartTotal)"></span></div>
+                    </div>
                 </div>
-                <button @click="clearOrder()" class="mt-6 rounded-3xl bg-[#800000] px-8 py-4 text-sm font-bold uppercase text-white">Close</button>
+                
+                <button @click="clearOrder()" class="mt-8 w-full rounded-full bg-[#800000] px-8 py-4 text-sm font-black uppercase tracking-wide text-white shadow-md hover:bg-[#a00000] transition active:scale-95">
+                    Close & Return
+                </button>
             </div>
         </div>
     </div>
@@ -160,15 +172,12 @@
                 tableNumber: null,
                 guestCount: 0,
                 paymentMethod: 'credit',
-                payment: {
-                    credit: { cardName: '', cardNumber: '', expiry: '', cvv: '' },
-                    gcash: { mobile: '', reference: '' }
-                },
                 orderComplete: false,
 
                 loadOrder() {
                     const savedCart = localStorage.getItem('customer_order_cart');
                     const savedTable = localStorage.getItem('customer_order_table');
+                    
                     if (savedCart) {
                         try {
                             this.cart = JSON.parse(savedCart) || [];
@@ -209,6 +218,7 @@
 
                 placeOrder() {
                     if (this.cart.length === 0 || !this.tableNumber) {
+                        alert("Please make sure you have items in your cart and a table is assigned.");
                         return;
                     }
 

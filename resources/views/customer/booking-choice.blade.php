@@ -18,8 +18,8 @@
     <div class="max-w-7xl mx-auto px-4 py-12">
         <!-- Header -->
         <div class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-3">Choose Your Experience</h1>
-            <p class="text-lg text-slate-600 font-medium">Select how you'd like to book with us today</p>
+            <h1 class="text-4xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-3">ADVANCE ORDER AT TABLE RESERVATION</h1>
+            <p class="text-lg text-slate-600 font-medium">Select the booking option you want, then continue to the booking form.</p>
         </div>
 
         <!-- Choice Cards -->
@@ -89,10 +89,8 @@
             </a>
         </div>
 
-        <!-- Footer Info -->
-        <div class="text-center text-slate-500 text-sm font-medium">
-            <p>Not sure? Both options provide excellent service. Choose what works best for you!</p>
-        </div>
+       
+        
     </div>
 </body>
 </html>

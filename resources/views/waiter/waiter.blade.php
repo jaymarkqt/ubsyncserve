@@ -132,18 +132,17 @@
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
     <template x-for="table in tables" :key="table.id">
         <div @click="selectTable(table)" 
-             class="w-full max-w-[170px] h-[170px] mx-auto transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
+             class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
              :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.status === 'reserved-advance' ? 'bg-[#fed7aa] border-[#ea580c]' : (table.status === 'reserved-booking' ? 'bg-[#ffedd5] border-[#fb923c]' : 'bg-[#ffdada] border-[#f87171]'))">
-            
             <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
             
             <p class="text-[11px] font-extrabold uppercase tracking-widest" 
                :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : 'text-[#cc0000]'))"
-               x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reserve' : (table.status === 'available' ? 'available' : 'occupied'))"></p>
+               x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.status === 'available' ? 'available' : 'occupied'))"></p>
             
             <template x-if="table.status !== 'available'">
                 <div class="text-center pt-1 w-full">
-                    <p class="text-sm font-bold text-[#1e293b]"><span x-text="table.adults + table.children"></span> guests</p>
+                    <p class="text-sm font-bold text-[#1e293b]"><span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests</p>
                 </div>
             </template>
         </div>
@@ -270,7 +269,7 @@
             <div class="p-8 space-y-6">
                 <div class="text-center">
                     <p class="text-sm font-bold text-slate-600 mb-4">
-                        <span x-text="selectedTable?.adults + selectedTable?.children"></span> guests reserved
+                        <span x-text="selectedTable?.guests ?? ((selectedTable?.adults || 0) + (selectedTable?.children || 0))"></span> guests reserved
                     </p>
                     <template x-if="selectedTable?.status === 'reserved-advance' && selectedTable?.orders && selectedTable?.orders.length > 0">
                         <div class="space-y-2">
@@ -355,18 +354,31 @@ function waiterSystem() {
             const stored = localStorage.getItem('ub_tables');
             if (stored) {
                 let parsedTables = JSON.parse(stored);
+                const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
                 
                 // AUTOMATIC STATUS CHECKER:
                 // Preserve reserved states and only set occupied when there are real orders.
-                parsedTables.forEach(t => {
-                    if (t.status === 'reserved-advance' || t.status === 'reserved-booking') {
-                        return;
-                    }
-                    if (t.orders && t.orders.length > 0) {
-                        t.status = 'occupied';
-                    } else {
-                        t.status = 'available';
-                    }
+                parsedTables = parsedTables.map(t => {
+                    const status = (t.status === 'reserved-advance' || t.status === 'reserved-booking')
+                        ? t.status
+                        : ((t.orders && t.orders.length > 0) ? 'occupied' : 'available');
+
+                    const matchedReservation = reservations.find(r => r.table == t.id)
+                        || reservations.find(r => r.status === 'pending' && ((t.status === 'reserved-advance' && r.type === 'advance-order') || (t.status === 'reserved-booking' && r.type === 'table-reservation')));
+
+                    const adults = t.adults ?? (matchedReservation ? matchedReservation.adults || 0 : 0);
+                    const children = t.children ?? (matchedReservation ? matchedReservation.children || 0 : 0);
+                    const guests = (t.guests || adults + children);
+
+                    return {
+                        ...t,
+                        status: status,
+                        adults: adults,
+                        children: children,
+                        guests: guests,
+                        bill: t.bill || 0,
+                        orders: t.orders || []
+                    };
                 });
                 
                 this.tables = parsedTables;
@@ -410,6 +422,8 @@ function waiterSystem() {
                 
                 this.saveTables();
                 this.showOrderModal = false;
+                this.showReservedModal = false;
+                this.selectedTable = null;
                 
                 let kOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
                 let filteredK = kOrders.filter(ko => ko.table != tableId);

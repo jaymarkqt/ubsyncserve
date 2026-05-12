@@ -8,444 +8,469 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f4f5f7;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
         [x-cloak] { display: none !important; }
 
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        body {
-            background: #f8f8f8;
-        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
         .glass-card {
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.6);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
-        }
-
-        .menu-card {
-            transition: all .3s ease;
-        }
-
-        .menu-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
         }
 
         .maroon-gradient {
-            background: linear-gradient(135deg, #6b0000 0%, #900000 100%);
+            background: linear-gradient(135deg, #800000 0%, #5a0000 100%);
+        }
+
+        .menu-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(128, 0, 0, 0.08);
+            border-color: rgba(128, 0, 0, 0.1);
         }
     </style>
 </head>
 
-<body class="font-sans antialiased text-slate-800">
+<body class="antialiased text-slate-800">
 
-<div x-data="digitalOrdering()" x-init="initOrder()" class="min-h-screen pb-32" x-cloak>
+<div x-data="digitalOrdering()" x-init="initOrder()" class="min-h-screen pb-40 sm:pb-32" x-cloak>
 
-    <!-- CONTAINER -->
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 pt-8">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 pt-6 sm:pt-8">
 
-        <!-- HEADER -->
-        <div class="glass-card rounded-[2rem] p-6 sm:p-8 mb-8">
-
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-
+        <div class="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 mb-6 sm:mb-8 relative">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5">
                 <div>
-                    <p class="text-xs font-black tracking-[0.35em] uppercase text-slate-400">
+                    <p class="text-[10px] sm:text-xs font-black tracking-[0.35em] uppercase text-slate-400 mb-1">
                         Digital Ordering
                     </p>
-                    <h1 class="text-3xl sm:text-4xl font-black text-[#800000] tracking-tight mt-2">
-                        Customer Menu
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+                        Our <span class="text-[#800000]">Menu</span>
                     </h1>
                 </div>
 
-                <div class="inline-flex items-center gap-3 bg-[#fff5f5] rounded-3xl px-6 py-3 shadow-sm border border-[#f3d6d6]">
-                    <i class="fas fa-table text-[#800000]"></i>
-                    <span class="font-black text-[#800000] text-sm tracking-wide"
-                          x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'">
-                    </span>
+                <div class="inline-flex items-center gap-3 bg-white rounded-2xl px-4 sm:px-5 py-3 shadow-sm border border-slate-100 self-start md:self-auto">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-rose-50 flex items-center justify-center">
+                        <i class="fas fa-utensils text-[#800000] text-sm sm:text-base"></i>
+                    </div>
+                    <div>
+                        <p class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 tracking-wider">Current Table</p>
+                        <p class="font-black text-slate-800 text-xs sm:text-sm tracking-wide" x-text="tableNumber ? 'Table ' + tableNumber : 'Unassigned'"></p>
+                    </div>
                 </div>
             </div>
 
-            <!-- SEARCH -->
-            <div class="mt-6 relative">
-                <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input
-                    x-model="searchQuery"
-                    type="text"
-                    placeholder="Search menu items..."
-                    class="w-full rounded-2xl border border-slate-200 bg-white py-4 pl-14 pr-5 text-sm font-semibold outline-none focus:ring-4 focus:ring-[#800000]/10 focus:border-[#800000] transition"
-                >
-            </div>
-
-            <!-- CATEGORIES -->
-            <div class="flex gap-3 overflow-x-auto scrollbar-hide mt-6 pb-2">
-                <template x-for="cat in categories" :key="cat">
-                    <button
-                        @click="selectedCategory = cat"
-                        :class="selectedCategory === cat
-                            ? 'bg-[#800000] text-white border-[#800000]'
-                            : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'"
-                        class="px-6 py-3 rounded-2xl border text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all">
-                        <span x-text="cat"></span>
+            <div class="mt-6 sm:mt-8 flex flex-col xl:flex-row gap-4 sm:gap-6 items-center">
+                
+                <div class="w-full xl:w-1/3 relative group">
+                    <i class="fas fa-search absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#800000] transition-colors text-sm sm:text-base"></i>
+                    <input
+                        x-model="searchQuery"
+                        type="text"
+                        placeholder="What are you craving?"
+                        class="w-full rounded-xl sm:rounded-2xl border-2 border-slate-100 bg-white/50 py-3 sm:py-3.5 pl-10 sm:pl-12 pr-5 text-sm font-semibold outline-none focus:border-[#800000] focus:bg-white transition-all shadow-sm placeholder:text-slate-400"
+                    >
+                    <button x-show="searchQuery" @click="searchQuery = ''" class="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        <i class="fas fa-times text-sm sm:text-base"></i>
                     </button>
-                </template>
+                </div>
+
+                <div class="w-full xl:w-2/3 flex gap-2 sm:gap-3 overflow-x-auto scrollbar-hide pb-2 mask-linear">
+                    <template x-for="cat in categories" :key="cat">
+                        <button
+                            @click="selectedCategory = cat"
+                            :class="selectedCategory === cat
+                                ? 'bg-[#800000] text-white shadow-md shadow-maroon/20 border-transparent'
+                                : 'bg-white text-slate-600 border-slate-200 hover:border-[#800000]/30 hover:bg-rose-50/50'"
+                            class="px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border text-xs sm:text-sm font-bold tracking-wide whitespace-nowrap transition-all duration-200 flex-shrink-0">
+                            <span x-text="cat"></span>
+                        </button>
+                    </template>
+                </div>
             </div>
         </div>
 
-        <!-- PRODUCTS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
-
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 xl:gap-8">
             <template x-for="product in filteredProducts" :key="product.id">
-                <div class="menu-card bg-white rounded-[2rem] p-6 shadow-xl flex flex-col border border-slate-200/70">
-
-                    <!-- IMAGE -->
-                    <div class="h-52 rounded-[1.7rem] overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center mb-5">
-                        <img
-                            :src="'/img/' + product.img"
-                            class="w-full h-full object-contain p-5"
-                            x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'"
-                        >
+                <div class="menu-card bg-white p-4 sm:p-5 flex flex-col border border-slate-100 rounded-[1.5rem] sm:rounded-[2rem] shadow-sm relative group">
+                    
+                    <div class="w-full h-40 sm:h-48 mb-4 sm:mb-5 overflow-hidden rounded-[1.25rem] sm:rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4 relative">
+                      
+                        
+                        <img :src="'/img/' + product.img" class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
                     </div>
-
-                    <!-- INFO -->
-                    <div class="flex-1">
-                        <h3 class="font-black text-lg uppercase tracking-tight text-slate-800"
-                            x-text="product.name"></h3>
-
-                        <!-- ADDONS -->
-                        <div class="flex flex-wrap gap-2 mt-3 min-h-[24px]">
-                            <template x-if="product.selectedAddOns && product.selectedAddOns.length > 0">
-                                <template x-for="addon in product.selectedAddOns" :key="addon.name">
-                                    <span class="text-[10px] px-2 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200 font-black uppercase">
-                                        + <span x-text="addon.name"></span>
-                                    </span>
-                                </template>
+                    
+                    <div class="flex-grow flex flex-col">
+                        <div class="mb-2 flex justify-between items-start gap-2">
+                            <h4 class="text-base sm:text-lg font-bold text-slate-900 leading-tight" x-text="product.name"></h4>
+                            <span class="text-lg sm:text-xl font-black text-[#800000] whitespace-nowrap" x-text="formatCurrency(product.price)"></span>
+                        </div>
+                        
+                        <div class="mb-3 sm:mb-4 flex flex-wrap gap-1.5 min-h-[24px]">
+                            <template x-for="addon in product.selectedAddOns" :key="addon.name">
+                                <span class="bg-rose-50 text-[#800000] text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-md sm:rounded-lg uppercase border border-rose-100 flex items-center gap-1">
+                                    <i class="fas fa-plus text-[7px] sm:text-[8px]"></i> <span x-text="addon.name"></span>
+                                </span>
                             </template>
                         </div>
 
-                        <!-- PRICE -->
-                        <div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                            <span class="text-2xl font-black text-[#800000]"
-                                  x-text="formatCurrency(product.price)">
-                            </span>
-
-                            <div class="inline-flex items-stretch rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-sm">
-                                <button 
-                                    @click="product.qty = Math.max(1, product.qty - 1)" 
-                                    class="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition border-r border-slate-200">
-                                    <i class="fas fa-minus text-sm"></i>
-                                </button>
-
-                                <div class="w-14 h-11 flex items-center justify-center font-black text-slate-700">
-                                    <span class="text-sm" x-text="product.qty"></span>
+                        <div class="mt-auto space-y-2 sm:space-y-3">
+                            <div class="flex items-center gap-2 sm:gap-3">
+                                <div class="flex items-center rounded-xl border-2 border-slate-100 bg-slate-50 h-10 sm:h-11 w-24 sm:w-28 overflow-hidden flex-shrink-0">
+                                    <button 
+                                        @click="if (product.stock > 0 && product.qty > 1) product.qty = product.qty - 1" 
+                                        :disabled="product.stock === 0"
+                                        :class="['w-8 sm:w-10 h-full flex items-center justify-center transition-colors', product.stock === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200']">
+                                        <i class="fas fa-minus text-[10px] sm:text-xs"></i>
+                                    </button>
+                                    <div class="flex-1 h-full flex items-center justify-center font-black text-slate-800 text-xs sm:text-sm bg-white">
+                                        <span x-text="product.stock === 0 ? 0 : product.qty"></span>
+                                    </div>
+                                    <button 
+                                        @click="if (product.stock > product.qty) product.qty++" 
+                                        :disabled="product.stock === 0 || product.qty >= product.stock"
+                                        :class="['w-8 sm:w-10 h-full flex items-center justify-center transition-colors', product.stock === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200']">
+                                        <i class="fas fa-plus text-[10px] sm:text-xs"></i>
+                                    </button>
                                 </div>
-
-                                <button 
-                                    @click="product.qty++" 
-                                    class="w-11 h-11 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition border-l border-slate-200">
-                                    <i class="fas fa-plus text-sm"></i>
+                                
+                                <button @click="openCustomizeModal(product)" 
+                                        :disabled="product.stock === 0"
+                                        :class="['flex-1 rounded-xl border-2 border-slate-100 bg-white h-10 sm:h-11 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-center transition-all px-1', product.stock === 0 ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-500 hover:border-[#800000] hover:text-[#800000]']">
+                                    <i class="fas fa-sliders-h mr-1"></i> Add-ons
                                 </button>
                             </div>
+                            
+                            <button @click.prevent="addToCart(product)" 
+                                    :disabled="product.stock === 0"
+                                    :class="['w-full rounded-xl text-white h-10 sm:h-12 text-[11px] sm:text-[12px] font-black uppercase tracking-widest text-center shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2', product.stock === 0 ? 'bg-gray-300 cursor-not-allowed shadow-none' : 'maroon-gradient shadow-maroon/20 hover:shadow-xl']">
+                                <i class="fas fa-shopping-bag"></i> Add to Order
+                            </button>
                         </div>
                     </div>
 
-                    <!-- ACTIONS -->
-                    <div class="space-y-3 mt-6 pt-5 border-t border-slate-100">
-
-                        <button
-                            @click="openCustomizeModal(product)"
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-wider text-[#800000] text-center">
-                            CUSTOMIZE ADDS-ON
-                        </button>
-
-                        <button
-                            @click="addToCart(product)"
-                            class="w-full maroon-gradient text-white py-4 rounded-xl font-black uppercase tracking-wider shadow-lg active:scale-[0.98] transition">
-                            Add to Order
-                        </button>
-                    </div>
-                </div>
+                    <div x-show="product.stock === 0" class="absolute inset-0 bg-black/60 rounded-[1.5rem] flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-[10px] font-black uppercase tracking-[0.45em] text-red-100 mb-2">Out of Stock</div>
+                            <div class="inline-flex items-center justify-center bg-red-600 text-white text-[10px] font-black uppercase rounded-full px-4 py-2 tracking-[0.2em] shadow-xl">
+                                SOLD OUT
+                            </div>
             </template>
+
+            <div x-show="filteredProducts.length === 0" class="col-span-full py-8 sm:py-12 text-center" x-cloak>
+                <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-slate-200 rounded-full flex items-center justify-center mb-4 text-slate-400">
+                    <i class="fas fa-hamburger text-2xl sm:text-3xl"></i>
+                </div>
+                <h3 class="text-lg sm:text-xl font-bold text-slate-700">No items found</h3>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">Try adjusting your search or category filter.</p>
+            </div>
         </div>
     </div>
 
-    <!-- FLOATING CART -->
-    <a href="{{ route('order.cart') }}"
-       class="fixed bottom-6 right-6 z-50 rounded-full maroon-gradient px-5 py-4 shadow-2xl flex items-center gap-4">
+    <div x-show="cart.length > 0" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-10"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+        <a href="{{ route('order.cart') }}"
+           class="group rounded-2xl maroon-gradient px-4 sm:px-6 py-3 sm:py-4 shadow-2xl flex items-center gap-3 sm:gap-4 hover:-translate-y-1 transition-all duration-300 border border-white/20">
+            
+            <div class="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30 group-hover:scale-110 transition-transform">
+                <i class="fas fa-shopping-cart text-sm sm:text-base"></i>
+                <span class="absolute -top-2 -right-2 bg-white text-[#800000] text-[9px] sm:text-[10px] font-black w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shadow-md" x-text="cart.length"></span>
+            </div>
 
-        <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-[#800000]">
-            <i class="fas fa-shopping-cart"></i>
-        </div>
+            <div class="pr-1 sm:pr-2">
+                <p class="text-[9px] sm:text-[10px] uppercase font-bold tracking-[0.2em] text-white/80 mb-0 sm:mb-0.5">
+                    View Order
+                </p>
+                <p class="text-xs sm:text-sm font-black text-white" x-text="formatCurrency(cartTotal)"></p>
+            </div>
+            
+            <i class="fas fa-chevron-right text-white/50 group-hover:text-white transition-colors ml-1 sm:ml-2 text-xs sm:text-sm"></i>
+        </a>
+    </div>
 
-        <div>
-            <p class="text-[10px] uppercase tracking-[0.25em] text-white/70">
-                View Cart
-            </p>
-            <p class="text-sm font-black text-white" x-text="cart.length + ' item(s)'"></p>
-        </div>
-    </a>
-
-    <!-- CUSTOMIZE MODAL -->
     <div x-show="showCustomize"
-         class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+         class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
          x-cloak>
 
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-6">
+        <div class="bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col"
+            
+             x-transition:enter="transition ease-out duration-300 delay-100"
+             x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-8 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-8 sm:scale-95">
 
-            <div class="text-center mb-6">
-                <h3 class="text-xl font-black text-[#800000] uppercase"
-                    x-text="'Customize ' + (selectedProduct ? selectedProduct.name : '')">
-                </h3>
-                <p class="text-sm text-slate-400 mt-1">Select your add-ons</p>
+            <div class="bg-slate-50 p-5 sm:p-6 border-b border-slate-100 relative shrink-0">
+                <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4 sm:hidden"></div>
+                
+               
+                <h3 class="text-lg sm:text-xl font-black text-slate-900 pr-8" x-text="selectedProduct ? selectedProduct.name : ''"></h3>
+                <p class="text-xs sm:text-sm font-semibold text-[#800000] mt-1">Customize your order</p>
             </div>
 
-            <div class="space-y-3 max-h-72 overflow-y-auto scrollbar-hide">
-                <template x-for="addon in (selectedProduct ? selectedProduct.addOns : [])" :key="addon.name">
-                    <label class="flex items-center gap-3 border border-slate-200 rounded-xl p-4 hover:bg-slate-50 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            class="accent-[#800000] w-5 h-5"
-                            :checked="tempSelectedAddOns.some(a => a.name === addon.name)"
-                            @change="toggleAddon(addon)"
-                        >
+            <div class="p-5 sm:p-6 overflow-y-auto scrollbar-hide">
+                <p class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Available Add-ons</p>
+                
+                <div class="space-y-2.5 sm:space-y-3">
+                    <template x-show="selectedProduct && selectedProduct.addOns.length === 0">
+                        <p class="text-xs sm:text-sm text-slate-500 italic">No add-ons available for this item.</p>
+                    </template>
+                    
+                    <template x-for="addon in (selectedProduct ? selectedProduct.addOns : [])" :key="addon.name">
+                        <label class="flex items-center gap-3 sm:gap-4 border-2 border-slate-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 cursor-pointer transition-all hover:border-rose-200 hover:bg-rose-50/30"
+                               :class="tempSelectedAddOns.some(a => a.name === addon.name) ? 'border-[#800000] bg-rose-50/50' : ''">
+                            
+                            <div class="relative flex items-center justify-center">
+                                <input type="checkbox"
+                                    class="peer appearance-none w-5 h-5 sm:w-6 sm:h-6 border-2 border-slate-300 rounded-md sm:rounded-lg checked:border-[#800000] checked:bg-[#800000] transition-colors cursor-pointer"
+                                    :checked="tempSelectedAddOns.some(a => a.name === addon.name)"
+                                    @change="toggleAddon(addon)">
+                                <i class="fas fa-check absolute text-white text-[9px] sm:text-[10px] opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                            </div>
 
-                        <span class="font-semibold text-sm" x-text="addon.name"></span>
-
-                        <span class="ml-auto font-black text-[#800000]"
-                              x-text="'+₱' + addon.price"></span>
-                    </label>
-                </template>
+                            <span class="font-bold text-slate-700 text-sm sm:text-base" x-text="addon.name"></span>
+                            <span class="ml-auto font-black text-[#800000] bg-white px-2 sm:px-3 py-1 rounded-lg border border-slate-100 shadow-sm text-xs sm:text-sm" x-text="'+' + formatCurrency(addon.price)"></span>
+                        </label>
+                    </template>
+                </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 mt-6">
-                <button
-                    @click="closeCustomize()"
-                    class="py-3 rounded-xl bg-slate-200 font-black uppercase text-sm">
+            <div class="p-4 sm:p-6 border-t border-slate-100 bg-slate-50 flex gap-2 sm:gap-3 shrink-0 pb-6 sm:pb-6">
+                <button @click="closeCustomize()" class="flex-1 py-3 sm:py-4 rounded-xl bg-white border-2 border-slate-200 text-slate-600 font-bold uppercase text-[10px] sm:text-xs tracking-wider hover:bg-slate-100 transition-colors">
                     Cancel
                 </button>
-
-                <button
-                    @click="confirmCustomize()"
-                    class="py-3 rounded-xl maroon-gradient text-white font-black uppercase text-sm">
-                    Confirm
+                <button @click="confirmCustomize()" class="flex-1 py-3 sm:py-4 rounded-xl maroon-gradient text-white font-black uppercase text-[10px] sm:text-xs tracking-wider shadow-lg shadow-maroon/20 hover:shadow-xl transition-all">
+                    Save Changes
                 </button>
             </div>
         </div>
     </div>
+    
+    <div id="toast-container" class="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-[999] flex flex-col gap-2 w-[90%] max-w-sm pointer-events-none"></div>
 </div>
 
-    <script>
-        function digitalOrdering() {
-            return {
-                searchQuery: '',
-                selectedCategory: 'All',
-                categories: ['All', 'Breakfast', 'Lunch', 'Snacks', 'Dinner', 'Drinks'],
-                tableNumber: null,
-                cart: [],
-                showCustomize: false,
-                selectedProduct: null,
-                selectedProductQty: 1,
-                tempSelectedAddOns: [],
-                guestSetup: { adults: 0, children: 0 },
-                guestCount: 0,
+<script>
+    function digitalOrdering() {
+        return {
+            searchQuery: '',
+            selectedCategory: 'All',
+            categories: ['All', 'Breakfast', 'Lunch', 'Snacks', 'Dinner', 'Drinks'],
+            tableNumber: null,
+            cart: [],
+            showCustomize: false,
+            selectedProduct: null,
+            selectedProductQty: 1,
+            tempSelectedAddOns: [],
+            guestSetup: { adults: 0, children: 0 },
+            guestCount: 0,
+            products: [],
 
-                products: [],
+            defaultProducts() {
+                return [
+                    { id: 1, name: 'Burger Steak', price: 99, cat: 'Lunch', img: 'burgersteak.png', stock: 24, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Rice', price: 20 }, { name: 'Cheese', price: 15 }] },
+                    { id: 2, name: 'Tapa & Egg', price: 120, cat: 'Breakfast', img: 'tapa.png', stock: 18, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
+                    { id: 3, name: 'Fries', price: 65, cat: 'Snacks', img: 'fries.png', stock: 30, qty: 1, selectedAddOns: [], addOns: [{ name: 'Cheese Sauce', price: 10 }, { name: 'Bacon Bits', price: 15 }] },
+                    { id: 4, name: 'Fried Chicken', price: 150, cat: 'Dinner', img: 'chicken.png', stock: 12, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Gravy', price: 10 }, { name: 'Spicy Dip', price: 10 }] },
+                    { id: 5, name: 'Ice Tea', price: 45, cat: 'Drinks', img: 'icetea.png', stock: 40, qty: 1, selectedAddOns: [], addOns: [{ name: 'Large Cup', price: 15 }] },
+                    { id: 6, name: 'Pancit Canton', price: 115, cat: 'Lunch', img: 'pancit.png', stock: 16, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }] },
+                    { id: 7, name: 'Latte', price: 95, cat: 'Drinks', img: 'latte.png', stock: 22, qty: 1, selectedAddOns: [], addOns: [{ name: 'Soy Milk', price: 20 }] }
+                ];
+            },
 
-                defaultProducts() {
-                    return [
-                        { id: 1, name: 'Burger Steak', price: 99, cat: 'Lunch', img: 'burgersteak.png', stock: 24, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Rice', price: 20 }, { name: 'Cheese', price: 15 }] },
-                        { id: 2, name: 'Tapa & Egg', price: 120, cat: 'Breakfast', img: 'tapa.png', stock: 18, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
-                        { id: 3, name: 'Fries', price: 65, cat: 'Snacks', img: 'fries.png', stock: 30, qty: 1, selectedAddOns: [], addOns: [{ name: 'Cheese Sauce', price: 10 }, { name: 'Bacon Bits', price: 15 }] },
-                        { id: 4, name: 'Fried Chicken', price: 150, cat: 'Dinner', img: 'chicken.png', stock: 12, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Gravy', price: 10 }, { name: 'Spicy Dip', price: 10 }] },
-                        { id: 5, name: 'Ice Tea', price: 45, cat: 'Drinks', img: 'icetea.png', stock: 40, qty: 1, selectedAddOns: [], addOns: [{ name: 'Large Cup', price: 15 }] },
-                        { id: 6, name: 'Pancit Canton', price: 115, cat: 'Lunch', img: 'pancit.png', stock: 16, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }] },
-                        { id: 7, name: 'Latte', price: 95, cat: 'Drinks', img: 'latte.png', stock: 22, qty: 1, selectedAddOns: [], addOns: [{ name: 'Soy Milk', price: 20 }] }
-                    ];
-                },
-
-                loadProducts() {
-                    const saved = localStorage.getItem('product_catalog');
-                    if (saved) {
-                        try {
-                            const parsed = JSON.parse(saved);
-                            this.products = parsed.map(product => ({
-                                ...product,
-                                price: product.price ?? product.sellingPrice ?? 0,
-                                qty: product.qty || 1,
-                                selectedAddOns: product.selectedAddOns || []
-                            }));
-                        } catch (error) {
-                            this.products = this.defaultProducts();
-                            localStorage.setItem('product_catalog', JSON.stringify(this.products));
-                        }
-                    } else {
+            loadProducts() {
+                const saved = localStorage.getItem('product_catalog');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        this.products = parsed.map(product => ({
+                            ...product,
+                            price: product.price ?? product.sellingPrice ?? 0,
+                            qty: product.qty || 1,
+                            selectedAddOns: product.selectedAddOns || []
+                        }));
+                    } catch (error) {
                         this.products = this.defaultProducts();
                         localStorage.setItem('product_catalog', JSON.stringify(this.products));
                     }
-                },
-
-                initOrder() {
-                    this.loadProducts();
-                    const params = new URLSearchParams(window.location.search);
-                    const tableParam = params.get('table');
-                    if (tableParam) {
-                        this.tableNumber = tableParam;
-                        localStorage.setItem('customer_order_table', tableParam);
-                    } else {
-                        this.tableNumber = localStorage.getItem('customer_order_table') || null;
-                    }
-
-                    // Load guest counts if available, otherwise fall back to table reservations
-                    const savedAdults = parseInt(localStorage.getItem('customer_guests_adults'), 10);
-                    const savedChildren = parseInt(localStorage.getItem('customer_guests_children'), 10);
-
-                    let adults = Number.isInteger(savedAdults) ? savedAdults : 0;
-                    let children = Number.isInteger(savedChildren) ? savedChildren : 0;
-
-                    if (adults === 0 && children === 0 && this.tableNumber) {
-                        const storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-                        const tableData = storedTables.find(t => t.id === Number(this.tableNumber));
-                        if (tableData) {
-                            adults = Number.isInteger(tableData.adults) ? tableData.adults : adults;
-                            children = Number.isInteger(tableData.children) ? tableData.children : children;
-                        }
-                    }
-
-                    this.guestSetup.adults = adults;
-                    this.guestSetup.children = children;
-                    this.guestCount = adults + children;
-                    localStorage.setItem('customer_guests_adults', adults);
-                    localStorage.setItem('customer_guests_children', children);
-
-                    this.loadCart();
-                },
-
-                get filteredProducts() {
-                    return this.products.filter(product => {
-                        const matchesSearch = product.name.toLowerCase().includes(this.searchQuery.toLowerCase());
-                        const matchesCategory = this.selectedCategory === 'All' || product.cat === this.selectedCategory;
-                        return matchesSearch && matchesCategory;
-                    });
-                },
-
-                get cartTotal() {
-                    return this.cart.reduce((sum, item) => {
-                        const addOnsTotal = (item.addOns || []).reduce((a, addon) => a + addon.price, 0);
-                        return sum + ((item.price + addOnsTotal) * item.qty);
-                    }, 0);
-                },
-
-                formatCurrency(value) {
-                    return '₱' + parseFloat(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                },
-
-                incrementQty(product) {
-                    product.qty = (product.qty || 1) + 1;
-                },
-
-                decrementQty(product) {
-                    if (product.qty > 1) {
-                        product.qty -= 1;
-                    }
-                },
-
-                saveCart() {
-                    localStorage.setItem('customer_order_cart', JSON.stringify(this.cart));
-                    localStorage.setItem('customer_order_table', this.tableNumber || '');
-                },
-
-                loadCart() {
-                    const savedCart = localStorage.getItem('customer_order_cart');
-                    if (savedCart) {
-                        try {
-                            this.cart = JSON.parse(savedCart) || [];
-                        } catch (error) {
-                            this.cart = [];
-                        }
-                    }
-                },
-
-                addToCart(product) {
-                    const clone = {
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        img: product.img,
-                        qty: product.qty || 1,
-                        cat: product.cat,
-                        addOns: product.selectedAddOns ? [...product.selectedAddOns] : []
-                    };
-                    const existingIndex = this.cart.findIndex(item => item.id === clone.id && JSON.stringify(item.addOns) === JSON.stringify(clone.addOns));
-                    if (existingIndex !== -1) {
-                        this.cart[existingIndex].qty += clone.qty;
-                    } else {
-                        this.cart.push(clone);
-                    }
-                    this.saveCart();
-                },
-
-                openCustomizeModal(product) {
-                    this.selectedProduct = product;
-                    this.selectedProductQty = product.qty || 1;
-                    this.tempSelectedAddOns = product.selectedAddOns ? [...product.selectedAddOns] : [];
-                    this.showCustomize = true;
-                },
-
-                toggleAddon(addon) {
-                    const index = this.tempSelectedAddOns.findIndex(a => a.name === addon.name);
-                    if (index !== -1) {
-                        this.tempSelectedAddOns.splice(index, 1);
-                    } else {
-                        this.tempSelectedAddOns.push(addon);
-                    }
-                },
-
-                decrementSelectedQty() {
-                    if (this.selectedProductQty > 1) {
-                        this.selectedProductQty -= 1;
-                    }
-                },
-
-                incrementSelectedQty() {
-                    this.selectedProductQty += 1;
-                },
-
-                confirmCustomize() {
-                    if (!this.selectedProduct) {
-                        return;
-                    }
-                    this.selectedProduct.selectedAddOns = [...this.tempSelectedAddOns];
-                    this.selectedProduct.qty = this.selectedProductQty;
-                    this.showCustomize = false;
-                },
-
-                closeCustomize() {
-                    this.showCustomize = false;
-                },
-
-                gotoCart() {
-                    window.location.href = "{{ route('order.cart') }}";
-                },
-
-                toast(message) {
-                    const toast = document.createElement('div');
-                    toast.textContent = message;
-                    toast.className = 'fixed bottom-24 right-6 z-[999] rounded-full bg-[#800000] px-5 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white shadow-2xl';
-                    document.body.appendChild(toast);
-                    setTimeout(() => toast.remove(), 2000);
+                } else {
+                    this.products = this.defaultProducts();
+                    localStorage.setItem('product_catalog', JSON.stringify(this.products));
                 }
-            };
-        }
-    </script>
+            },
+
+            initOrder() {
+                this.loadProducts();
+                const params = new URLSearchParams(window.location.search);
+                const tableParam = params.get('table');
+                
+                if (tableParam) {
+                    this.tableNumber = tableParam;
+                    localStorage.setItem('customer_order_table', tableParam);
+                } else {
+                    this.tableNumber = localStorage.getItem('customer_order_table') || null;
+                }
+
+                const savedAdults = parseInt(localStorage.getItem('customer_guests_adults'), 10);
+                const savedChildren = parseInt(localStorage.getItem('customer_guests_children'), 10);
+
+                let adults = Number.isInteger(savedAdults) ? savedAdults : 0;
+                let children = Number.isInteger(savedChildren) ? savedChildren : 0;
+
+                if (adults === 0 && children === 0 && this.tableNumber) {
+                    const storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+                    const tableData = storedTables.find(t => t.id === Number(this.tableNumber));
+                    if (tableData) {
+                        adults = Number.isInteger(tableData.adults) ? tableData.adults : adults;
+                        children = Number.isInteger(tableData.children) ? tableData.children : children;
+                    }
+                }
+
+                this.guestSetup.adults = adults;
+                this.guestSetup.children = children;
+                this.guestCount = adults + children;
+                localStorage.setItem('customer_guests_adults', adults);
+                localStorage.setItem('customer_guests_children', children);
+
+                this.loadCart();
+            },
+
+            get filteredProducts() {
+                return this.products.filter(product => {
+                    const matchesSearch = product.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+                    const matchesCategory = this.selectedCategory === 'All' || product.cat === this.selectedCategory;
+                    return matchesSearch && matchesCategory;
+                });
+            },
+
+            get cartTotal() {
+                return this.cart.reduce((sum, item) => {
+                    const addOnsTotal = (item.addOns || []).reduce((a, addon) => a + addon.price, 0);
+                    return sum + ((item.price + addOnsTotal) * item.qty);
+                }, 0);
+            },
+
+            formatCurrency(value) {
+                return '₱' + parseFloat(value).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            },
+
+            saveCart() {
+                localStorage.setItem('customer_order_cart', JSON.stringify(this.cart));
+                localStorage.setItem('customer_order_table', this.tableNumber || '');
+            },
+
+            loadCart() {
+                const savedCart = localStorage.getItem('customer_order_cart');
+                if (savedCart) {
+                    try {
+                        this.cart = JSON.parse(savedCart) || [];
+                    } catch (error) {
+                        this.cart = [];
+                    }
+                }
+            },
+
+            addToCart(product) {
+                if (product.stock === 0 || !product.qty) return;
+                const clone = {
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    img: product.img,
+                    qty: Math.min(Math.max(1, product.qty || 1), product.stock),
+                    cat: product.cat,
+                    addOns: product.selectedAddOns ? [...product.selectedAddOns] : []
+                };
+                
+                const existingIndex = this.cart.findIndex(item => item.id === clone.id && JSON.stringify(item.addOns) === JSON.stringify(clone.addOns));
+                
+                if (existingIndex !== -1) {
+                    this.cart[existingIndex].qty += clone.qty;
+                } else {
+                    this.cart.push(clone);
+                }
+                
+                this.saveCart();
+                this.toast(`Added ${clone.qty}x ${clone.name}`);
+                product.qty = 1;
+            },
+
+            openCustomizeModal(product) {
+                this.selectedProduct = product;
+                this.tempSelectedAddOns = product.selectedAddOns ? [...product.selectedAddOns] : [];
+                this.showCustomize = true;
+                document.body.style.overflow = 'hidden';
+            },
+
+            toggleAddon(addon) {
+                const index = this.tempSelectedAddOns.findIndex(a => a.name === addon.name);
+                if (index !== -1) {
+                    this.tempSelectedAddOns.splice(index, 1);
+                } else {
+                    this.tempSelectedAddOns.push(addon);
+                }
+            },
+
+            confirmCustomize() {
+                if (!this.selectedProduct) return;
+                this.selectedProduct.selectedAddOns = [...this.tempSelectedAddOns];
+                this.closeCustomize();
+                this.toast('Add-ons updated');
+            },
+
+            closeCustomize() {
+                this.showCustomize = false;
+                document.body.style.overflow = '';
+            },
+
+            toast(message) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'bg-slate-900 text-white px-4 sm:px-6 py-3 rounded-xl sm:rounded-2xl shadow-xl flex items-center gap-3 transform transition-all duration-300 translate-y-[-100%] opacity-0 pointer-events-auto w-full';
+                
+                toast.innerHTML = `
+                    <div class="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center shrink-0">
+                        <i class="fas fa-check text-[10px] sm:text-xs text-white"></i>
+                    </div>
+                    <span class="text-xs sm:text-sm font-bold truncate">${message}</span>
+                `;
+                
+                container.appendChild(toast);
+                
+                requestAnimationFrame(() => {
+                    toast.classList.remove('translate-y-[-100%]', 'opacity-0');
+                    toast.classList.add('translate-y-0', 'opacity-100');
+                });
+
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-[-100%]', 'opacity-0');
+                    setTimeout(() => toast.remove(), 300);
+                }, 2500);
+            }
+        };
+    }
+</script>
 </body>
 </html>

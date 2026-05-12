@@ -25,30 +25,15 @@
             <div class="p-6 md:p-8">
                 <div class="flex flex-wrap gap-4 text-sm font-black">
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-lg bg-[#ccfad8] border-2 border-[#4ade80]"></div>
-                        <span class="text-emerald-700">Available</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-lg bg-[#fed7aa] border-2 border-[#ea580c]"></div>
-                        <span class="text-orange-700">Advance Order</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-lg bg-[#fef3c7] border-2 border-[#f59e0b]"></div>
-                        <span class="text-amber-700">Reservation</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-lg bg-[#ffdada] border-2 border-[#f87171]"></div>
-                        <span class="text-red-700">Occupied</span>
-                    </div>
-                </div>
+                        
             </div>
         </div>
 
         <!-- Tables Grid -->
-        <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 justify-items-center">
             <template x-for="table in tables" :key="table.id">
                 <div @click="table.status === 'available' ? selectTable(table) : null" 
-                     class="w-full min-h-[170px] transition-all flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
+                     class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
                          :class="getTableClass(table) + (table.status !== 'available' ? ' cursor-not-allowed opacity-80' : ' cursor-pointer hover:shadow-xl hover:-translate-y-1')">
                         
                         <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
@@ -59,7 +44,7 @@
                         
                         <template x-if="table.status === 'reserved-advance' || table.status === 'reserved-booking'">
                             <div class="text-center pt-1 w-full">
-                                <p class="text-sm font-bold text-[#1e293b]"><span x-text="table.adults + table.children"></span> guests</p>
+                                <p class="text-sm font-bold text-[#1e293b]"><span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests</p>
                             </div>
                         </template>
                     </div>
@@ -126,9 +111,7 @@
                         // Load reservation details
                         const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
                         const reservation = reservations.find(r => r.id === resId);
-                        if (reservation) {
-                            this.currentReservation = reservation;
-                        }
+                        this.currentReservation = reservation || reservations.find(r => r.type === this.bookingType && r.status === 'pending');
                     }
                     this.loadTables();
                 },
@@ -137,19 +120,31 @@
                     const stored = localStorage.getItem('ub_tables');
                     if (stored) {
                         let parsed = JSON.parse(stored);
-                        this.tables = parsed.map(t => ({
-                            id: t.id,
-                            status: t.status || (t.orders && t.orders.length > 0 ? 'occupied' : 'available'),
-                            adults: t.adults || 0,
-                            children: t.children || 0,
-                            orders: t.orders || []
-                        }));
+                        const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
+                        this.tables = parsed.map(t => {
+                            const matchedReservation = reservations.find(r => r.table == t.id)
+                                || reservations.find(r => r.status === 'pending' && ((t.status === 'reserved-advance' && r.type === 'advance-order') || (t.status === 'reserved-booking' && r.type === 'table-reservation')));
+
+                            const adults = t.adults ?? (matchedReservation ? matchedReservation.adults || 0 : 0);
+                            const children = t.children ?? (matchedReservation ? matchedReservation.children || 0 : 0);
+                            const guests = (t.guests || adults + children);
+
+                            return {
+                                id: t.id,
+                                status: t.status || (t.orders && t.orders.length > 0 ? 'occupied' : 'available'),
+                                adults: adults,
+                                children: children,
+                                guests: guests,
+                                orders: t.orders || []
+                            };
+                        });
                     } else {
                         this.tables = Array.from({ length: 15 }, (_, idx) => ({
                             id: idx + 1,
                             status: 'available',
                             adults: 0,
                             children: 0,
+                            guests: 0,
                             orders: []
                         }));
                     }
@@ -196,17 +191,22 @@
                             if (tableIndex !== -1) {
                                 storedTables[tableIndex].status = 'reserved-advance';
                                 // Get guest count from current reservation or latest pending
+                                let adults = 0;
+                                let children = 0;
                                 if (this.currentReservation) {
-                                    storedTables[tableIndex].adults = this.currentReservation.adults;
-                                    storedTables[tableIndex].children = this.currentReservation.children;
+                                    adults = this.currentReservation.adults || 0;
+                                    children = this.currentReservation.children || 0;
                                 } else {
                                     let reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
                                     let latestReservation = reservations.find(r => r.status === 'pending' && r.type === 'advance-order');
                                     if (latestReservation) {
-                                        storedTables[tableIndex].adults = latestReservation.adults;
-                                        storedTables[tableIndex].children = latestReservation.children;
+                                        adults = latestReservation.adults || 0;
+                                        children = latestReservation.children || 0;
                                     }
                                 }
+                                storedTables[tableIndex].adults = adults;
+                                storedTables[tableIndex].children = children;
+                                storedTables[tableIndex].guests = adults + children;
                                 localStorage.setItem('ub_tables', JSON.stringify(storedTables));
                                 window.dispatchEvent(new Event('storage'));
                             }
@@ -229,8 +229,11 @@
                             storedTables[tableIndex].status = 'reserved-booking';
                             // Get guest count from current reservation or latest pending
                             if (this.currentReservation) {
-                                storedTables[tableIndex].adults = this.currentReservation.adults;
-                                storedTables[tableIndex].children = this.currentReservation.children;
+                                let adults = this.currentReservation.adults || 0;
+                                let children = this.currentReservation.children || 0;
+                                storedTables[tableIndex].adults = adults;
+                                storedTables[tableIndex].children = children;
+                                storedTables[tableIndex].guests = adults + children;
                                 this.currentReservation.status = 'confirmed';
                                 this.currentReservation.table = this.selectedTable.id;
                                 let reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
@@ -243,8 +246,11 @@
                                 let reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
                                 let latestReservation = reservations.find(r => r.status === 'pending');
                                 if (latestReservation) {
-                                    storedTables[tableIndex].adults = latestReservation.adults;
-                                    storedTables[tableIndex].children = latestReservation.children;
+                                    let adults = latestReservation.adults || 0;
+                                    let children = latestReservation.children || 0;
+                                    storedTables[tableIndex].adults = adults;
+                                    storedTables[tableIndex].children = children;
+                                    storedTables[tableIndex].guests = adults + children;
                                     latestReservation.status = 'confirmed';
                                     localStorage.setItem('ub_reservations', JSON.stringify(reservations));
                                 }

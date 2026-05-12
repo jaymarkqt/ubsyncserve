@@ -48,30 +48,24 @@
    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
   <template x-for="(table, index) in openTables" :key="index">
     <div @click="table.status !== 'available' ? handleTableClick(table) : null"
-         class="w-full max-w-[170px] h-[170px] mx-auto transition-all flex flex-col items-center justify-center space-y-2 rounded-xl border-2 shadow-sm relative group"
-         :class="{
+          class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
+          :class="{
             'bg-[#ccfad8] border-[#4ade80] cursor-not-allowed opacity-80': table.status === 'available',
             'bg-[#fed7aa] border-[#ea580c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-advance',
             'bg-[#ffedd5] border-[#fb923c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-booking',
             'bg-[#ffdada] border-[#f87171] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'occupied'
-         }">
+          }">
 
         <div class="text-4xl font-black text-[#1e293b] tracking-tight"
              x-text="table.tableNumber"></div>
 
         <p class="text-[11px] font-extrabold uppercase tracking-widest"
            :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : 'text-[#cc0000]'))"
-           x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reserve' : (table.status === 'available' ? 'available' : 'occupied'))"></p>
+           x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.status === 'available' ? 'available' : 'occupied'))"></p>
 
         <template x-if="table.status !== 'available'">
             <div class="text-center pt-1 w-full">
-                <p class="text-sm font-bold text-[#1e293b]">
-                    <span x-text="table.guests"></span> guests
-                </p>
-                <template x-if="table.status === 'occupied'">
-                    <p class="text-[10px] text-[#cc0000] font-bold mt-1 tracking-widest"
-                       x-text="table.duration"></p>
-                </template>
+                <p class="text-sm font-bold text-[#1e293b]"><span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests</p>
             </div>
         </template>
     </div>
@@ -79,23 +73,17 @@
 </div>
 
     <template x-teleport="body">
-        <div x-show="showOrderModal" 
-             x-cloak 
-             class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-             
+        <div x-show="showOrderModal" x-cloak @click.self="showOrderModal = false" class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-xl p-4">
             <div class="clay-card w-full max-w-md overflow-hidden bg-white rounded-3xl shadow-2xl">
-                
-                <div class="bg-[#800000] p-6 text-white flex justify-between items-center">
+                <div class="maroon-gradient p-6 text-white flex justify-between items-center">
                     <div>
-                        <h3 class="text-xl font-black uppercase tracking-tighter">
-                            Table <span x-text="selectedTable?.tableNumber || selectedTable?.id"></span> Bill
-                        </h3>
-                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">
-                            Current Active Session
-                        </p>
+                        <h3 class="text-xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.tableNumber || selectedTable?.id"></span> Bill</h3>
+                        <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Current Active Session</p>
                     </div>
+                    <button @click="showOrderModal = false" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                
                 <div class="p-6">
                     <div class="space-y-3 max-h-64 overflow-y-auto custom-scroll mb-6 pr-2">
                         <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
@@ -111,7 +99,6 @@
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <p class="text-sm font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
-                                    
                                     <button @click="openVoidModal(index)" class="w-8 h-8 bg-white text-red-500 rounded-full border border-red-100 hover:bg-red-500 hover:text-white transition-all shadow-sm">
                                         <i class="fas fa-trash text-[10px]"></i>
                                     </button>
@@ -138,13 +125,89 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                            <i class="fas fa-check-circle text-xs"></i> Finish and Clear 
+                            <i class="fas fa-check-circle text-xs"></i> Finish and Clear
                         </button>
-                        
-                        <button @click="showOrderModal = false" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
-                            <i class="fas fa-times text-xs"></i> Close
+                        <button @click="window.location.href = '{{ route('waiter.menu') }}?table=' + (selectedTable?.tableNumber || selectedTable?.id) + '&adults=' + (selectedTable?.adults || 0) + '&children=' + (selectedTable?.children || 0)" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-plus text-xs"></i> Add Order
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="showReservedModal" x-cloak @click.self="showReservedModal = false" class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-xl p-4">
+            <div class="clay-card w-full max-w-md overflow-hidden bg-white rounded-3xl shadow-2xl">
+                <div class="bg-amber-500 p-8 text-white text-center">
+                    <h3 class="text-2xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.tableNumber || selectedTable?.id"></span></h3>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1" x-text="selectedTable?.status === 'reserved-advance' ? 'Advance Order Reserved' : 'Table Reservation'"></p>
+                </div>
+                <div class="p-6">
+                    <template x-if="selectedTable?.status === 'reserved-advance'">
+                        <div class="space-y-3 max-h-64 overflow-y-auto custom-scroll mb-6 pr-2">
+                            <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
+                                <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
+                                    <div class="flex items-center gap-4">
+                                        <span class="w-8 h-8 flex items-center justify-center bg-red-100 text-[#800000] text-xs font-black rounded-lg" x-text="item.qty + 'x'"></span>
+                                        <div>
+                                            <p class="text-[11px] font-black text-slate-800 uppercase tracking-tight" x-text="item.name"></p>
+                                            <template x-if="item.addonName && item.addonName.toLowerCase() !== 'default'">
+                                                <p class="text-[9px] text-orange-600 font-bold uppercase tracking-widest" x-text="item.addonName"></p>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <p class="text-sm font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
+                                        <button @click="openVoidModal(index)" class="w-8 h-8 bg-white text-red-500 rounded-full border border-red-100 hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                                            <i class="fas fa-trash text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template x-if="!selectedTable?.orders || selectedTable?.orders.length === 0">
+                                <div class="text-center py-10">
+                                    <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-receipt text-slate-200 text-2xl"></i>
+                                    </div>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No orders yet</p>
+                                </div>
+                            </template>
+                        </div>
+
+                        <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
+                            <div class="flex justify-between items-center px-1">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Running Total</span>
+                                <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle text-xs"></i> Finish and Clear
+                            </button>
+                            <button @click="window.location.href = '{{ route('waiter.menu') }}?table=' + (selectedTable?.tableNumber || selectedTable?.id) + '&adults=' + (selectedTable?.adults || 0) + '&children=' + (selectedTable?.children || 0)" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-plus text-xs"></i> Add Order
+                            </button>
+                        </div>
+                    </template>
+
+                    <template x-if="selectedTable?.status === 'reserved-booking'">
+                        <div class="space-y-4 text-center">
+                            <p class="text-sm font-bold text-slate-600"><span x-text="selectedTable?.guests ?? ((selectedTable?.adults || 0) + (selectedTable?.children || 0))"></span> guests reserved</p>
+                            <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Table Reservation</p>
+                                <p class="text-lg font-black text-slate-800" x-text="(selectedTable?.guests ?? ((selectedTable?.adults || 0) + (selectedTable?.children || 0))) + ' guests'"></p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle text-xs"></i> Finish and Clear
+                            </button>
+                            <button @click="showReservedModal = false" class="py-4 bg-slate-300 text-slate-700 rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-slate-300/40 hover:bg-slate-400 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-times text-xs"></i> Close
+                            </button>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
