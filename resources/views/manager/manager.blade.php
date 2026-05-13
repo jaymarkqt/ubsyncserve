@@ -134,6 +134,7 @@
                 showAddModal: false,
                 showOrderModal: false,
                 showReservedModal: false,
+                showAdvanceOrderModal: false,
                 showSetupModal: false,
                 editingIndex: null,
                 reservations: [], 
@@ -352,11 +353,17 @@ handleTableClick(table) {
     }
 
     this.selectedTable = table;
-    if (table.status === 'reserved-advance' || table.status === 'occupied' || (table.orders && table.orders.length > 0)) {
+    if (table.status === 'reserved-advance') {
+        this.showAdvanceOrderModal = true;
+        this.showOrderModal = false;
+        this.showReservedModal = false;
+    } else if (table.status === 'occupied' || (table.orders && table.orders.length > 0)) {
         this.showOrderModal = true;
+        this.showAdvanceOrderModal = false;
         this.showReservedModal = false;
     } else if (table.status === 'reserved-booking') {
         this.showReservedModal = true;
+        this.showAdvanceOrderModal = false;
         this.showOrderModal = false;
     }
 },
@@ -385,6 +392,7 @@ clearTable(tableId) {
                             this.loadTablesFromStorage();
                             this.showOrderModal = false;
                             this.showReservedModal = false;
+                            this.showAdvanceOrderModal = false;
                             this.selectedTable = null;
                         }
                     }
