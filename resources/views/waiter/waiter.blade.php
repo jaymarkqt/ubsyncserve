@@ -133,11 +133,11 @@
     <template x-for="table in tables" :key="table.id">
         <div @click="selectTable(table)" 
              class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
-             :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.status === 'reserved-advance' ? 'bg-[#fed7aa] border-[#ea580c]' : (table.status === 'reserved-booking' ? 'bg-[#ffedd5] border-[#fb923c]' : 'bg-[#ffdada] border-[#f87171]'))">
+             :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.status === 'reserved-advance' ? 'bg-[#fed7aa] border-[#ea580c]' : (table.status === 'reserved-booking' ? 'bg-[#fef08a] border-[#fcd34d]' : 'bg-[#ffdada] border-[#f87171]'))">
             <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
             
             <p class="text-[11px] font-extrabold uppercase tracking-widest" 
-               :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : 'text-[#cc0000]'))"
+               :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-yellow-700' : 'text-[#cc0000]'))"
                x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.status === 'available' ? 'available' : 'occupied'))"></p>
             
             <template x-if="table.status !== 'available'">
@@ -194,10 +194,10 @@
 
     <div x-show="showOrderModal" x-cloak class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="clay-card w-full max-w-md overflow-hidden bg-white rounded-3xl shadow-2xl">
-            <div class="maroon-gradient p-6 text-white flex justify-between items-center">
+            <div :class="selectedTable?.status === 'reserved-advance' ? 'bg-orange-500' : 'maroon-gradient'" class="p-6 text-white flex justify-between items-center">
                 <div>
-                    <h3 class="text-xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span> Bill</h3>
-                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Current Active Session</p>
+                    <h3 class="text-xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span> <span x-show="selectedTable?.status === 'reserved-advance'">Advance Order</span><span x-show="selectedTable?.status !== 'reserved-advance'">Bill</span></h3>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80" x-text="selectedTable?.status === 'reserved-advance' ? 'Advance Orders' : 'Current Active Session'"></p>
                 </div>
                 <button @click="showOrderModal = false" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
                     <i class="fas fa-times"></i>
@@ -259,7 +259,7 @@
 
     <div x-show="showReservedModal" x-cloak class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-3xl shadow-2xl">
-            <div class="bg-amber-500 p-8 text-white text-center">
+            <div :class="selectedTable?.status === 'reserved-advance' ? 'bg-orange-500' : 'bg-amber-500'" class="p-8 text-white text-center">
                 <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-calendar-check text-xl"></i>
                 </div>
@@ -399,10 +399,10 @@ function waiterSystem() {
 
         selectTable(table) {
             this.selectedTable = table;
-            
-            if (table.status === 'occupied' || (table.orders && table.orders.length > 0)) {
+
+            if (table.status === 'occupied' || table.status === 'reserved-advance' || (table.orders && table.orders.length > 0)) {
                 this.showOrderModal = true;
-            } else if (table.status === 'reserved-advance' || table.status === 'reserved-booking') {
+            } else if (table.status === 'reserved-booking') {
                 this.showReservedModal = true;
             } else {
                 // GINAWANG 0 ANG DEFAULT DITO DIN

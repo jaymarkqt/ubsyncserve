@@ -125,7 +125,118 @@
 
     </main>
 
-    <script>
+    <template x-teleport="body">
+        <div x-show="showOrderModal" x-cloak @click.self="showOrderModal = false" class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+            <div class="clay-card w-full max-w-md overflow-hidden bg-white rounded-3xl shadow-2xl">
+                <div :class="selectedTable?.status === 'reserved-advance' ? 'bg-orange-500' : 'maroon-gradient'" class="p-6 text-white flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.tableNumber || selectedTable?.id"></span> <span x-show="selectedTable?.status === 'reserved-advance'">Advance Order</span><span x-show="selectedTable?.status !== 'reserved-advance'">Bill</span></h3>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80" x-text="selectedTable?.status === 'reserved-advance' ? 'Advance Orders' : 'Current Active Session'"></p>
+                </div>
+                <button @click="showOrderModal = false" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+                <div class="p-6">
+                    <div class="space-y-3 max-h-64 overflow-y-auto custom-scroll mb-6 pr-2">
+                        <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
+                            <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
+                                <div class="flex items-center gap-4">
+                                    <span class="w-8 h-8 flex items-center justify-center bg-red-100 text-[#800000] text-xs font-black rounded-lg" x-text="item.qty + 'x'"></span>
+                                    <div>
+                                        <p class="text-[11px] font-black text-slate-800 uppercase tracking-tight" x-text="item.name"></p>
+                                        <template x-if="item.addonName && item.addonName.toLowerCase() !== 'default'">
+                                            <p class="text-[9px] text-orange-600 font-bold uppercase tracking-widest" x-text="item.addonName"></p>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <p class="text-sm font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
+                                    <button @click="openVoidModal(index)" class="w-8 h-8 bg-white text-red-500 rounded-full border border-red-100 hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                                        <i class="fas fa-trash text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template x-if="!selectedTable?.orders || selectedTable?.orders.length === 0">
+                            <div class="text-center py-10">
+                                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-receipt text-slate-200 text-2xl"></i>
+                                </div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No orders yet</p>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
+                        <div class="flex justify-between items-center px-1">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Running Total</span>
+                            <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-check-circle text-xs"></i> Finish and Clear
+                        </button>
+                        <button @click="showOrderModal = false" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-times text-xs"></i> Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="showReservedModal" x-cloak @click.self="showReservedModal = false" class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+            <div class="clay-card w-full max-w-md overflow-hidden bg-white rounded-3xl shadow-2xl">
+                <div :class="selectedTable?.status === 'reserved-advance' ? 'bg-orange-500' : 'bg-amber-500'" class="p-8 text-white text-center">
+                    <h3 class="text-2xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.tableNumber || selectedTable?.id"></span></h3>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1" x-text="selectedTable?.status === 'reserved-advance' ? 'Advance Order Reserved' : 'Table Reservation'"></p>
+                </div>
+                <div class="p-6">
+                    <template x-if="selectedTable?.status === 'reserved-booking'">
+                        <div class="space-y-4 text-center">
+                            <p class="text-sm font-bold text-slate-600"><span x-text="selectedTable?.guests ?? ((selectedTable?.adults || 0) + (selectedTable?.children || 0))"></span> guests reserved</p>
+                            <div class="rounded-2xl bg-slate-50 p-4 border border-slate-200">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Table Reservation</p>
+                                <p class="text-lg font-black text-slate-800" x-text="(selectedTable?.guests ?? ((selectedTable?.adults || 0) + (selectedTable?.children || 0))) + ' guests'"></p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle text-xs"></i> Finish and Clear
+                            </button>
+                            <button @click="showReservedModal = false" class="py-4 bg-slate-300 text-slate-700 rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-slate-300/40 hover:bg-slate-400 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-times text-xs"></i> Close
+                            </button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="showVoidModal" x-cloak class="fixed inset-0 z-[1300] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+            <div class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-3xl shadow-2xl">
+                <div class="bg-red-600 p-8 text-white text-center">
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-black uppercase tracking-tighter">Security Check</h3>
+                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">Manager Pin Required</p>
+                </div>
+                <div class="p-8 space-y-6">
+                    <input type="password" x-model="voidCodeInput" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 text-center font-black text-2xl tracking-[0.5em] focus:border-red-600 focus:bg-white outline-none transition-all" placeholder="****">
+                    <div class="flex gap-3">
+                        <button @click="cancelVoid()" class="flex-1 py-4 bg-slate-100 text-slate-500 font-black text-[11px] uppercase rounded-2xl hover:bg-slate-200 transition-all">Cancel</button>
+                        <button @click="confirmVoidOrder()" class="flex-1 py-4 bg-red-600 text-white font-black text-[11px] uppercase rounded-2xl shadow-lg shadow-red-900/20 hover:bg-red-700 transition-all">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+
         function managerDashboard() {
             return {
                 sidebarOpen: true,
@@ -134,9 +245,10 @@
                 showAddModal: false,
                 showOrderModal: false,
                 showReservedModal: false,
+                showVoidModal: false,
                 showSetupModal: false,
                 editingIndex: null,
-                reservations: [], 
+                reservations: [],
                voidOrderIndex: null,
                voidCodeInput: '',
                managerCode: '1234', 
@@ -221,16 +333,26 @@
 loadTablesFromStorage() {
                     const stored = localStorage.getItem('ub_tables');
                     const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
+                    let tables = [];
 
                     if (!stored) {
-                        this.openTables = [];
-                        return;
+                        // Initialize default tables and persist them.
+                        tables = Array.from({ length: 15 }, (_, i) => ({
+                            id: i + 1,
+                            status: 'available',
+                            adults: 0,
+                            children: 0,
+                            bill: 0,
+                            orders: []
+                        }));
+                        localStorage.setItem('ub_tables', JSON.stringify(tables));
+                    } else {
+                        tables = JSON.parse(stored);
                     }
 
-                    let tables = JSON.parse(stored);
-
+                    // Process each table
                     this.openTables = tables.map(t => {
-                        let tableOrders = Array.isArray(t.orders) ? t.orders : [];
+                        const tableOrders = t.orders || [];
                         let calculatedBill = tableOrders.reduce((sum, item) => sum + (item.price * item.qty), 0);
                         let status = t.status;
                         if (!status) {
@@ -253,31 +375,15 @@ loadTablesFromStorage() {
                             guests: guests,
                             duration: this.getDuration(t),
                             orders: tableOrders,
-                            bill: calculatedBill 
+                            bill: calculatedBill
                         };
                     });
-
-                    // Update selected table reference para realtime mag-update ang bill sa modal
-                    if (this.selectedTable && this.showOrderModal) {
-                        this.selectedTable = this.openTables.find(t => t.tableNumber === this.selectedTable.tableNumber);
-                    }
                 },
-              
-      loadReservationsFromStorage() {
-    const stored = localStorage.getItem('ub_reservations');
-    if (!stored) {
-        this.reservations = [];
-        return;
-    }
-    
-    let rawData = JSON.parse(stored);
-    this.reservations = rawData.map(res => ({
-        ...res,
-        status: res.status ? res.status.toLowerCase() : 'pending',
-        createdAt: res.createdAt || res.created_at || null,
-        type: res.type || 'table-reservation'
-    }));
-},
+
+                loadReservationsFromStorage() {
+                    const stored = localStorage.getItem('ub_reservations');
+                    this.reservations = stored ? JSON.parse(stored) : [];
+                },
 
 
 
@@ -353,17 +459,22 @@ getDuration(table) {
 
 
 handleTableClick(table) {
-    if (table.status === 'available') {
+    if (!table || table.status === 'available') {
         return;
     }
 
     this.selectedTable = table;
-    if (table.status === 'reserved-advance' || table.status === 'reserved-booking') {
+
+    // Explicitly set all to false first
+    this.showOrderModal = false;
+    this.showReservedModal = false;
+    this.showVoidModal = false;
+
+    // Then set the appropriate one to true
+    if (table.status === 'reserved-booking') {
         this.showReservedModal = true;
-        this.showOrderModal = false;
-    } else {
+    } else if (table.status === 'reserved-advance' || table.status === 'occupied' || (table.orders && table.orders.length > 0)) {
         this.showOrderModal = true;
-        this.showReservedModal = false;
     }
 },
 
@@ -526,14 +637,6 @@ clearTable(tableId) {
                 },
 
 init() {
-            // --- REFRESH DETECTOR ---
-            const navEntries = performance.getEntriesByType("navigation");
-            if (navEntries.length > 0 && navEntries[0].type === "reload") {
-                localStorage.removeItem('ub_tables');
-                localStorage.removeItem('ub_order_history');
-            }
-            // ------------------------
-
             this.loadProducts();
             this.loadAnalytics();
             this.loadTablesFromStorage();
