@@ -326,39 +326,55 @@
             },
 
             removeFromCart(index) { this.cart.splice(index, 1); },
+completeOrder() {
+    // 1. Kunin ang mga kailangang data mula sa LocalStorage
+    let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+    let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
+    let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+    
+    let idx = tables.findIndex(t => t.id == this.tableNumber);
 
-            completeOrder() {
-                let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-                let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
-                let idx = tables.findIndex(t => t.id == this.tableNumber);
+    // 2. Update stock sa product catalog
+    this.cart.forEach(item => {
+        let pIdx = products.findIndex(p => p.id === item.id);
+        if (pIdx !== -1) products[pIdx].stock -= item.qty;
+    });
+    localStorage.setItem('product_catalog', JSON.stringify(products));
 
-                // Update stock logic
-                this.cart.forEach(item => {
-                    let pIdx = products.findIndex(p => p.id === item.id);
-                    if (pIdx !== -1) products[pIdx].stock -= item.qty;
-                });
-                localStorage.setItem('product_catalog', JSON.stringify(products));
+    // 3. Update table details (occupancy at billing)
+    if (idx !== -1) {
+        tables[idx].status = 'occupied';
+        tables[idx].adults = this.adults;
+        tables[idx].children = this.children;
+        tables[idx].orders = [...(tables[idx].orders || []), ...this.cart];
+        tables[idx].bill = (tables[idx].bill || 0) + this.cartTotal;
+    }
+    localStorage.setItem('ub_tables', JSON.stringify(tables));
 
-                // Update table occupancy and bill
-                if (idx !== -1) {
-                    tables[idx].status = 'occupied';
-                    tables[idx].adults = this.adults;
-                    tables[idx].children = this.children;
-                    tables[idx].orders = [...(tables[idx].orders || []), ...this.cart];
-                    tables[idx].bill = (tables[idx].bill || 0) + this.cartTotal;
-                }
-                localStorage.setItem('ub_tables', JSON.stringify(tables));
+    // --- DINAGDAG NA ANALYTICS TRANSACTION ---
+    const transaction = {
+        orderId: 'ORD-' + Date.now(),
+        timestamp: new Date().toLocaleTimeString(),
+        totalAmount: this.cartTotal, // Ginamit ang this.cartTotal mula sa iyong logic
+        tableId: this.tableNumber,
+        items: this.cart.map(item => ({
+            name: item.name,
+            qty: item.qty
+        }))
+    };
 
-                // SHOW BROWSER ALERT (localhost message)
-                alert('Order successfully sent to kitchen!');
+    analyticsHistory.unshift(transaction); // Nilalagay ang pinakabagong order sa unahan
 
-                // REDIRECT after OK is clicked
-                window.location.href = "{{ route('waiter.dashboard') }}";
-            },
+    localStorage.setItem(
+        'ub_order_history',
+        JSON.stringify(analyticsHistory)
+    );
+    // ------------------------------------------
 
-            handleBackNavigation() {
-                window.location.href = "{{ route('waiter.dashboard') }}";
-            }
+    // 4. Alert at Redirect
+    alert('Order successfully sent to kitchen!');
+    window.location.href = "{{ route('waiter.dashboard') }}";
+}
         }
     }
 </script>
