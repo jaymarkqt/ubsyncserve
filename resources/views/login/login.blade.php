@@ -67,20 +67,29 @@
 
     <div class="login-box" x-data="loginForm()">
 
-        <div class="text-center mb-10">
-           <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
+        <!-- Alert Message at Top -->
+       
 
-            <p class="text-gray-500 text-sm font-medium">Please enter your details</p>
-        </div>
+       <div class="text-center mb-10">
+    <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
+    <p class="text-gray-500 text-sm font-medium">Please enter your details</p>
+</div>
 
-        <form @submit.prevent="handleLogin" class="space-y-6">
+<form @submit.prevent="handleLogin" class="space-y-6">
+    
+    <div x-show="errorMessage" x-transition
+         class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px] mb-2 flex items-center gap-2">
+        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+        <span x-text="errorMessage"></span>
+    </div>
 
-            <div class="space-y-1.5">
-                <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Email</label>
-                <input type="email" x-model="email" id="email" required
-                       class="custom-input" placeholder="Enter your email">
-            </div>
-
+    <div class="space-y-1.5">
+        <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Email</label>
+        <input type="email" x-model="email" id="email" required
+               class="custom-input" placeholder="Enter your email">
+    </div>
             <div class="space-y-1.5">
                 <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Password</label>
                 <input :type="showPassword ? 'text' : 'password'" x-model="password" id="password" required
@@ -99,10 +108,6 @@
                 <a href="{{ route('forgot-password') }}" class="text-[12px] font-semibold text-gray-400 hover:text-[#800000]">
                     Forgot Password?
                 </a>
-            </div>
-
-            <div x-show="errorMessage" x-transition class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px]">
-                <span x-text="errorMessage"></span>
             </div>
 
             <button type="submit" :disabled="isLoading" class="w-full ub-maroon-btn font-bold py-4 rounded-xl uppercase tracking-widest text-[12px] mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -137,23 +142,30 @@
                     }
                 },
 
+                showError(message) {
+                    this.errorMessage = message;
+                    setTimeout(() => {
+                        this.errorMessage = '';
+                    }, 2000);
+                },
+
                 handleLogin() {
                     this.errorMessage = '';
 
                     if (!this.email || !this.password) {
-                        this.errorMessage = 'Please enter both email and password';
+                        this.showError('Please enter both email and password');
                         return;
                     }
 
                     const user = this.users[this.email];
 
                     if (!user) {
-                        this.errorMessage = 'Email not found';
+                        this.showError('Email not found');
                         return;
                     }
 
                     if (user.password !== this.password) {
-                        this.errorMessage = 'Incorrect password';
+                        this.showError('Incorrect password');
                         return;
                     }
 

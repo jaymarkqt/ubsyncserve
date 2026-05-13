@@ -65,20 +65,25 @@
     <div class="forgot-box" x-data="forgotPasswordForm()">
 
         <div class="text-center mb-10">
-           <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
+            <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
             <p class="text-gray-500 text-sm font-medium">Reset Your Password</p>
         </div>
 
-        <!-- Step 1: Email Verification -->
         <form x-show="step === 1" @submit.prevent="verifyEmail" class="space-y-6">
-            <div class="space-y-1.5">
-                <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Enter Your Email</label>
-                <input type="email" x-model="email" required
-                       class="custom-input" placeholder="Enter registered email">
+            
+            <div x-show="errorMessage" x-transition
+                 class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px] mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <span x-text="errorMessage"></span>
             </div>
 
-            <div x-show="errorMessage" x-transition class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px]">
-                <span x-text="errorMessage"></span>
+            <div class="space-y-1.5">
+                <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Enter Your Email</label>
+              
+                <input type="email" x-model="email" required
+                       class="custom-input" placeholder="Enter registered email">
             </div>
 
             <button type="submit" :disabled="isLoading" class="w-full ub-maroon-btn font-bold py-4 rounded-xl uppercase tracking-widest text-[12px] disabled:opacity-50 disabled:cursor-not-allowed">
@@ -93,8 +98,16 @@
             </div>
         </form>
 
-        <!-- Step 2: Password Reset -->
         <form x-show="step === 2" @submit.prevent="resetPassword" class="space-y-6">
+            
+            <div x-show="errorMessage" x-transition
+                 class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px] mb-2 flex items-center gap-2">
+                <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                <span x-text="errorMessage"></span>
+            </div>
+
             <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-[12px]">
                 Resetting password for: <strong x-text="email"></strong>
             </div>
@@ -119,10 +132,6 @@
                 </label>
             </div>
 
-            <div x-show="errorMessage" x-transition class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px]">
-                <span x-text="errorMessage"></span>
-            </div>
-
             <button type="submit" :disabled="isLoading" class="w-full ub-maroon-btn font-bold py-4 rounded-xl uppercase tracking-widest text-[12px] disabled:opacity-50 disabled:cursor-not-allowed">
                 <span x-show="!isLoading">Reset Password</span>
                 <span x-show="isLoading">Updating...</span>
@@ -133,17 +142,11 @@
             </button>
         </form>
 
-        <!-- Step 3: Success -->
         <div x-show="step === 3" x-transition class="space-y-6 text-center">
             <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-4 rounded-lg">
                 <p class="text-[14px] font-bold mb-2">✓ Password Reset Successful!</p>
                 <p class="text-[12px]">Your password has been updated successfully.</p>
             </div>
-
-            <p class="text-[12px] text-gray-600">
-                You can now login with your new password.
-            </p>
-
             <a href="{{ route('login') }}" class="w-full ub-maroon-btn font-bold py-4 rounded-xl uppercase tracking-widest text-[12px] block text-center">
                 Back to Login
             </a>
@@ -171,6 +174,14 @@
                     this.loadStoredUsers();
                 },
 
+                // GINAYA MULA SA LOGIN.BLADE.PHP
+                showError(message) {
+                    this.errorMessage = message;
+                    setTimeout(() => {
+                        this.errorMessage = '';
+                    }, 2000); // Eksaktong 2 seconds mawawala
+                },
+
                 loadStoredUsers() {
                     const stored = localStorage.getItem('updatedUsers');
                     if (stored) {
@@ -186,19 +197,18 @@
                     this.errorMessage = '';
 
                     if (!this.email) {
-                        this.errorMessage = 'Please enter your email';
+                        this.showError('Please enter your email');
                         return;
                     }
 
                     const user = this.users[this.email];
 
                     if (!user) {
-                        this.errorMessage = 'Email not found in our system';
+                        this.showError('Email not found ');
                         return;
                     }
 
                     this.isLoading = true;
-
                     setTimeout(() => {
                         this.isLoading = false;
                         this.step = 2;
@@ -209,26 +219,24 @@
                     this.errorMessage = '';
 
                     if (!this.newPassword || !this.confirmPassword) {
-                        this.errorMessage = 'Please fill in all password fields';
+                        this.showError('Please fill in all password fields');
                         return;
                     }
 
                     if (this.newPassword.length < 4) {
-                        this.errorMessage = 'Password must be at least 4 characters';
+                        this.showError('Password must be at least 4 characters');
                         return;
                     }
 
                     if (this.newPassword !== this.confirmPassword) {
-                        this.errorMessage = 'Passwords do not match';
+                        this.showError('Passwords do not match');
                         return;
                     }
 
                     this.isLoading = true;
-
                     setTimeout(() => {
                         this.users[this.email].password = this.newPassword;
                         this.saveUsers();
-
                         this.isLoading = false;
                         this.step = 3;
                     }, 500);
@@ -236,6 +244,5 @@
             }
         }
     </script>
-
 </body>
 </html>
