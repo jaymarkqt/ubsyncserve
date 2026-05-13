@@ -164,23 +164,25 @@
                         <p class="font-bold uppercase text-[10px] tracking-widest">No items selected</p>
                     </div>
 
-                    <template x-for="(item, index) in cart" :key="index">
-                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative group">
-                            <div class="flex justify-between gap-4">
-                                <div class="flex gap-3">
-                                    <div class="w-10 h-10 rounded-xl maroon-gradient flex items-center justify-center text-white font-black text-xs shrink-0" x-text="item.qty + 'x'"></div>
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-900 leading-tight uppercase" x-text="item.name"></p>
-                                        <p x-show="item.addonName" class="text-[10px] text-[#800000] font-bold mt-0.5" x-text="'+ ' + item.addonName"></p>
-                                        <p class="text-xs font-black text-slate-400 mt-1" x-text="formatCurrency(item.price * item.qty)"></p>
-                                    </div>
-                                </div>
-                                <button @click="removeFromCart(index)" class="text-slate-300 hover:text-red-500 transition-colors">
-                                    <i class="fa-solid fa-trash-can text-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </template>
+                  <template x-for="(item, index) in cart" :key="index">
+    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative group">
+        <div class="flex justify-between gap-4">
+            <div class="flex gap-3">
+                <!-- DARK STYLE NA MAY 'x' -->
+                <div class="w-10 h-10 rounded-xl bg-[#0f172a] flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-inner" x-text="item.qty + 'x'"></div>
+                
+                <div>
+                    <p class="text-sm font-bold text-slate-900 leading-tight uppercase" x-text="item.name"></p>
+                    <p x-show="item.addonName" class="text-[10px] text-[#800000] font-bold mt-0.5" x-text="'+ ' + item.addonName"></p>
+                    <p class="text-xs font-black text-slate-400 mt-1" x-text="formatCurrency(item.price * item.qty)"></p>
+                </div>
+            </div>
+            <button @click="removeFromCart(index)" class="text-slate-300 hover:text-red-500 transition-colors">
+                <i class="fa-solid fa-trash-can text-sm"></i>
+            </button>
+        </div>
+    </div>
+</template>
                 </div>
                 
                 <div class="mt-6 pt-6 border-t border-slate-100">
