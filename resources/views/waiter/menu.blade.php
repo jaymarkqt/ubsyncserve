@@ -3,408 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waiter Menu - POS System</title>
+    <title>UB-SYNCSERVE | Waiter POS Terminal</title>
+
+    <!-- Frameworks & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f4f5f7;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        [x-cloak] { display: none !important; }
+
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        [x-cloak] { display: none !important; }
-        .bg-maroon { background-color: #800000; }
-        .text-maroon { color: #800000; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .maroon-gradient {
+            background: linear-gradient(135deg, #800000 0%, #5a0000 100%);
+        }
+
+        .menu-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(128, 0, 0, 0.08);
+        }
     </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased">
 
-<div x-data="posSystem()" x-init="initStore()" class="max-w-[1600px] mx-auto p-4 lg:p-6" x-cloak>
+<body class="antialiased text-slate-800">
+
+<div x-data="posSystem()" x-init="initStore()" class="max-w-[1600px] mx-auto p-4 lg:p-8" x-cloak>
     
-    <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-        <div class="flex items-center gap-4">
-            <button @click="handleBackNavigation()" class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#800000] transition-all">
+    <!-- Top Header -->
+    <div class="glass-card rounded-[2rem] p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
+        <div class="flex items-center gap-6">
+            <button @click="handleBackNavigation()" class="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-[#800000] hover:shadow-lg transition-all border border-slate-100">
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
-            <h1 class="text-xl font-black text-gray-800 uppercase tracking-tight">Menu Selection</h1>
-        </div>
-        <div class="flex items-center gap-3">
-            <div class="text-right">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Table</p>
-                <p class="text-sm font-black text-[#800000]" x-text="tableNumber ? 'TABLE ' + tableNumber : 'WALK-IN'"></p>
+            <div>
+                <p class="text-[10px] font-black tracking-[0.3em] uppercase text-slate-400 mb-0.5">University of Batangas</p>
+                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Waiter <span class="text-[#800000]">Terminal</span></h1>
             </div>
-            <div class="w-10 h-10 rounded-full bg-[#800000] flex items-center justify-center text-white">
-                <i class="fa-solid fa-utensils text-sm"></i>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <div class="text-right hidden sm:block">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Table</p>
+                <p class="text-sm font-black text-[#800000] tracking-wide" x-text="tableNumber ? 'TABLE ' + tableNumber : 'WALK-IN'"></p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl maroon-gradient flex items-center justify-center text-white shadow-lg shadow-maroon/20">
+                <i class="fa-solid fa-utensils"></i>
             </div>
         </div>
     </div>
 
-    <div class="pos-interface grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        <div class="lg:col-span-7 xl:col-span-8 flex flex-col">
-            <div class="mb-6 flex flex-col items-center w-full">
-                <div class="relative w-full">
-                    <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+        <!-- Main Menu Area -->
+        <div class="lg:col-span-7 xl:col-span-8">
+            
+            <!-- Search & Filters -->
+            <div class="flex flex-col xl:flex-row gap-4 mb-8">
+                <div class="relative flex-1 group">
+                    <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#800000] transition-colors"></i>
                     <input type="text" x-model="searchQuery" placeholder="Search menu items..." 
-                           class="w-full pl-16 pr-6 py-5 bg-white border border-gray-200 rounded-2xl text-base font-bold outline-none shadow-sm focus:ring-4 focus:ring-red-900/10 focus:border-red-800 transition-all">
+                           class="w-full pl-14 pr-6 py-4 bg-white border-2 border-slate-100 rounded-2xl font-semibold outline-none focus:border-[#800000] transition-all shadow-sm">
                 </div>
 
-              <div class="flex justify-start lg:justify-center gap-3 w-full mt-5 overflow-x-auto pb-4 scrollbar-hide px-1">
-    <template x-for="cat in ['All', 'Breakfast', 'Lunch', 'Snacks', 'Dinner', 'Drinks']">
-        <button x-on:click="selectedCategory = cat" 
-                :class="selectedCategory === cat ? 'bg-[#800000] text-white shadow-md border-[#800000]' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'"
-                class="px-6 py-3.5 rounded-2xl text-sm font-black uppercase border whitespace-nowrap transition-all tracking-wide" 
-                x-text="cat"></button>
-    </template>
-</div>
+                <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                    <template x-for="cat in categories" :key="cat">
+                        <button @click="selectedCategory = cat" 
+                                :class="selectedCategory === cat ? 'bg-[#800000] text-white shadow-md shadow-maroon/20' : 'bg-white text-slate-500 border-2 border-slate-100 hover:bg-rose-50'"
+                                class="px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all" 
+                                x-text="cat"></button>
+                    </template>
+                </div>
             </div>
 
-            <div class="grid grid-cols-2 xl:grid-cols-3 gap-6">
-               <template x-for="p in filteredProducts" :key="p.id">
-    <div class="bg-white p-5 flex flex-col relative border border-gray-200 rounded-[2rem] shadow-sm hover:shadow-lg transition-all duration-300">
-        <div class="w-full h-44 mb-4 overflow-hidden rounded-[2rem] bg-[#fdfdfd] border border-gray-100 flex items-center justify-center">
-            <img :src="'/img/' + p.img" class="w-full h-full object-contain p-4" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
-        </div>
-        
-        <div class="mb-4 flex-grow">
-            <h4 class="text-base font-black text-gray-800 uppercase tracking-tight leading-tight mb-1" x-text="p.name"></h4>
-            
-            <div class="mb-2 flex flex-wrap gap-1 min-h-[20px]">
-                <template x-if="p.selectedAddOns && p.selectedAddOns.length > 0">
-                    <template x-for="addon in p.selectedAddOns" :key="addon.name">
-                        <span class="bg-orange-100 text-orange-700 text-[9px] font-black px-2 py-0.5 rounded-full uppercase border border-orange-200 animate__animated animate__fadeIn">
-                            + <span x-text="addon.name"></span>
-                        </span>
-                    </template>
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <template x-for="p in filteredProducts" :key="p.id">
+                    <div class="menu-card bg-white p-5 flex flex-col border border-slate-100 rounded-[2rem] shadow-sm relative group">
+                        
+                        <div class="w-full h-44 mb-5 overflow-hidden rounded-[1.5rem] bg-slate-50 flex items-center justify-center p-4 relative">
+                            <img :src="'/img/' + p.img" class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
+                            <div class="absolute top-3 right-3 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/50 shadow-sm">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Stock: </span>
+                                <span class="text-[10px] font-black text-slate-700" x-text="p.stock"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start gap-2 mb-2">
+                                <h4 class="text-base font-bold text-slate-900 leading-tight uppercase" x-text="p.name"></h4>
+                                <span class="text-lg font-black text-[#800000]" x-text="formatCurrency(p.price)"></span>
+                            </div>
+
+                            <!-- Selected Addons Preview -->
+                            <div class="mb-4 flex flex-wrap gap-1.5 min-h-[20px]">
+                                <template x-for="addon in p.selectedAddOns" :key="addon.name">
+                                    <span class="bg-rose-50 text-[#800000] text-[9px] font-bold px-2 py-1 rounded-lg border border-rose-100">
+                                        + <span x-text="addon.name"></span>
+                                    </span>
+                                </template>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center rounded-xl border-2 border-slate-100 bg-slate-50 h-11 w-28 overflow-hidden">
+                                        <button @click="if(p.qty > 1) p.qty--" class="w-10 h-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                                            <i class="fas fa-minus text-[10px]"></i>
+                                        </button>
+                                        <div class="flex-1 h-full flex items-center justify-center font-black text-slate-800 text-sm bg-white" x-text="p.qty"></div>
+                                        <button @click="if(p.qty < p.stock) p.qty++" class="w-10 h-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                                            <i class="fas fa-plus text-[10px]"></i>
+                                        </button>
+                                    </div>
+
+                                    <button @click="openCustomizeModal(p)" class="flex-1 rounded-xl border-2 border-slate-100 bg-white h-11 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:border-[#800000] hover:text-[#800000] transition-all">
+                                        Add-ons
+                                    </button>
+                                </div>
+                                
+                                <button @click.prevent="addToCart(p)" 
+                                        :disabled="p.stock === 0"
+                                        class="w-full py-4 bg-[#800000] text-white rounded-xl text-[11px] font-black uppercase tracking-[0.1em] shadow-lg shadow-maroon/20 active:scale-95 transition-all disabled:bg-slate-200">
+                                    Add to Order
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </template>
             </div>
-
-       <div class="space-y-3">
-
-    <!-- NAME + STOCK -->
-    <div class="flex justify-end mb-2">
-    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider"
-          x-text="'Stock: ' + p.stock"></span>
-</div>
-
-    <!-- PRICE + QUANTITY -->
-    <div class="flex justify-between items-center">
-        <span class="text-xl font-black text-[#800000]"
-              x-text="'₱' + p.price.toFixed(2)"></span>
-
-        <div class="inline-flex items-center rounded-xl overflow-hidden border border-slate-200 bg-white shadow-sm">
-            <button 
-                @click="p.qty = Math.max(1, p.qty - 1)" 
-                class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition border-r border-slate-200">
-                <i class="fas fa-minus text-xs"></i>
-            </button>
-
-            <div class="w-12 h-10 flex items-center justify-center font-black text-slate-700 bg-slate-50">
-                <span class="text-sm" x-text="p.qty"></span>
-            </div>
-
-            <button 
-                @click="p.qty++" 
-                class="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition border-l border-slate-200">
-                <i class="fas fa-plus text-xs"></i>
-            </button>
-        </div>
-    </div>
-
-</div>
-
-
-        <div class="mt-auto space-y-3 pt-4 border-t border-gray-100">
-            <button @click="openCustomizeModal(p)" class="w-full rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-wider text-[#800000] text-center">
-                CUSTOMIZE ADDS-ON
-            </button>
-            
-            <button x-on:click.prevent="addToCart(p)" 
-                    class="w-full py-4 bg-[#800000] text-white rounded-xl text-sm font-black uppercase shadow-md active:scale-[0.98]">
-                Add to Order
-            </button>
-        </div>
-    </div>
-</template>
-            </div>
         </div>
 
-        <div class="lg:col-span-5 xl:col-span-4 sticky top-4">
-            <div class="bg-white p-5 border-t-[8px] border-[#800000] shadow-xl flex flex-col h-[calc(100vh-60px)] rounded-[2rem] overflow-hidden">
-                
-                <div class="space-y-3 mb-4 overflow-y-auto flex-1 min-h-[150px] scrollbar-hide pr-1 relative">
-                    <div x-show="cart.length === 0" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-white">
-                        <i class="fa-solid fa-cart-shopping text-4xl text-gray-100 mb-4"></i>
-                        <p class="text-sm font-bold text-gray-300 uppercase tracking-widest">Cart is empty</p>
+        <!-- Order Sidebar -->
+        <div class="lg:col-span-5 xl:col-span-4 sticky top-8">
+            <div class="glass-card rounded-[2.5rem] p-6 shadow-xl border-t-[8px] border-[#800000] h-[calc(100vh-120px)] flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Order Details</h2>
+                    <span class="bg-rose-50 text-[#800000] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" x-text="cart.length + ' Items'"></span>
+                </div>
+
+                <div class="flex-1 overflow-y-auto scrollbar-hide space-y-4 pr-1">
+                    <div x-show="cart.length === 0" class="h-full flex flex-col items-center justify-center text-slate-300 opacity-60">
+                        <i class="fa-solid fa-cart-shopping text-5xl mb-4"></i>
+                        <p class="font-bold uppercase text-[10px] tracking-widest">No items selected</p>
                     </div>
 
                     <template x-for="(item, index) in cart" :key="index">
-                        <div class="flex justify-between items-center bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm animate__animated animate__fadeInRight animate__faster">
-                            <div class="flex items-center gap-3 w-full">
-                                <div class="w-8 h-8 rounded-lg bg-red-50 text-[#800000] flex items-center justify-center text-sm font-black shrink-0" x-text="item.qty + 'x'"></div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-black uppercase text-gray-800 truncate" x-text="item.name"></p>
-                                    
-                                 <p x-show="item.addonName" class="text-[10px] text-orange-600 font-bold uppercase truncate" x-text="'+ ' + item.addonName"></p>
-                                    <p class="text-xs text-gray-500 font-bold" x-text="formatCurrency(item.price * item.qty)"></p>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative group">
+                            <div class="flex justify-between gap-4">
+                                <div class="flex gap-3">
+                                    <div class="w-10 h-10 rounded-xl maroon-gradient flex items-center justify-center text-white font-black text-xs shrink-0" x-text="item.qty + 'x'"></div>
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-900 leading-tight uppercase" x-text="item.name"></p>
+                                        <p x-show="item.addonName" class="text-[10px] text-[#800000] font-bold mt-0.5" x-text="'+ ' + item.addonName"></p>
+                                        <p class="text-xs font-black text-slate-400 mt-1" x-text="formatCurrency(item.price * item.qty)"></p>
+                                    </div>
                                 </div>
+                                <button @click="removeFromCart(index)" class="text-slate-300 hover:text-red-500 transition-colors">
+                                    <i class="fa-solid fa-trash-can text-sm"></i>
+                                </button>
                             </div>
-                            <button x-on:click="removeFromCart(index)" class="w-10 h-10 shrink-0 flex items-center justify-center text-gray-400 hover:text-red-500 bg-gray-50 rounded-lg transition-colors ml-2">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
                         </div>
                     </template>
                 </div>
                 
-                <div class="space-y-4 pt-3 border-t border-gray-100 shrink-0 bg-white">
-                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                        <div class="flex justify-between items-end pt-3">
-                            <span class="text-xs font-black text-gray-800 uppercase tracking-widest">Total Due</span>
+                <div class="mt-6 pt-6 border-t border-slate-100">
+                    <div class="bg-slate-50 rounded-2xl p-4 mb-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Bill</span>
                             <span class="text-3xl font-black text-[#800000]" x-text="formatCurrency(cartTotal)"></span>
                         </div>
                     </div>
                     
-                    <button type="button" 
-                            @click="completeOrder"
-                            :disabled="cart.length === 0"
-                            class="w-full py-4 bg-[#800000] text-white rounded-xl font-black text-sm uppercase shadow-lg disabled:opacity-50 flex justify-center items-center gap-2 transition-all">
-                        Complete Order <i class="fas fa-arrow-right"></i>
+                    <button @click="completeOrder()" :disabled="cart.length === 0"
+                            class="w-full py-5 maroon-gradient text-white rounded-[1.5rem] font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-maroon/20 hover:shadow-2xl transition-all disabled:opacity-50">
+                        Complete Order <i class="fa-solid fa-check-circle ml-2"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div x-show="showModal" class="fixed inset-0 z-[200] flex items-center justify-center p-4" x-cloak>
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeCustomizeModal()"></div>
-        <div class="bg-white rounded-[2rem] p-6 max-w-md w-full shadow-2xl relative z-10 animate__animated animate__zoomIn animate__faster">
-            <div class="text-center mb-6 mt-2">
-                <h3 class="text-lg font-extrabold text-[#800000] tracking-wide leading-tight uppercase" x-text="'Customize ' + (selectedFood ? selectedFood.name : '')"></h3>
-                <p class="text-xs text-gray-500 mt-1">Select add-ons for this item</p>
+    <!-- Customize Modal -->
+    <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" x-cloak>
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="bg-slate-50 p-6 border-b border-slate-100">
+                <h3 class="text-xl font-black text-slate-900" x-text="selectedFood ? 'Customize ' + selectedFood.name : ''"></h3>
+                <p class="text-xs font-bold text-[#800000] mt-1 uppercase tracking-widest">Select Extra Add-ons</p>
             </div>
 
-            <div class="space-y-3 max-h-60 overflow-y-auto mb-6 px-2 scrollbar-hide">
+            <div class="p-6 max-h-[60vh] overflow-y-auto scrollbar-hide space-y-3">
                 <template x-for="addon in (selectedFood ? selectedFood.addOns : [])" :key="addon.name">
-                    <label class="flex items-center bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-100">
-                        <input type="checkbox" class="accent-[#800000] mr-3 w-5 h-5"
+                    <label class="flex items-center gap-4 border-2 border-slate-100 rounded-2xl p-4 cursor-pointer hover:bg-rose-50 transition-all"
+                           :class="tempSelectedAddOns.some(a => a.name === addon.name) ? 'border-[#800000] bg-rose-50/50' : ''">
+                        <input type="checkbox" class="accent-[#800000] w-5 h-5 rounded-lg"
                                :checked="tempSelectedAddOns.some(a => a.name === addon.name)"
                                @change="toggleAddon(addon)">
-                        <span class="text-sm font-medium text-gray-800" x-text="addon.name"></span>
-                        <span class="text-sm text-[#800000] font-black ml-auto" x-text="'+₱' + addon.price"></span>
+                        <span class="font-bold text-slate-700" x-text="addon.name"></span>
+                        <span class="ml-auto font-black text-[#800000] bg-white px-3 py-1 rounded-lg border border-slate-100 shadow-sm text-xs" x-text="'+ ' + formatCurrency(addon.price)"></span>
                     </label>
                 </template>
             </div>
 
-            <div class="flex gap-3">
-                <button @click="closeCustomizeModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold uppercase text-sm">Cancel</button>
-                <button @click="confirmAddOns()" class="flex-1 bg-[#800000] text-white py-3 rounded-xl font-bold uppercase text-sm transition-all">Confirm</button>
+            <div class="p-6 border-t border-slate-100 flex gap-3">
+                <button @click="closeCustomizeModal()" class="flex-1 py-4 bg-white border-2 border-slate-100 text-slate-500 font-bold rounded-2xl uppercase text-xs tracking-widest">Cancel</button>
+                <button @click="confirmAddOns()" class="flex-1 py-4 maroon-gradient text-white font-black rounded-2xl uppercase text-xs tracking-widest">Apply</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-  function posSystem() {
-    return {
-        searchQuery: '',
-        selectedCategory: 'All',
-        tableNumber: null,
-        cart: [],
-        adults: 0,
-        children: 0,
-        showModal: false,
-        selectedFood: null,
-        tempSelectedAddOns: [],
-        
-    products: [],
+    function posSystem() {
+        return {
+            searchQuery: '',
+            selectedCategory: 'All',
+            categories: ['All', 'Breakfast', 'Lunch', 'Snacks', 'Dinner', 'Drinks'],
+            tableNumber: null,
+            adults: 0,
+            children: 0,
+            cart: [],
+            showModal: false,
+            selectedFood: null,
+            tempSelectedAddOns: [],
+            products: [],
 
-      defaultProducts() {
-            return [
-                { id: 1, name: 'Burger Steak', price: 99, cat: 'Lunch', img: 'burgersteak.png', stock: 24, qty: 1, addOns: [{ name: 'Extra Rice', price: 20 }, { name: 'Cheese', price: 15 }] },
-                { id: 2, name: 'Tapa & Egg', price: 120, cat: 'Breakfast', img: 'tapa.png', stock: 18, qty: 1, addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
-                { id: 3, name: 'Fries', price: 65, cat: 'Snacks', img: 'fries.png', stock: 30, qty: 1, addOns: [{ name: 'Cheese Sauce', price: 10 }, { name: 'Bacon Bits', price: 15 }] },
-                { id: 4, name: 'Fried Chicken', price: 150, cat: 'Dinner', img: 'chicken.png', stock: 12, qty: 1, addOns: [{ name: 'Extra Gravy', price: 10 }, { name: 'Spicy Dip', price: 10 }] },
-                { id: 5, name: 'Ice Tea', price: 45, cat: 'Drinks', img: 'icetea.png', stock: 40, qty: 1, addOns: [{ name: 'Large Cup', price: 15 }] }
-            ];
-        },
+            initStore() {
+                this.loadProducts();
+                const params = new URLSearchParams(window.location.search);
+                this.tableNumber = params.get('table');
+                this.adults = parseInt(params.get('adults')) || 0;
+                this.children = parseInt(params.get('children')) || 0;
+            },
 
-        loadProducts() {
-            const savedProducts = localStorage.getItem('product_catalog');
-            if (savedProducts) {
-                try {
-                    const parsed = JSON.parse(savedProducts);
-                    this.products = parsed.map(product => ({
-                        ...product,
-                        price: product.price ?? product.sellingPrice ?? 0,
-                        qty: product.qty || 1,
-                        selectedAddOns: product.selectedAddOns || []
+            loadProducts() {
+                const saved = localStorage.getItem('product_catalog');
+                if (saved) {
+                    this.products = JSON.parse(saved).map(p => ({
+                        ...p,
+                        qty: 1,
+                        selectedAddOns: []
                     }));
-                } catch (error) {
-                    this.products = this.defaultProducts();
-                    localStorage.setItem('product_catalog', JSON.stringify(this.products));
                 }
-            } else {
-                this.products = this.defaultProducts();
-                localStorage.setItem('product_catalog', JSON.stringify(this.products));
-            }
-        },
+            },
 
-      initStore() {
-            // --- REFRESH DETECTOR ---
-            const navEntries = performance.getEntriesByType("navigation");
-            if (navEntries.length > 0 && navEntries[0].type === "reload") {
-                localStorage.removeItem('ub_tables');
-                localStorage.removeItem('ub_order_history');
-            }
-            // ------------------------
-            this.loadProducts();
-            window.addEventListener('storage', () => this.loadProducts());
-
-           const params = new URLSearchParams(window.location.search);
-            this.tableNumber = params.get('table');
-            this.adults = parseInt(params.get('adults')) || 0;
-            this.children = parseInt(params.get('children')) || 0;
-        },
-
-
-        handleBackNavigation() {
-            if (this.cart.length === 0 && this.tableNumber) {
-                let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-                let idx = tables.findIndex(t => t.id == this.tableNumber);
-                if (idx !== -1) { tables[idx].status = 'vacant'; localStorage.setItem('ub_tables', JSON.stringify(tables)); }
-            }
-            window.location.href = "{{ route('waiter.dashboard') }}";
-        },
-
-        get filteredProducts() {
-            return this.products.filter(p => {
-                const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
-                const matchesCat = this.selectedCategory === 'All' || p.cat === this.selectedCategory;
-                return matchesSearch && matchesCat;
-            });
-        },
-        
-        get cartTotal() {
-            return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        },
-
-        formatCurrency(val) {
-            return '₱' + parseFloat(val).toLocaleString(undefined, {minimumFractionDigits: 2});
-        },
-
-       openCustomizeModal(product) {
-    this.selectedFood = product;
-    // Load existing selections if any
-    this.tempSelectedAddOns = product.selectedAddOns ? [...product.selectedAddOns] : [];
-    this.showModal = true;
-},
-
-        toggleAddon(addon) {
-            let exists = this.tempSelectedAddOns.findIndex(a => a.name === addon.name);
-            if (exists !== -1) this.tempSelectedAddOns.splice(exists, 1);
-            else this.tempSelectedAddOns.push(addon);
-        },
-
-       confirmAddOns() {
-    if (this.selectedFood) {
-        // I-save ang pinili sa mismong product object para mabasa ng UI
-        this.selectedFood.selectedAddOns = [...this.tempSelectedAddOns];
-    }
-    this.showModal = false;
-},
-
-
-        closeCustomizeModal() { this.showModal = false; },
-
-        addToCart(product) {
-            const qty = Math.max(1, product.qty || 1);
-            const selectedAddOns = product.selectedAddOns || [];
-            const addOnPrice = selectedAddOns.reduce((sum, a) => sum + a.price, 0);
-            const finalUnitPrice = product.price + addOnPrice;
-            const addonNameStr = selectedAddOns.length > 0 ? selectedAddOns.map(a => a.name).join(', ') : '';
-            const cartId = product.id + (addonNameStr ? '-' + addonNameStr : '');
-
-            let foundIndex = this.cart.findIndex(i => i.cartId === cartId);
-            if (foundIndex > -1) {
-                this.cart[foundIndex].qty += qty;
-            } else {
-                this.cart.push({
-                    ...product,
-                    cartId,
-                    qty,
-                    addonName: addonNameStr,
-                    price: finalUnitPrice
+            get filteredProducts() {
+                return this.products.filter(p => {
+                    const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+                    const matchesCat = this.selectedCategory === 'All' || p.cat === this.selectedCategory;
+                    return matchesSearch && matchesCat;
                 });
+            },
+
+            get cartTotal() {
+                return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            },
+
+            formatCurrency(val) {
+                return '₱' + parseFloat(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            },
+
+            openCustomizeModal(product) {
+                this.selectedFood = product;
+                this.tempSelectedAddOns = product.selectedAddOns ? [...product.selectedAddOns] : [];
+                this.showModal = true;
+            },
+
+            toggleAddon(addon) {
+                const idx = this.tempSelectedAddOns.findIndex(a => a.name === addon.name);
+                if (idx !== -1) this.tempSelectedAddOns.splice(idx, 1);
+                else this.tempSelectedAddOns.push(addon);
+            },
+
+            confirmAddOns() {
+                if (this.selectedFood) this.selectedFood.selectedAddOns = [...this.tempSelectedAddOns];
+                this.showModal = false;
+            },
+
+            closeCustomizeModal() { this.showModal = false; },
+
+            addToCart(product) {
+                if (product.stock <= 0) return;
+                
+                const addOnPrice = (product.selectedAddOns || []).reduce((sum, a) => sum + a.price, 0);
+                const addonNameStr = (product.selectedAddOns || []).map(a => a.name).join(', ');
+                const cartId = product.id + '-' + addonNameStr;
+
+                const existing = this.cart.find(i => i.cartId === cartId);
+                if (existing) {
+                    existing.qty += product.qty;
+                } else {
+                    this.cart.push({
+                        ...product,
+                        cartId,
+                        price: product.price + addOnPrice,
+                        addonName: addonNameStr,
+                        qty: product.qty
+                    });
+                }
+                
+                // RESET product state without notification
+                product.selectedAddOns = [];
+                product.qty = 1;
+            },
+
+            removeFromCart(index) { this.cart.splice(index, 1); },
+
+            completeOrder() {
+                let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+                let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
+                let idx = tables.findIndex(t => t.id == this.tableNumber);
+
+                // Update stock logic
+                this.cart.forEach(item => {
+                    let pIdx = products.findIndex(p => p.id === item.id);
+                    if (pIdx !== -1) products[pIdx].stock -= item.qty;
+                });
+                localStorage.setItem('product_catalog', JSON.stringify(products));
+
+                // Update table occupancy and bill
+                if (idx !== -1) {
+                    tables[idx].status = 'occupied';
+                    tables[idx].adults = this.adults;
+                    tables[idx].children = this.children;
+                    tables[idx].orders = [...(tables[idx].orders || []), ...this.cart];
+                    tables[idx].bill = (tables[idx].bill || 0) + this.cartTotal;
+                }
+                localStorage.setItem('ub_tables', JSON.stringify(tables));
+
+                // SHOW BROWSER ALERT (localhost message)
+                alert('Order successfully sent to kitchen!');
+
+                // REDIRECT after OK is clicked
+                window.location.href = "{{ route('waiter.dashboard') }}";
+            },
+
+            handleBackNavigation() {
+                window.location.href = "{{ route('waiter.dashboard') }}";
             }
-            product.selectedAddOns = [];
-            product.qty = 1;
-        },
-
-        removeFromCart(index) { this.cart.splice(index, 1); },
-
-       // Sa menu.blade.php, hanapin ang completeOrder() at palitan ng ganito:
-completeOrder() {
-    if (!this.tableNumber || this.cart.length === 0) return;
-
-    let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-    let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
-    let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
-
-    let idx = tables.findIndex(t => t.id == this.tableNumber);
-
-    const totalAmount = this.cart.reduce(
-        (sum, item) => sum + (item.price * item.qty), 0
-    );
-
-    // Reduce stock for each item in the cart
-    this.cart.forEach(cartItem => {
-        let productIndex = products.findIndex(p => p.id === cartItem.id);
-        if (productIndex !== -1 && products[productIndex].stock >= cartItem.qty) {
-            products[productIndex].stock -= cartItem.qty;
         }
-    });
-
-    // Save updated products back to localStorage
-    localStorage.setItem('product_catalog', JSON.stringify(products));
-
-    // save sa waiter tables
-    if (idx !== -1) {
-        tables[idx].status = 'occupied';
-                tables[idx].adults = this.adults;        // <-- IDAGDAG ITO
-                tables[idx].children = this.children;    // <-- IDAGDAG ITO
-                tables[idx].orders = [...(tables[idx].orders || []), ...this.cart];
-                tables[idx].bill = totalAmount;
-
     }
-
-    localStorage.setItem('ub_tables', JSON.stringify(tables));
-
-    // save analytics transaction
-    const transaction = {
-        orderId: 'ORD-' + Date.now(),
-        timestamp: new Date().toLocaleTimeString(),
-        totalAmount: totalAmount,
-        tableId: this.tableNumber,
-        items: this.cart.map(item => ({
-            name: item.name,
-            qty: item.qty
-        }))
-    };
-
-    analyticsHistory.unshift(transaction);
-
-    localStorage.setItem(
-        'ub_order_history',
-        JSON.stringify(analyticsHistory)
-    );
-
-    // redirect
-    window.location.href = "{{ route('waiter.dashboard') }}";
-},
-    }
-}
-
-
 </script>
 </body>
 </html>
