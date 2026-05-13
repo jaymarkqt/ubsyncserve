@@ -10,8 +10,12 @@ use App\Http\Controllers\ReservationEmailController;
 
 
   Route::prefix('manager')->group(function () {
+    Route::get('/', function () {
+        return view('manager.manager');
+    })->name('manager.home');
+
     Route::get('/dashboard', function () {
-        return view('manager.manager'); 
+        return view('manager.manager');
     })->name('manager.dashboard');
 
     Route::get('/open-tables', function () {
@@ -24,10 +28,14 @@ use App\Http\Controllers\ReservationEmailController;
 });
 
 Route::prefix('waiter')->group(function () {
-    
+
+    Route::get('/', function () {
+        return view('waiter.waiter');
+    })->name('waiter.home');
+
     // Dashboard (waiter.blade.php)
     Route::get('/dashboard', function () {
-        return view('waiter.waiter'); 
+        return view('waiter.waiter');
     })->name('waiter.dashboard');
 
     // Menu/POS (menu.blade.php)
@@ -111,6 +119,7 @@ Route::get('/', function () {
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', function () { return view('login.login'); })->name('login');
+    Route::get('/forgot-password', function () { return view('login.forgot-password'); })->name('forgot-password');
     Route::post('/login', function (Request $request) {
         $credentials = $request->validate([
             'email' => ['required', 'email'],

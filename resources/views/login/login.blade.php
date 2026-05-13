@@ -1,144 +1,173 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Started | UB Sync</title>
+    <title>Login | UB Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
-            background-color: #ffffff;
+            background-color: #f9fafb;
             font-family: 'Inter', sans-serif;
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            margin: 0;
+            padding: 1rem; /* Space para sa mobile screens */
         }
 
-        /* Box Adjustment: Ginawang 2.5rem ang horizontal padding para safe lahat sa loob */
+        /* Container adjustment for responsiveness */
         .login-box {
             background-color: #ffffff;
-            border-radius: 2.5rem;
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.06);
-            border: 1px solid #f0f0f0;
-            width: 90%;
-            max-width: 380px;
-            padding: 3rem 2.5rem; 
+            border-radius: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            width: 100%;
+            /* Mobile: Full width | Tablet/PC: Max 420px */
+            max-width: 420px; 
+            padding: 2.5rem 1.5rem; /* Default mobile padding */
+        }
+
+        /* Pag tablet pataas, lalakihan ang internal padding */
+        @media (min-width: 640px) {
+            .login-box {
+                padding: 3.5rem 3rem;
+            }
+        }
+
+        .custom-input {
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.85rem 1rem;
+            width: 100%;
+            font-weight: 500;
+            font-size: 1rem;
+            background-color: #ffffff;
+            color: #1a1a1a;
             box-sizing: border-box;
         }
 
-        .get-started-header {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 900;
-            font-size: 1.1rem; 
-            text-transform: uppercase;
-            letter-spacing: -0.5px;
-            color: #1a1a1a;
-            line-height: 1;
-            margin: 0;
-        }
-
-        .ub-maroon { background-color: #800000; }
-
-        /* Input Adjustment: box-sizing border-box para hindi lumampas kahit may padding */
-        .custom-input {
-            border: 2px solid #f3f4f6;
-            color: #000000;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            width: 100%;
-            box-sizing: border-box; 
-        }
-
         .custom-input:focus {
-            border-color: #800000;
             outline: none;
+            border-color: #800000;
         }
 
-        .fade-out { opacity: 0; transition: opacity 0.5s ease-out; }
+        .ub-maroon-btn {
+            background-color: #800000;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <div class="login-box animate__animated animate__fadeIn">
-        
-        <div class="text-center mb-6">
-            <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" 
-                 class="w-40 h-auto mx-auto mb-3"> 
-            
-            <h2 class="get-started-header">
-                GET <span class="text-[#800000]">STARTED</span>
-            </h2>
+    <div class="login-box" x-data="loginForm()">
+
+        <div class="text-center mb-10">
+           <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
+
+            <p class="text-gray-500 text-sm font-medium">Please enter your details</p>
         </div>
 
-        <div class="empty:hidden mb-4">
-            @if (session('success'))
-                <div id="alert-success" class="bg-green-50 text-green-700 p-2 rounded-xl text-[10px] font-bold border border-green-100 text-center">
-                    {{ session('success') }}
+        <form @submit.prevent="handleLogin" class="space-y-6">
+
+            <div class="space-y-1.5">
+                <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Email</label>
+                <input type="email" x-model="email" id="email" required
+                       class="custom-input" placeholder="Enter your email">
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Password</label>
+                <input :type="showPassword ? 'text' : 'password'" x-model="password" id="password" required
+                       class="custom-input" placeholder="Enter your password">
+            </div>
+
+            <div class="flex flex-row items-center justify-between px-1">
+                <div class="flex items-center cursor-pointer select-none" @click="showPassword = !showPassword">
+                    <input type="checkbox" x-model="showPassword"
+                           class="w-4 h-4 rounded border-gray-300 accent-[#800000] cursor-pointer">
+                    <label class="ml-2 text-[12px] font-semibold text-gray-600 cursor-pointer">
+                        Show password
+                    </label>
                 </div>
-            @endif
 
-            @if ($errors->any())
-                <div id="alert-error-login" class="bg-red-50 text-red-600 p-2 rounded-xl text-[10px] font-bold border border-red-100 text-center animate__animated animate__shakeX">
-                    Invalid email or password.
-                </div>
-            @endif
-        </div>
+                <a href="{{ route('forgot-password') }}" class="text-[12px] font-semibold text-gray-400 hover:text-[#800000]">
+                    Forgot Password?
+                </a>
+            </div>
 
-        <form action="{{ route('login.post') }}" method="POST" class="space-y-4">
-    @csrf
-    
-    <div class="space-y-1">
-        <label class="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Email</label>
-        <input type="email" name="email" id="email" required 
-            class="custom-input px-4 py-3 rounded-2xl text-sm"
-            placeholder="">
-    </div>
+            <div x-show="errorMessage" x-transition class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px]">
+                <span x-text="errorMessage"></span>
+            </div>
 
-    <div class="space-y-1">
-        <label class="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Password</label>
-        <input type="password" name="password" id="password" required 
-            class="custom-input px-4 py-3 rounded-2xl text-sm"
-            placeholder="">
-    
-        <div class="flex items-center gap-2 pt-2 ml-1 w-full box-border">
-            <input type="checkbox" id="show-pass-check" onclick="togglePassword()" 
-                   class="w-4 h-4 rounded border-gray-300 text-[#800000] accent-[#800000] cursor-pointer flex-shrink-0">
-            
-            <label class="text-[11px] font-bold text-black uppercase select-none whitespace-nowrap cursor-pointer" for="show-pass-check">
-                Show Password
-            </label>
-        </div>
-    </div>
-
-    <button type="submit" class="w-full ub-maroon text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[11px] shadow-md hover:brightness-110 transition-all active:scale-95 mt-2">
-        Login
-    </button>
-</form>
-
+            <button type="submit" :disabled="isLoading" class="w-full ub-maroon-btn font-bold py-4 rounded-xl uppercase tracking-widest text-[12px] mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span x-show="!isLoading">Log In</span>
+                <span x-show="isLoading">Logging in...</span>
+            </button>
+        </form>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = ['alert-success', 'alert-error-login'];
-            alerts.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) {
-                    setTimeout(() => {
-                        el.classList.add('fade-out');
-                        setTimeout(() => el.remove(), 500);
-                    }, 3000);
-                }
-            });
-        });
+        function loginForm() {
+            return {
+                email: '',
+                password: '',
+                showPassword: false,
+                errorMessage: '',
+                isLoading: false,
 
-        function togglePassword() {
-            const passInput = document.getElementById('password');
-            const checkBox = document.getElementById('show-pass-check');
-            passInput.type = checkBox.checked ? "text" : "password";
+                users: {
+                    'waiter123@gmail.com': { password: 'admin123', role: 'waiter' },
+                    'manager123@gmail.com': { password: 'admin123', role: 'manager' }
+                },
+
+                init() {
+                    this.loadStoredUsers();
+                },
+
+                loadStoredUsers() {
+                    const stored = localStorage.getItem('updatedUsers');
+                    if (stored) {
+                        this.users = JSON.parse(stored);
+                    }
+                },
+
+                handleLogin() {
+                    this.errorMessage = '';
+
+                    if (!this.email || !this.password) {
+                        this.errorMessage = 'Please enter both email and password';
+                        return;
+                    }
+
+                    const user = this.users[this.email];
+
+                    if (!user) {
+                        this.errorMessage = 'Email not found';
+                        return;
+                    }
+
+                    if (user.password !== this.password) {
+                        this.errorMessage = 'Incorrect password';
+                        return;
+                    }
+
+                    this.isLoading = true;
+
+                    setTimeout(() => {
+                        if (user.role === 'waiter') {
+                            window.location.href = '/waiter';
+                        } else if (user.role === 'manager') {
+                            window.location.href = '/manager';
+                        }
+                    }, 500);
+                }
+            }
         }
     </script>
 </body>
