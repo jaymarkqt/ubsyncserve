@@ -221,16 +221,26 @@
 loadTablesFromStorage() {
                     const stored = localStorage.getItem('ub_tables');
                     const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
+                    let tables = [];
 
                     if (!stored) {
-                        this.openTables = [];
-                        return;
+                        // Initialize default tables and persist them.
+                        tables = Array.from({ length: 15 }, (_, i) => ({
+                            id: i + 1,
+                            status: 'available',
+                            adults: 0,
+                            children: 0,
+                            bill: 0,
+                            orders: []
+                        }));
+                        localStorage.setItem('ub_tables', JSON.stringify(tables));
+                    } else {
+                        tables = JSON.parse(stored);
                     }
 
-                    let tables = JSON.parse(stored);
-
+                    // Process each table
                     this.openTables = tables.map(t => {
-                        let tableOrders = Array.isArray(t.orders) ? t.orders : [];
+                        const tableOrders = t.orders || [];
                         let calculatedBill = tableOrders.reduce((sum, item) => sum + (item.price * item.qty), 0);
                         let status = t.status;
                         if (!status) {
@@ -253,31 +263,15 @@ loadTablesFromStorage() {
                             guests: guests,
                             duration: this.getDuration(t),
                             orders: tableOrders,
-                            bill: calculatedBill 
+                            bill: calculatedBill
                         };
                     });
-
-                    // Update selected table reference para realtime mag-update ang bill sa modal
-                    if (this.selectedTable && this.showOrderModal) {
-                        this.selectedTable = this.openTables.find(t => t.tableNumber === this.selectedTable.tableNumber);
-                    }
                 },
-              
-      loadReservationsFromStorage() {
-    const stored = localStorage.getItem('ub_reservations');
-    if (!stored) {
-        this.reservations = [];
-        return;
-    }
-    
-    let rawData = JSON.parse(stored);
-    this.reservations = rawData.map(res => ({
-        ...res,
-        status: res.status ? res.status.toLowerCase() : 'pending',
-        createdAt: res.createdAt || res.created_at || null,
-        type: res.type || 'table-reservation'
-    }));
-},
+
+                loadReservationsFromStorage() {
+                    const stored = localStorage.getItem('ub_reservations');
+                    this.reservations = stored ? JSON.parse(stored) : [];
+                },
 
 
 
@@ -358,12 +352,12 @@ handleTableClick(table) {
     }
 
     this.selectedTable = table;
-    if (table.status === 'reserved-advance' || table.status === 'reserved-booking') {
-        this.showReservedModal = true;
-        this.showOrderModal = false;
-    } else {
+    if (table.status === 'reserved-advance' || table.status === 'occupied' || (table.orders && table.orders.length > 0)) {
         this.showOrderModal = true;
         this.showReservedModal = false;
+    } else if (table.status === 'reserved-booking') {
+        this.showReservedModal = true;
+        this.showOrderModal = false;
     }
 },
 
@@ -526,14 +520,6 @@ clearTable(tableId) {
                 },
 
 init() {
-            // --- REFRESH DETECTOR ---
-            const navEntries = performance.getEntriesByType("navigation");
-            if (navEntries.length > 0 && navEntries[0].type === "reload") {
-                localStorage.removeItem('ub_tables');
-                localStorage.removeItem('ub_order_history');
-            }
-            // ------------------------
-
             this.loadProducts();
             this.loadAnalytics();
             this.loadTablesFromStorage();
