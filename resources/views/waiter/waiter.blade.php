@@ -371,6 +371,7 @@ function waiterSystem() {
         salesSummary: { total: 0 },
 
         init() {
+            localStorage.removeItem('ub_tables');
             this.loadTables();
             this.loadReservations();
 
