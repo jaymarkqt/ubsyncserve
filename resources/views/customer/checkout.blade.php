@@ -302,7 +302,13 @@
                         items: this.cart.map(item => ({ name: item.name, qty: item.qty, price: item.price }))
                     };
                     analyticsHistory.unshift(transaction);
-                    localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                    try {
+                        localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                        console.log('✅ Checkout transaction saved:', transaction);
+                        window.dispatchEvent(new Event('storage'));
+                    } catch (error) {
+                        console.error('❌ Failed to save checkout transaction:', error);
+                    }
 
                     this.orderComplete = true;
                 },
