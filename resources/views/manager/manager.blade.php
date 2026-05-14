@@ -540,6 +540,7 @@ clearTable(tableId) {
 
 init() {
             localStorage.removeItem('ub_order_history');
+            localStorage.removeItem('ub_tables');
             this.loadProducts();
             this.loadAnalytics();
             this.loadTablesFromStorage();

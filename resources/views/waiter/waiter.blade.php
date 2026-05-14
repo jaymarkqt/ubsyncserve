@@ -371,7 +371,6 @@ function waiterSystem() {
         salesSummary: { total: 0 },
 
         init() {
-            localStorage.removeItem('ub_tables');
             this.loadTables();
             this.loadReservations();
 
@@ -603,7 +602,7 @@ startSession() {
             const [hours, minutes] = time.split(':');
             let h = parseInt(hours);
             const ampm = h >= 12 ? 'PM' : 'AM';
-            h = h % 12 || 12;
+            h = h % 12 || 12;   
             return `${h}:${minutes} ${ampm}`;
         },
 
