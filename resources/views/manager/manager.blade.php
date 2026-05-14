@@ -41,7 +41,7 @@
             <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
                 <i class="fas fa-bars"></i> 
             </button>
-            <span class="font-extrabold tracking-tighter text-xl text-white uppercase">UB-SYNC <span class="font-light text-slate-300 italic">Manager</span></span>
+          
         </div>
 
         <div class="flex items-center gap-6 text-sm font-bold">

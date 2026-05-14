@@ -1,8 +1,6 @@
 <div x-data="managerDashboard()" class="space-y-8">
 
-    <style>
-        .maroon-gradient { background: linear-gradient(135deg, #800000 0%, #a52a2a 100%); }
-    </style>
+   
 
     <div>
         <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-none">
@@ -16,7 +14,9 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
 
-
+ <style>
+        .maroon-gradient { background: linear-gradient(135deg, #800000 0%, #a52a2a 100%); }
+    </style>
 
     <div class="clay-card border-t-4 border-t-emerald-500 p-6 shadow-sm relative overflow-hidden group">
             <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">

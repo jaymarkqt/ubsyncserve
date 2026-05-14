@@ -39,7 +39,7 @@
             <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
                 <i class="fas fa-bars"></i> 
             </button>
-            <span class="font-extrabold tracking-tighter text-xl text-white uppercase">UB-SYNC <span class="font-light text-slate-300 italic">Waiter</span></span>
+           
         </div>
 
         <div class="flex items-center gap-6 text-sm font-bold">
@@ -123,7 +123,7 @@
                     <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
                         <i class="fas fa-clock text-5xl text-blue-600"></i>
                     </div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Reservations</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reservations</p>
                     <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.length"></p>
                     <p class="text-[10px] font-bold text-slate-400 mt-2">For today's schedule</p>
                 </div>

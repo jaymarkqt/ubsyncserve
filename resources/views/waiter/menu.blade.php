@@ -54,8 +54,8 @@
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
             <div>
-                <p class="text-[10px] font-black tracking-[0.3em] uppercase text-slate-400 mb-0.5">University of Batangas</p>
-                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Waiter <span class="text-[#800000]">Terminal</span></h1>
+               
+                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Order <span class="text-[#800000]">Terminal</span></h1>
             </div>
         </div>
 
@@ -177,7 +177,7 @@
                     <p class="text-xs font-black text-slate-400 mt-1" x-text="formatCurrency(item.price * item.qty)"></p>
                 </div>
             </div>
-            <button @click="openVoidModal(index)" class="text-slate-300 hover:text-red-500 transition-colors">
+            <button @click="openVoidModal(index)" class="text-slate-300 text-red-500 transition-colors">
                 <i class="fa-solid fa-trash-can text-sm"></i>
             </button>
         </div>
