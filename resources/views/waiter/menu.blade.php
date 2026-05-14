@@ -177,7 +177,7 @@
                     <p class="text-xs font-black text-slate-400 mt-1" x-text="formatCurrency(item.price * item.qty)"></p>
                 </div>
             </div>
-            <button @click="removeFromCart(index)" class="text-slate-300 hover:text-red-500 transition-colors">
+            <button @click="openVoidModal(index)" class="text-slate-300 hover:text-red-500 transition-colors">
                 <i class="fa-solid fa-trash-can text-sm"></i>
             </button>
         </div>
@@ -229,6 +229,26 @@
             </div>
         </div>
     </div>
+
+    <!-- Void Modal -->
+    <div x-show="showVoidModal" x-cloak class="fixed inset-0 z-[1300] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-3xl shadow-2xl">
+            <div class="bg-red-600 p-8 text-white text-center">
+                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-black uppercase tracking-tighter">Security Check</h3>
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">Manager Pin Required</p>
+            </div>
+            <div class="p-8 space-y-6">
+                <input type="password" x-model="voidCodeInput" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 text-center font-black text-2xl tracking-[0.5em] focus:border-red-600 focus:bg-white outline-none transition-all" placeholder="****">
+                <div class="flex gap-3">
+                    <button @click="cancelVoid()" class="flex-1 py-4 bg-slate-100 text-slate-500 font-black text-[11px] uppercase rounded-2xl hover:bg-slate-200 transition-all">Cancel</button>
+                    <button @click="confirmVoidOrder()" class="flex-1 py-4 bg-red-600 text-white font-black text-[11px] uppercase rounded-2xl shadow-lg shadow-red-900/20 hover:bg-red-700 transition-all">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -245,6 +265,10 @@
             selectedFood: null,
             tempSelectedAddOns: [],
             products: [],
+            showVoidModal: false,
+            voidOrderIndex: null,
+            voidCodeInput: '',
+            managerCode: '1234',
 
             initStore() {
                 this.loadProducts();
@@ -326,55 +350,86 @@
             },
 
             removeFromCart(index) { this.cart.splice(index, 1); },
-completeOrder() {
-    // 1. Kunin ang mga kailangang data mula sa LocalStorage
-    let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-    let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
-    let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
-    
-    let idx = tables.findIndex(t => t.id == this.tableNumber);
 
-    // 2. Update stock sa product catalog
-    this.cart.forEach(item => {
-        let pIdx = products.findIndex(p => p.id === item.id);
-        if (pIdx !== -1) products[pIdx].stock -= item.qty;
-    });
-    localStorage.setItem('product_catalog', JSON.stringify(products));
+            openVoidModal(index) {
+                this.voidOrderIndex = index;
+                this.voidCodeInput = '';
+                this.showVoidModal = true;
+            },
 
-    // 3. Update table details (occupancy at billing)
-    if (idx !== -1) {
-        tables[idx].status = 'occupied';
-        tables[idx].adults = this.adults;
-        tables[idx].children = this.children;
-        tables[idx].orders = [...(tables[idx].orders || []), ...this.cart];
-        tables[idx].bill = (tables[idx].bill || 0) + this.cartTotal;
-    }
-    localStorage.setItem('ub_tables', JSON.stringify(tables));
+            cancelVoid() {
+                this.showVoidModal = false;
+                this.voidOrderIndex = null;
+                this.voidCodeInput = '';
+            },
 
-    // --- DINAGDAG NA ANALYTICS TRANSACTION ---
-    const transaction = {
-        orderId: 'ORD-' + Date.now(),
-        timestamp: new Date().toLocaleTimeString(),
-        totalAmount: this.cartTotal, // Ginamit ang this.cartTotal mula sa iyong logic
-        tableId: this.tableNumber,
-        items: this.cart.map(item => ({
-            name: item.name,
-            qty: item.qty
-        }))
-    };
+            confirmVoidOrder() {
+                if (this.voidCodeInput.trim() === '') {
+                    alert('Please enter manager code.');
+                    return;
+                }
 
-    analyticsHistory.unshift(transaction); // Nilalagay ang pinakabagong order sa unahan
+                if (this.voidCodeInput.trim() !== this.managerCode) {
+                    alert('Invalid manager code. Void cancelled.');
+                    return;
+                }
 
-    localStorage.setItem(
-        'ub_order_history',
-        JSON.stringify(analyticsHistory)
-    );
-    // ------------------------------------------
+                this.removeFromCart(this.voidOrderIndex);
+                this.cancelVoid();
+            },
 
-    // 4. Alert at Redirect
-    alert('Order successfully sent to kitchen!');
-    window.location.href = "{{ route('waiter.dashboard') }}";
-}
+            handleBackNavigation() {
+                window.location.href = "{{ route('waiter.dashboard') }}";
+            },
+
+            completeOrder() {
+                // 1. Kunin ang mga kailangang data mula sa LocalStorage
+                let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+                let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
+                let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+
+                let idx = tables.findIndex(t => t.id == this.tableNumber);
+
+                // 2. Update stock sa product catalog
+                this.cart.forEach(item => {
+                    let pIdx = products.findIndex(p => p.id === item.id);
+                    if (pIdx !== -1) products[pIdx].stock -= item.qty;
+                });
+                localStorage.setItem('product_catalog', JSON.stringify(products));
+
+                // 3. Update table details (occupancy at billing)
+                if (idx !== -1) {
+                    tables[idx].status = 'occupied';
+                    tables[idx].adults = this.adults;
+                    tables[idx].children = this.children;
+                    tables[idx].orders = [...(tables[idx].orders || []), ...this.cart];
+                    tables[idx].bill = (tables[idx].bill || 0) + this.cartTotal;
+                }
+                localStorage.setItem('ub_tables', JSON.stringify(tables));
+
+                // --- DINAGDAG NA ANALYTICS TRANSACTION ---
+                const transaction = {
+                    orderId: 'ORD-' + Date.now(),
+                    timestamp: new Date().toLocaleTimeString(),
+                    totalAmount: this.cartTotal,
+                    tableId: this.tableNumber,
+                    items: this.cart.map(item => ({
+                        name: item.name,
+                        qty: item.qty
+                    }))
+                };
+
+                analyticsHistory.unshift(transaction);
+
+                localStorage.setItem(
+                    'ub_order_history',
+                    JSON.stringify(analyticsHistory)
+                );
+
+                // 4. Alert at Redirect
+                alert('Order successfully sent to kitchen!');
+                window.location.href = "{{ route('waiter.dashboard') }}";
+            }
         }
     }
 </script>
