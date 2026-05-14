@@ -228,12 +228,6 @@
         (sum, order) => sum + Number(order.totalAmount),
         0
     );
-
-    console.log('Analytics loaded:', {
-        orders: this.orderHistory.length,
-        total: this.salesSummary.total,
-        orderHistory: this.orderHistory
-    });
 },
 
 loadTablesFromStorage() {
@@ -558,7 +552,6 @@ init() {
             });
 
             setInterval(() => {
-                this.loadAnalytics();
                 this.loadTablesFromStorage();
                 this.loadReservationsFromStorage();
             }, 2000);

@@ -72,7 +72,6 @@
                             </div>
                             <div>
                                 <p class="text-xs font-black text-slate-800 uppercase" x-text="history.orderId"></p>
-                                <p class="text-[9px] text-slate-400 font-bold uppercase" x-text="new Date(history.timestamp).toLocaleTimeString()"></p>
                             </div>
                         </div>
                         <div class="text-right">

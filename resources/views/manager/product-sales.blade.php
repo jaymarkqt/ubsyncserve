@@ -27,14 +27,6 @@
         </div>
     </div>
 
-    <div class="clay-card p-4 mb-6 bg-blue-50 border border-blue-200">
-        <p class="text-xs font-bold text-blue-700">
-            📊 Debug Info: <span x-text="'Orders loaded: ' + orderHistory.length"></span> |
-            <span x-text="'Products: ' + filteredProductSales.length"></span> |
-            <span x-text="'Total: ' + formatCurrency(productSalesMetrics.totalRevenue)"></span>
-        </p>
-    </div>
-
     <div class="clay-card overflow-hidden">
         <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
             <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Product Sales Breakdown</h3>

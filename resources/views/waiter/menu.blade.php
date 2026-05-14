@@ -410,28 +410,25 @@
                 // --- DINAGDAG NA ANALYTICS TRANSACTION ---
                 const transaction = {
                     orderId: 'ORD-' + Date.now(),
-                    timestamp: new Date().toISOString(),
+                    timestamp: new Date().toLocaleTimeString(),
                     totalAmount: this.cartTotal,
                     tableId: this.tableNumber,
                     items: this.cart.map(item => ({
                         name: item.name,
-                        qty: item.qty,
-                        price: item.price || item.sellingPrice || 0
+                        qty: item.qty
                     }))
                 };
 
                 analyticsHistory.unshift(transaction);
 
-                try {
-                    localStorage.setItem(
-                        'ub_order_history',
-                        JSON.stringify(analyticsHistory)
-                    );
-                    console.log('✅ Transaction saved:', transaction);
-                    window.dispatchEvent(new Event('storage'));
-                } catch (error) {
-                    console.error('❌ Failed to save transaction:', error);
-                }
+                localStorage.setItem(
+                    'ub_order_history',
+                    JSON.stringify(analyticsHistory)
+                );
+
+                // 4. Alert at Redirect
+                alert('Order successfully sent to kitchen!');
+                window.location.href = "{{ route('waiter.dashboard') }}";
             }
         }
     }
