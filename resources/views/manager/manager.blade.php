@@ -97,11 +97,17 @@
             </button>
 
 
-            <button @click="tab = 'reservations'" 
+            <button @click="tab = 'reservations'"
     class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
     :class="tab === 'reservations' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
     <i class="fas fa-calendar-check w-5"></i> Reservations
 </button>
+
+            <button @click="tab = 'product-sales'"
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+                :class="tab === 'product-sales' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
+                <i class="fas fa-receipt w-5"></i> Product Sales
+            </button>
 
         </div>
     </aside>
@@ -122,6 +128,10 @@
         <div x-show="tab === 'reservations'" x-cloak>
     @include('manager.reservation-booking')
 </div>
+
+        <div x-show="tab === 'product-sales'" x-cloak>
+            @include('manager.product-sales')
+        </div>
 
     </main>
 
