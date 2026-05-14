@@ -552,6 +552,7 @@ init() {
             });
 
             setInterval(() => {
+                this.loadAnalytics();
                 this.loadTablesFromStorage();
                 this.loadReservationsFromStorage();
             }, 2000);
