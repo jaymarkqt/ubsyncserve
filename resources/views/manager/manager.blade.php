@@ -103,10 +103,10 @@
     <i class="fas fa-calendar-check w-5"></i> Reservations
 </button>
 
-            <button @click="tab = 'product-sales'"
+            <button @click="tab = 'productsales'"
                 class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
-                :class="tab === 'product-sales' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
-                <i class="fas fa-receipt w-5"></i> Product Sales
+                :class="tab === 'productsales' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
+                <i class="fas fa-bag-shopping w-5"></i> Product Sales
             </button>
 
         </div>
@@ -129,7 +129,7 @@
     @include('manager.reservation-booking')
 </div>
 
-        <div x-show="tab === 'product-sales'" x-cloak>
+        <div x-show="tab === 'productsales'" x-cloak>
             @include('manager.product-sales')
         </div>
 
@@ -147,10 +147,11 @@
                 showAdvanceOrderModal: false,
                 showSetupModal: false,
                 editingIndex: null,
-                reservations: [], 
+                reservations: [],
                voidOrderIndex: null,
                voidCodeInput: '',
-               managerCode: '1234', 
+               managerCode: '1234',
+               salesDateFilter: 'today',
 
                 // Analytics Data
                 salesSummary: { total: 0 },
@@ -610,10 +611,87 @@ init() {
                 get invMetrics() {
                     let totalStock = this.products.reduce((sum, p) => sum + parseInt(p.stock), 0);
                     let totalCostValue = this.products.reduce((sum, p) => sum + (p.stock * p.cost), 0);
-                    let avgMargin = this.products.length > 0 
+                    let avgMargin = this.products.length > 0
                         ? Math.round(this.products.reduce((sum, p) => sum + this.calculateMargin(p.cost, p.sellingPrice), 0) / this.products.length)
                         : 0;
                     return { totalStock, totalCostValue, avgMargin };
+                },
+
+                // Product Sales Metrics
+                get productSalesMetrics() {
+                    let filtered = this.filteredProductSales;
+                    let totalRevenue = filtered.reduce((sum, p) => sum + p.totalRevenue, 0);
+                    let totalItemsSold = filtered.reduce((sum, p) => sum + p.qtySold, 0);
+
+                    return { totalRevenue, totalItemsSold };
+                },
+
+                get filteredProductSales() {
+                    let today = new Date();
+                    let startDate, endDate;
+
+                    if (this.salesDateFilter === 'today') {
+                        startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                        endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+                    } else {
+                        let yesterday = new Date(today);
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+                        endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);
+                    }
+
+                    let productSalesMap = {};
+                    let totalRevenue = 0;
+                    let allOrders = [];
+
+                    // Get orders from order history
+                    if (this.orderHistory && Array.isArray(this.orderHistory)) {
+                        allOrders = allOrders.concat(this.orderHistory);
+                    }
+
+                    // Get orders from tables
+                    if (this.openTables && Array.isArray(this.openTables)) {
+                        this.openTables.forEach(table => {
+                            if (table.orders && Array.isArray(table.orders)) {
+                                table.orders.forEach(order => {
+                                    allOrders.push({
+                                        items: [order],
+                                        timestamp: order.timestamp || new Date().toISOString()
+                                    });
+                                });
+                            }
+                        });
+                    }
+
+                    allOrders.forEach(order => {
+                        let orderDate = new Date(order.timestamp);
+                        if (orderDate >= startDate && orderDate <= endDate) {
+                            if (order.items && Array.isArray(order.items)) {
+                                order.items.forEach(item => {
+                                    if (!productSalesMap[item.name]) {
+                                        let product = this.products.find(p => p.name === item.name);
+                                        productSalesMap[item.name] = {
+                                            id: product ? product.id : 0,
+                                            name: item.name,
+                                            qtySold: 0,
+                                            unitCost: product ? product.cost : 0,
+                                            totalRevenue: 0,
+                                            imgPath: product && product.img ? (product.img.includes('data:') || product.img.includes('http') ? product.img : '/img/' + product.img) : '/img/placeholder.png'
+                                        };
+                                    }
+                                    let itemTotal = item.price * item.qty;
+                                    productSalesMap[item.name].qtySold += item.qty;
+                                    productSalesMap[item.name].totalRevenue += itemTotal;
+                                    totalRevenue += itemTotal;
+                                });
+                            }
+                        }
+                    });
+
+                    return Object.values(productSalesMap).map(p => ({
+                        ...p,
+                        percentageOfSales: totalRevenue > 0 ? (p.totalRevenue / totalRevenue) * 100 : 0
+                    })).sort((a, b) => b.totalRevenue - a.totalRevenue);
                 }
             }
         }
