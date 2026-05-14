@@ -383,6 +383,11 @@ function waiterSystem() {
                     this.loadTables();
                 }
             });
+
+            setInterval(() => {
+                this.loadTables();
+                this.loadReservations();
+            }, 2000);
         },
 
         // --- TABLE MANAGEMENT FUNCTIONS ---

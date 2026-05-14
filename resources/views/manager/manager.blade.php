@@ -539,6 +539,7 @@ clearTable(tableId) {
                 },
 
 init() {
+            localStorage.removeItem('ub_order_history');
             this.loadProducts();
             this.loadAnalytics();
             this.loadTablesFromStorage();
@@ -552,6 +553,7 @@ init() {
             });
 
             setInterval(() => {
+                this.loadAnalytics();
                 this.loadTablesFromStorage();
                 this.loadReservationsFromStorage();
             }, 2000);
