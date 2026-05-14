@@ -7,6 +7,50 @@
         </p>
     </div>
 
+    <!-- Date Filter -->
+    <div class="mb-6 flex gap-3">
+        <button @click="salesDateFilter = 'today'"
+            :class="salesDateFilter === 'today' ? 'bg-[#800000] text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'"
+            class="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-widest transition-all">
+            Today
+        </button>
+        <button @click="salesDateFilter = 'yesterday'"
+            :class="salesDateFilter === 'yesterday' ? 'bg-[#800000] text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'"
+            class="px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-widest transition-all">
+            Yesterday
+        </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Total Revenue Card -->
+        <div class="clay-card p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Total Revenue Income</p>
+                    <h3 class="text-3xl font-black text-[#800000]" x-text="formatCurrency(productSalesMetrics.totalRevenue)"></h3>
+                    <p class="text-xs text-slate-400 mt-2">from all transactions</p>
+                </div>
+                <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                    <i class="fas fa-money-bill-wave text-2xl text-[#800000]"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Products Sold Card -->
+        <div class="clay-card p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Total Products Sold</p>
+                    <h3 class="text-3xl font-black text-[#800000]" x-text="productSalesMetrics.totalItemsSold + ' units'"></h3>
+                    <p class="text-xs text-slate-400 mt-2">products ordered today</p>
+                </div>
+                <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+                    <i class="fas fa-box-open text-2xl text-[#800000]"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="clay-card overflow-hidden">
         <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
