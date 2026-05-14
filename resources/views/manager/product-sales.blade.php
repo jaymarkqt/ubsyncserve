@@ -7,6 +7,25 @@
         </p>
     </div>
 
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+        <div class="clay-card border-t-4 border-t-[#800000] p-6 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                <i class="fas fa-coins text-5xl text-[#800000]"></i>
+            </div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Revenue</p>
+            <p class="text-3xl font-black text-[#800000] mt-1" x-text="formatCurrency(productSalesMetrics.totalRevenue)"></p>
+            <p class="text-[10px] font-bold text-emerald-600 mt-2"><i class="fas fa-caret-up"></i> From all products</p>
+        </div>
+
+        <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                <i class="fas fa-box text-5xl text-blue-600"></i>
+            </div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Products Sold</p>
+            <p class="text-3xl font-black text-blue-600 mt-1" x-text="productSalesMetrics.totalItemsSold"></p>
+            <p class="text-[10px] font-bold text-slate-400 mt-2">Total quantity</p>
+        </div>
+    </div>
 
     <div class="clay-card overflow-hidden">
         <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
