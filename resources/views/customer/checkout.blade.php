@@ -295,11 +295,11 @@
                     const totalAmount = this.cartTotal;
                     const transaction = {
                         orderId: 'ORD-' + Date.now(),
-                        timestamp: new Date().toLocaleString(),
+                        timestamp: new Date().toISOString(),
                         totalAmount,
                         tableId,
                         paymentMethod: this.paymentMethod,
-                        items: this.cart.map(item => ({ name: item.name, qty: item.qty }))
+                        items: this.cart.map(item => ({ name: item.name, qty: item.qty, price: item.price }))
                     };
                     analyticsHistory.unshift(transaction);
                     localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));

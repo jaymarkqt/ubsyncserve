@@ -410,12 +410,13 @@
                 // --- DINAGDAG NA ANALYTICS TRANSACTION ---
                 const transaction = {
                     orderId: 'ORD-' + Date.now(),
-                    timestamp: new Date().toLocaleTimeString(),
+                    timestamp: new Date().toISOString(),
                     totalAmount: this.cartTotal,
                     tableId: this.tableNumber,
                     items: this.cart.map(item => ({
                         name: item.name,
-                        qty: item.qty
+                        qty: item.qty,
+                        price: item.price
                     }))
                 };
 
