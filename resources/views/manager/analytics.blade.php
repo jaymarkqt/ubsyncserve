@@ -58,7 +58,10 @@
         <div class="clay-card overflow-hidden">
             <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
                 <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Recent Transactions</h3>
-                <i class="fas fa-receipt text-slate-400"></i>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-emerald-600 animate-pulse">● Refreshing</span>
+                    <i class="fas fa-receipt text-slate-400"></i>
+                </div>
             </div>
             <div class="overflow-y-auto max-h-[420px] custom-scroll divide-y divide-slate-50">
                 <template x-for="(history, index) in orderHistory.slice(0, 10)" :key="index">
