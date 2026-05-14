@@ -228,6 +228,12 @@
         (sum, order) => sum + Number(order.totalAmount),
         0
     );
+
+    console.log('Analytics loaded:', {
+        orders: this.orderHistory.length,
+        total: this.salesSummary.total,
+        orderHistory: this.orderHistory
+    });
 },
 
 loadTablesFromStorage() {
