@@ -219,9 +219,6 @@
                             </div>
                             <div class="flex items-center gap-4">
                                 <p class="text-sm font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
-                                <button @click="openVoidModal(index)" class="w-8 h-8 bg-white text-red-500 rounded-full border border-red-100 hover:bg-red-500 hover:text-white transition-all shadow-sm">
-                                    <i class="fas fa-trash text-[10px]"></i>
-                                </button>
                             </div>
                         </div>
                     </template>
@@ -295,25 +292,6 @@
         </div>
     </div>
 
-   <div x-show="showVoidModal" x-cloak class="fixed inset-0 z-[1300] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-3xl shadow-2xl">
-            <div class="bg-red-600 p-8 text-white text-center">
-                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-shield-alt text-xl"></i>
-                </div>
-                <h3 class="text-2xl font-black uppercase tracking-tighter">Security Check</h3>
-                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">Manager Pin Required</p>
-            </div>
-            <div class="p-8 space-y-6">
-                <input type="password" x-model="voidCodeInput" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 text-center font-black text-2xl tracking-[0.5em] focus:border-red-600 focus:bg-white outline-none transition-all" placeholder="****">
-                <div class="flex gap-3">
-                    <button @click="cancelVoid()" class="flex-1 py-4 bg-slate-100 text-slate-500 font-black text-[11px] uppercase rounded-2xl hover:bg-slate-200 transition-all">Cancel</button>
-                    <button @click="confirmVoidOrder()" class="flex-1 py-4 bg-red-600 text-white font-black text-[11px] uppercase rounded-2xl shadow-lg shadow-red-900/20 hover:bg-red-700 transition-all">Confirm</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div x-show="showAdvanceOrderModal" x-cloak class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="clay-card w-full max-w-md overflow-hidden bg-white rounded-3xl shadow-2xl">
             <div class="maroon-gradient p-6 text-white flex justify-between items-center">
@@ -341,9 +319,6 @@
                             </div>
                             <div class="flex items-center gap-4">
                                 <p class="text-sm font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
-                                <button @click="openVoidModal(index)" class="w-8 h-8 bg-white text-red-500 rounded-full border border-red-100 hover:bg-red-500 hover:text-white transition-all shadow-sm">
-                                    <i class="fas fa-trash text-[10px]"></i>
-                                </button>
                             </div>
                         </div>
                     </template>
@@ -388,10 +363,6 @@ function waiterSystem() {
         showOrderModal: false,
         showReservedModal: false,
         showAdvanceOrderModal: false,
-        showVoidModal: false,
-        voidOrderIndex: null,
-        voidCodeInput: '',
-        managerCode: '1234',
         
         // Data Arrays
         tables: [], 
@@ -518,52 +489,6 @@ startSession() {
 
         saveTables() {
             localStorage.setItem('ub_tables', JSON.stringify(this.tables));
-        },
-
-        openVoidModal(index) {
-            this.voidOrderIndex = index;
-            this.voidCodeInput = '';
-            this.showVoidModal = true;
-        },
-
-        cancelVoid() {
-            this.showVoidModal = false;
-            this.voidOrderIndex = null;
-            this.voidCodeInput = '';
-        },
-
-        confirmVoidOrder() {
-            if (this.voidCodeInput.trim() === '') {
-                alert('Please enter manager code.');
-                return;
-            }
-
-            if (this.voidCodeInput.trim() !== this.managerCode) {
-                alert('Invalid manager code. Void cancelled.');
-                return;
-            }
-
-            this.voidOrder(this.voidOrderIndex);
-            this.cancelVoid();
-        },
-
-        voidOrder(index) {
-            const tableIndex = this.tables.findIndex(t => t.id === this.selectedTable?.id);
-            if (tableIndex === -1 || index === null) return;
-
-            this.tables[tableIndex].orders.splice(index, 1);
-            this.recalculateBill(this.tables[tableIndex]);
-
-            // KUNG NA-VOID ANG LAHAT NG ORDERS AT WALA NANG LAMAN, BABALIK SA GREEN (AVAILABLE)
-            if (this.tables[tableIndex].orders.length === 0) {
-                this.tables[tableIndex].status = 'available';
-                this.tables[tableIndex].adults = 0;
-                this.tables[tableIndex].children = 0;
-                this.showOrderModal = false;
-            }
-
-            this.saveTables();
-            this.selectedTable = this.tables[tableIndex];
         },
 
         recalculateBill(table) {
