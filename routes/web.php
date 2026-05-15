@@ -119,7 +119,7 @@ Route::get('/', function () {
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', function () { return view('login.login'); })->name('login');
-    Route::get('/forgot-password', function () { return view('login.forgot-password'); })->name('forgot-password');
+    Route::get('/forgot-password', function () { return view('login.login'); })->name('forgot-password');
     Route::post('/login', function (Request $request) {
         $credentials = $request->validate([
             'email' => ['required', 'email'],

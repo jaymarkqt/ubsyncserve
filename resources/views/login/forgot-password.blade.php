@@ -3,15 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Magic Tag para sa smooth page transition -->
+    <meta name="view-transition" content="same-origin">
     <title>Forgot Password | UB Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
-        body {
-            background-color: #f9fafb;
-            font-family: 'Inter', sans-serif;
+        /* Anti-flicker para sa Alpine.js */
+        [x-cloak] { display: none !important; }
+
+        /* Nilagyan natin ng html background para walang white flash */
+        html, body {
+            background-color: #e5e7eb;
             margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            background-image: url("{{ asset('img/backgroundlogo.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Inter', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -22,17 +38,21 @@
         .forgot-box {
             background-color: #ffffff;
             border-radius: 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
             width: 100%;
             max-width: 420px;
             padding: 2.5rem 1.5rem;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (min-width: 640px) {
-            .forgot-box {
-                padding: 3.5rem 3rem;
-            }
+            .forgot-box { padding: 3.5rem 3rem; }
         }
 
         .custom-input {
@@ -45,11 +65,13 @@
             background-color: #ffffff;
             color: #1a1a1a;
             box-sizing: border-box;
+            transition: all 0.3s ease;
         }
 
         .custom-input:focus {
             outline: none;
             border-color: #800000;
+            box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
         }
 
         .ub-maroon-btn {
@@ -57,12 +79,24 @@
             color: #ffffff;
             border: none;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ub-maroon-btn:hover:not(:disabled) {
+            background-color: #660000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(128, 0, 0, 0.2);
+        }
+
+        .ub-maroon-btn:active:not(:disabled) {
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
 
-    <div class="forgot-box" x-data="forgotPasswordForm()">
+    <!-- Dinagdag ang x-cloak dito -->
+    <div class="forgot-box" x-data="forgotPasswordForm()" x-cloak>
 
         <div class="text-center mb-10">
             <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
@@ -81,7 +115,6 @@
 
             <div class="space-y-1.5">
                 <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Enter Your Email</label>
-              
                 <input type="email" x-model="email" required
                        class="custom-input" placeholder="Enter registered email">
             </div>
@@ -92,13 +125,13 @@
             </button>
 
             <div class="text-center">
-                <a href="{{ route('login') }}" class="text-[12px] font-semibold text-[#800000] hover:text-gray-700">
+                <a href="{{ route('login') }}" class="text-[12px] font-semibold text-[#800000] hover:text-gray-700 transition-colors duration-300">
                     Back to Login
                 </a>
             </div>
         </form>
 
-        <form x-show="step === 2" @submit.prevent="resetPassword" class="space-y-6">
+        <form x-show="step === 2" @submit.prevent="resetPassword" class="space-y-6" x-cloak>
             
             <div x-show="errorMessage" x-transition
                  class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px] mb-2 flex items-center gap-2">
@@ -126,7 +159,7 @@
 
             <div class="flex items-center cursor-pointer select-none" @click="showPassword = !showPassword">
                 <input type="checkbox" x-model="showPassword"
-                       class="w-4 h-4 rounded border-gray-300 accent-[#800000] cursor-pointer">
+                       class="w-4 h-4 rounded border-gray-300 accent-[#800000] cursor-pointer transition-all duration-300">
                 <label class="ml-2 text-[12px] font-semibold text-gray-600 cursor-pointer">
                     Show password
                 </label>
@@ -137,12 +170,12 @@
                 <span x-show="isLoading">Updating...</span>
             </button>
 
-            <button type="button" @click="step = 1; errorMessage = ''" class="w-full text-[12px] font-semibold text-gray-600 hover:text-gray-800 py-2">
+            <button type="button" @click="step = 1; errorMessage = ''" class="w-full text-[12px] font-semibold text-gray-600 hover:text-gray-800 py-2 transition-colors duration-300">
                 Back
             </button>
         </form>
 
-        <div x-show="step === 3" x-transition class="space-y-6 text-center">
+        <div x-show="step === 3" x-transition class="space-y-6 text-center" x-cloak>
             <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-4 rounded-lg">
                 <p class="text-[14px] font-bold mb-2">✓ Password Reset Successful!</p>
                 <p class="text-[12px]">Your password has been updated successfully.</p>
@@ -174,12 +207,11 @@
                     this.loadStoredUsers();
                 },
 
-                // GINAYA MULA SA LOGIN.BLADE.PHP
                 showError(message) {
                     this.errorMessage = message;
                     setTimeout(() => {
                         this.errorMessage = '';
-                    }, 2000); // Eksaktong 2 seconds mawawala
+                    }, 2000); 
                 },
 
                 loadStoredUsers() {
