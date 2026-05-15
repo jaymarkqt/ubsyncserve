@@ -29,8 +29,8 @@
                     <tr class="border-b-2 border-slate-200 bg-slate-50/50 text-left">
                         <th class="px-4 py-4 font-black text-slate-700 uppercase text-xs">Product</th>
                         <th class="px-4 py-4 text-center font-black text-slate-700 uppercase text-xs">Stock</th>
-                        <th class="px-4 py-4 text-right font-black text-slate-700 uppercase text-xs">Cost</th>
-                        <th class="px-4 py-4 text-right font-black text-slate-700 uppercase text-xs">Selling Price</th>
+                        <th class="px-4 py-4 text-center font-black text-slate-700 uppercase text-xs">Cost</th>
+                        <th class="px-4 py-4 text-center font-black text-slate-700 uppercase text-xs">Selling Price</th>
                         <th class="px-4 py-4 text-center font-black text-slate-700 uppercase text-xs">Actions</th>
                     </tr>
                 </thead>
@@ -50,8 +50,8 @@
                                       :class="product.stock > 50 ? 'bg-emerald-100 text-emerald-700' : product.stock > 20 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'"
                                       x-text="product.stock"></span>
                             </td>
-                            <td class="px-4 py-4 text-right font-bold text-slate-700" x-text="formatCurrency(product.cost)"></td>
-                            <td class="px-4 py-4 text-right font-bold text-[#800000]" x-text="formatCurrency(product.sellingPrice)"></td>
+                            <td class="px-4 py-4 text-center font-bold text-slate-700" x-text="formatCurrency(product.cost)"></td>
+                            <td class="px-4 py-4 text-center font-bold text-[#800000]" x-text="formatCurrency(product.sellingPrice)"></td>
                             <td class="px-4 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <button @click="editProduct(index)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
