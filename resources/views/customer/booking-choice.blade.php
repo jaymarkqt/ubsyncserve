@@ -18,7 +18,7 @@
     <div class="max-w-7xl mx-auto px-3 sm:px-4 py-8 sm:py-12 md:py-16">
         <!-- Header -->
         <div class="text-center mb-10 sm:mb-14 md:mb-16">
-            <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-2 sm:mb-3">ADVANCE ORDER AT TABLE RESERVATION</h1>
+            <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-2 sm:mb-3">Choose Your Dining Experience</h1>
             <p class="text-sm sm:text-base md:text-lg text-slate-600 font-medium px-2">Select the booking option you want, then continue to the booking form.</p>
         </div>
 

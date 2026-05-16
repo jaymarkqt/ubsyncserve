@@ -102,78 +102,78 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 xl:gap-8">
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-4 md:gap-5 lg:gap-6 xl:gap-8">
             <template x-for="product in filteredProducts" :key="product.id">
-                <div class="menu-card bg-white p-4 sm:p-5 flex flex-col border border-slate-100 rounded-[1.5rem] sm:rounded-[2rem] shadow-sm relative group">
-                    
-                    <div class="w-full h-40 sm:h-48 mb-4 sm:mb-5 overflow-hidden rounded-[1.25rem] sm:rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4 relative">
-                      
-                        
+                <div class="menu-card bg-white p-2 sm:p-4 md:p-5 flex flex-col border border-slate-100 rounded-lg sm:rounded-xl md:rounded-[1.5rem] lg:rounded-[2rem] shadow-sm relative group">
+
+                    <div class="w-full h-28 sm:h-36 md:h-40 lg:h-48 mb-2 sm:mb-3 md:mb-4 lg:mb-5 overflow-hidden rounded-lg sm:rounded-xl md:rounded-[1.25rem] lg:rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-2 sm:p-3 md:p-4 relative">
+
+
                         <img :src="'/img/' + product.img" class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
                     </div>
-                    
+
                     <div class="flex-grow flex flex-col">
-                        <div class="mb-2 flex justify-between items-start gap-2">
-                            <h4 class="text-base sm:text-lg font-bold text-slate-900 leading-tight" x-text="product.name"></h4>
-                            <span class="text-lg sm:text-xl font-black text-[#800000] whitespace-nowrap" x-text="formatCurrency(product.price)"></span>
+                        <div class="mb-1 sm:mb-2 flex justify-between items-start gap-1">
+                            <h4 class="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-slate-900 leading-tight line-clamp-2" x-text="product.name"></h4>
+                            <span class="text-sm sm:text-base md:text-lg lg:text-xl font-black text-[#800000] whitespace-nowrap flex-shrink-0 text-right" x-text="formatCurrency(product.price)"></span>
                         </div>
-                        
-                        <div class="mb-3 sm:mb-4 flex flex-wrap gap-1.5 min-h-[24px]">
+
+                        <div class="mb-1.5 sm:mb-2 md:mb-3 flex flex-wrap gap-1 min-h-[16px]">
                             <template x-for="addon in product.selectedAddOns" :key="addon.name">
-                                <span class="bg-rose-50 text-[#800000] text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-md sm:rounded-lg uppercase border border-rose-100 flex items-center gap-1">
-                                    <i class="fas fa-plus text-[7px] sm:text-[8px]"></i> <span x-text="addon.name"></span>
+                                <span class="bg-rose-50 text-[#800000] text-[7px] sm:text-[8px] md:text-[9px] font-bold px-1 sm:px-1.5 py-0.5 rounded-sm sm:rounded-md border border-rose-100 flex items-center gap-0.5">
+                                    <i class="fas fa-plus text-[5px] sm:text-[6px]"></i> <span x-text="addon.name"></span>
                                 </span>
                             </template>
                         </div>
 
-                        <div class="mt-auto space-y-2 sm:space-y-3">
-                            <div class="flex items-center gap-2 sm:gap-3">
-                                <div class="flex items-center rounded-xl border-2 border-slate-100 bg-slate-50 h-10 sm:h-11 w-24 sm:w-28 overflow-hidden flex-shrink-0">
-                                    <button 
-                                        @click="if (product.stock > 0 && product.qty > 1) product.qty = product.qty - 1" 
+                        <div class="mt-auto space-y-1 sm:space-y-1.5 md:space-y-2">
+                            <div class="flex items-center gap-1 sm:gap-1.5 md:gap-2">
+                                <div class="flex items-center rounded-lg sm:rounded-xl border-2 border-slate-100 bg-slate-50 h-8 sm:h-9 md:h-10 lg:h-11 w-20 sm:w-24 md:w-28 overflow-hidden flex-shrink-0">
+                                    <button
+                                        @click="if (product.stock > 0 && product.qty > 1) product.qty = product.qty - 1"
                                         :disabled="product.stock === 0"
-                                        :class="['w-8 sm:w-10 h-full flex items-center justify-center transition-colors', product.stock === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200']">
-                                        <i class="fas fa-minus text-[10px] sm:text-xs"></i>
+                                        :class="['w-6 sm:w-8 md:w-10 h-full flex items-center justify-center transition-colors text-[8px] sm:text-[9px] md:text-xs', product.stock === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200']">
+                                        <i class="fas fa-minus"></i>
                                     </button>
                                     <div class="flex-1 h-full flex items-center justify-center font-black text-slate-800 text-xs sm:text-sm bg-white">
                                         <span x-text="product.stock === 0 ? 0 : product.qty"></span>
                                     </div>
-                                    <button 
-                                        @click="if (product.stock > product.qty) product.qty++" 
+                                    <button
+                                        @click="if (product.stock > product.qty) product.qty++"
                                         :disabled="product.stock === 0 || product.qty >= product.stock"
-                                        :class="['w-8 sm:w-10 h-full flex items-center justify-center transition-colors', product.stock === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200']">
-                                        <i class="fas fa-plus text-[10px] sm:text-xs"></i>
+                                        :class="['w-6 sm:w-8 md:w-10 h-full flex items-center justify-center transition-colors text-[8px] sm:text-[9px] md:text-xs', product.stock === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200']">
+                                        <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
-                                
-                                <button @click="openCustomizeModal(product)" 
+
+                                <button @click="openCustomizeModal(product)"
                                         :disabled="product.stock === 0"
-                                        :class="['flex-1 rounded-xl border-2 border-slate-100 bg-white h-10 sm:h-11 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-center transition-all px-1', product.stock === 0 ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-500 hover:border-[#800000] hover:text-[#800000]']">
-                                    <i class="fas fa-sliders-h mr-1"></i> Add-ons
+                                        :class="['flex-1 rounded-lg sm:rounded-xl border-2 border-slate-100 bg-white h-8 sm:h-9 md:h-10 lg:h-11 text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-center transition-all px-0.5 sm:px-1', product.stock === 0 ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-500 hover:border-[#800000] hover:text-[#800000]']">
+                                    <i class="fas fa-sliders-h mr-0.5 sm:mr-1"></i><span class="hidden sm:inline">Add-ons</span><span class="sm:hidden">+</span>
                                 </button>
                             </div>
-                            
-                            <button @click.prevent="addToCart(product)" 
+
+                            <button @click.prevent="addToCart(product)"
                                     :disabled="product.stock === 0"
-                                    :class="['w-full rounded-xl text-white h-10 sm:h-12 text-[11px] sm:text-[12px] font-black uppercase tracking-widest text-center shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2', product.stock === 0 ? 'bg-gray-300 cursor-not-allowed shadow-none' : 'maroon-gradient shadow-maroon/20 hover:shadow-xl']">
-                                <i class="fas fa-shopping-bag"></i> Add to Order
+                                    :class="['w-full rounded-lg sm:rounded-xl md:rounded-[1rem] text-white h-8 sm:h-9 md:h-10 lg:h-11 text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-widest text-center shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-1', product.stock === 0 ? 'bg-gray-300 cursor-not-allowed shadow-none' : 'maroon-gradient shadow-maroon/20 hover:shadow-xl']">
+                                <i class="fas fa-shopping-bag text-[7px] sm:text-[8px] md:text-xs"></i> <span class="hidden sm:inline">Add</span>
                             </button>
                         </div>
                     </div>
 
-                    <div x-show="product.stock === 0" class="absolute inset-0 bg-black/60 rounded-[1.5rem] flex items-center justify-center">
+                    <div x-show="product.stock === 0" class="absolute inset-0 bg-black/60 rounded-lg sm:rounded-xl md:rounded-[1.5rem] flex items-center justify-center">
                         <div class="text-center">
-                            <div class="text-[10px] font-black uppercase tracking-[0.45em] text-red-100 mb-2">Out of Stock</div>
-                            <div class="inline-flex items-center justify-center bg-red-600 text-white text-[10px] font-black uppercase rounded-full px-4 py-2 tracking-[0.2em] shadow-xl">
+                            <div class="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.45em] text-red-100 mb-1">Out of Stock</div>
+                            <div class="inline-flex items-center justify-center bg-red-600 text-white text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase rounded-full px-2 sm:px-3 py-1 tracking-[0.2em] shadow-xl">
                                 SOLD OUT
                             </div>
             </template>
 
-            <div x-show="filteredProducts.length === 0" class="col-span-full py-8 sm:py-12 text-center" x-cloak>
-                <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto bg-slate-200 rounded-full flex items-center justify-center mb-4 text-slate-400">
-                    <i class="fas fa-hamburger text-2xl sm:text-3xl"></i>
+            <div x-show="filteredProducts.length === 0" class="col-span-full py-8 sm:py-10 md:py-12 text-center" x-cloak>
+                <div class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mx-auto bg-slate-200 rounded-full flex items-center justify-center mb-3 sm:mb-4 text-slate-400">
+                    <i class="fas fa-hamburger text-xl sm:text-2xl md:text-3xl"></i>
                 </div>
-                <h3 class="text-lg sm:text-xl font-bold text-slate-700">No items found</h3>
+                <h3 class="text-base sm:text-lg md:text-xl font-bold text-slate-700">No items found</h3>
                 <p class="text-xs sm:text-sm text-slate-500 mt-1">Try adjusting your search or category filter.</p>
             </div>
         </div>
