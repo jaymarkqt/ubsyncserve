@@ -647,12 +647,7 @@ init() {
                     let totalRevenue = 0;
                     let allOrders = [];
 
-                    // Get orders from order history
-                    if (this.orderHistory && Array.isArray(this.orderHistory)) {
-                        allOrders = allOrders.concat(this.orderHistory);
-                    }
-
-                    // Get orders from tables
+                    // Get orders from tables only (to avoid double counting)
                     if (this.openTables && Array.isArray(this.openTables)) {
                         this.openTables.forEach(table => {
                             if (table.orders && Array.isArray(table.orders)) {
