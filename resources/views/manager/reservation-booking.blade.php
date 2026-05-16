@@ -44,7 +44,7 @@
                     <div class="text-xs text-slate-500 truncate max-w-[150px]" x-text="res.phone" :title="res.phone"></div>
                     <div class="mt-2 text-[10px] text-slate-400 uppercase tracking-[0.2em] font-black">
                         <span x-text="res.type ? res.type.replace('-', ' ') : 'Reservation'"></span>
-                        <template x-if="res.table"><span> · Table <span x-text="res.table"></span></span></template>
+                  
                     </div>
                     <div class="mt-1 text-[10px] text-black font-medium" x-text="res.createdAt ? 'Booked: ' + new Date(res.createdAt).toLocaleDateString() + ', ' + new Date(res.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : ''"></div>
                 </td>

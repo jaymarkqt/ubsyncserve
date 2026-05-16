@@ -29,7 +29,7 @@
                             <span class="text-lg font-black text-slate-800 leading-tight block break-words" x-text="res.name"></span>
                             <div class="mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.3em] font-black text-slate-500">
                                 <span x-text="res.type ? res.type.replace('-', ' ') : 'Table Reservation'"></span>
-                                <span x-show="res.table">| Table <span x-text="res.table"></span></span>
+                                
                             </div>
                             <div class="mt-2 text-[11px] text-black font-medium">
                                 Booked: <span x-text="res.createdAt ? new Date(res.createdAt).toLocaleDateString() + ', ' + new Date(res.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A'"></span>
