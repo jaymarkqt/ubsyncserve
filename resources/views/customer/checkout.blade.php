@@ -172,12 +172,14 @@
                 tableNumber: null,
                 guestCount: 0,
                 paymentMethod: 'credit',
+                bookingType: 'dine-in',
                 orderComplete: false,
 
                 loadOrder() {
                     const savedCart = localStorage.getItem('customer_order_cart');
                     const savedTable = localStorage.getItem('customer_order_table');
-                    
+                    const savedBookingType = localStorage.getItem('customer_booking_type') || 'dine-in';
+
                     if (savedCart) {
                         try {
                             this.cart = JSON.parse(savedCart) || [];
@@ -186,6 +188,7 @@
                         }
                     }
                     this.tableNumber = savedTable || null;
+                    this.bookingType = savedBookingType;
 
                     const savedAdults = parseInt(localStorage.getItem('customer_guests_adults'), 10);
                     const savedChildren = parseInt(localStorage.getItem('customer_guests_children'), 10);
@@ -299,6 +302,7 @@
                         totalAmount,
                         tableId,
                         paymentMethod: this.paymentMethod,
+                        bookingType: this.bookingType,
                         items: this.cart.map(item => ({ name: item.name, qty: item.qty, price: item.price }))
                     };
                     analyticsHistory.unshift(transaction);

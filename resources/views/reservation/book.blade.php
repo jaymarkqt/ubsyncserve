@@ -247,6 +247,8 @@
             localStorage.setItem('ub_tables', JSON.stringify(storedTables));
         }
 
+        localStorage.setItem('customer_booking_type', type);
+
         window.dispatchEvent(new Event('storage'));
         this.reset();
         updatePaxCount();
