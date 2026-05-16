@@ -131,7 +131,7 @@
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="w-full mt-4 sm:mt-6 bg-maroon hover:bg-red-900 text-white font-black py-3.5 sm:py-4 rounded-xl uppercase tracking-[0.2em] text-sm sm:text-base shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex justify-center items-center gap-2 min-h-[44px] sm:min-h-[48px]">
+            <button type="submit" id="submitBtn" disabled class="w-full mt-4 sm:mt-6 bg-maroon hover:bg-red-900 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-black py-3.5 sm:py-4 rounded-xl uppercase tracking-[0.2em] text-sm sm:text-base shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex justify-center items-center gap-2 min-h-[44px] sm:min-h-[48px]">
                 <i class="fas fa-check-circle"></i> Complete Reservation
             </button>
 
@@ -147,6 +147,28 @@
         const adults = parseInt(document.getElementById('adultsInput').value, 10) || 0;
         const children = parseInt(document.getElementById('childrenInput').value, 10) || 0;
         document.getElementById('paxInput').value = adults + children;
+        validateForm();
+    }
+
+    function validateForm() {
+        const name = document.querySelector('input[name="name"]').value.trim();
+        const email = document.querySelector('input[name="email"]').value.trim();
+        const phone = document.querySelector('input[name="phone"]').value.trim();
+        const date = document.querySelector('input[name="date"]').value.trim();
+        const time = document.querySelector('input[name="time"]').value.trim();
+        const adults = parseInt(document.getElementById('adultsInput').value, 10) || 0;
+        const children = parseInt(document.getElementById('childrenInput').value, 10) || 0;
+        const totalGuests = adults + children;
+
+        const isValid =
+            name.length > 0 &&
+            email.length > 0 && email.includes('@') &&
+            phone.length > 0 &&
+            date.length > 0 &&
+            time.length > 0 &&
+            totalGuests > 0;
+
+        document.getElementById('submitBtn').disabled = !isValid;
     }
 
     function setBookingTypeFromQuery() {
@@ -170,9 +192,14 @@
     // Initialize
     updatePaxCount();
     setBookingTypeFromQuery();
-    
+
     document.getElementById('adultsInput').addEventListener('input', updatePaxCount);
     document.getElementById('childrenInput').addEventListener('input', updatePaxCount);
+    document.querySelector('input[name="name"]').addEventListener('input', validateForm);
+    document.querySelector('input[name="email"]').addEventListener('input', validateForm);
+    document.querySelector('input[name="phone"]').addEventListener('input', validateForm);
+    document.querySelector('input[name="date"]').addEventListener('input', validateForm);
+    document.querySelector('input[name="time"]').addEventListener('input', validateForm);
 
     document.querySelector('form').addEventListener('submit', function(e) {
         e.preventDefault();
