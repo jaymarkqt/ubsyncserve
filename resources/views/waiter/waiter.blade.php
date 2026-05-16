@@ -457,17 +457,18 @@ function waiterSystem() {
         clearTable(tableId) {
             const index = this.tables.findIndex(t => t.id === tableId);
             if (index !== -1) {
-                this.tables[index].status = 'available'; 
+                this.tables[index].status = 'available';
                 this.tables[index].adults = 0;
                 this.tables[index].children = 0;
                 this.tables[index].bill = 0;
-                this.tables[index].orders = []; 
-                
+                this.tables[index].orders = [];
+
                 this.saveTables();
                 this.showOrderModal = false;
                 this.showReservedModal = false;
+                this.showAdvanceOrderModal = false;
                 this.selectedTable = null;
-                
+
                 let kOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
                 let filteredK = kOrders.filter(ko => ko.table != tableId);
                 localStorage.setItem('ub_kitchen_orders', JSON.stringify(filteredK));
