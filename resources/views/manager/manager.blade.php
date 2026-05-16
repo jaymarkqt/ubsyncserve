@@ -577,7 +577,9 @@ init() {
                     });
                     
                     let topItems = Object.keys(itemCounts).map(name => {
-                        return { name: name, qty: itemCounts[name] };
+                        let product = this.products.find(p => p.name === name);
+                        let imgPath = product && product.img ? (product.img.includes('data:') || product.img.includes('http') ? product.img : '/img/' + product.img) : '/img/placeholder.png';
+                        return { name: name, qty: itemCounts[name], img: imgPath };
                     }).sort((a, b) => b.qty - a.qty).slice(0, 5);
 
                     return {

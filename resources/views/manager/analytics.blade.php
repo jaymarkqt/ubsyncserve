@@ -47,6 +47,7 @@
                     <div class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-md transition-all">
                         <div class="flex items-center gap-4">
                             <span class="w-8 h-8 rounded-lg bg-slate-900 text-white text-xs flex items-center justify-center font-black" x-text="index + 1"></span>
+                            <img :src="item.img" :alt="item.name" class="w-12 h-12 rounded-lg object-cover border border-slate-200">
                             <span class="text-sm font-black text-slate-700 uppercase tracking-tight" x-text="item.name"></span>
                         </div>
                         <span class="text-xs font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100" x-text="item.qty + ' Sold'"></span>
@@ -72,6 +73,11 @@
                             </div>
                             <div>
                                 <p class="text-xs font-black text-slate-800 uppercase" x-text="history.orderId"></p>
+                                <template x-if="history.bookingType === 'advance-order'">
+                                    <span class="inline-block text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-amber-100 text-amber-700 mt-1">
+                                        <i class="fas fa-clock mr-1"></i> Advance Order
+                                    </span>
+                                </template>
                             </div>
                         </div>
                         <div class="text-right">
