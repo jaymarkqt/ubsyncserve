@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UB-SYNCSERVE | Waiter POS Terminal</title>
 
-    <!-- Frameworks & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -47,7 +46,6 @@
 
 <div x-data="posSystem()" x-init="initStore()" class="max-w-[1600px] mx-auto p-4 lg:p-8" x-cloak>
     
-    <!-- Top Header -->
     <div class="glass-card rounded-[2rem] p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
         <div class="flex items-center gap-6">
             <button @click="handleBackNavigation()" class="w-12 h-12 flex items-center justify-center bg-white rounded-2xl text-slate-400 hover:text-[#800000] hover:shadow-lg transition-all border border-slate-100">
@@ -72,10 +70,8 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        <!-- Main Menu Area -->
         <div class="lg:col-span-7 xl:col-span-8">
             
-            <!-- Search & Filters -->
             <div class="flex flex-col xl:flex-row gap-4 mb-8">
                 <div class="relative flex-1 group">
                     <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#800000] transition-colors"></i>
@@ -93,14 +89,27 @@
                 </div>
             </div>
 
-            <!-- Products Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 <template x-for="p in filteredProducts" :key="p.id">
                     <div class="menu-card bg-white p-5 flex flex-col border border-slate-100 rounded-[2rem] shadow-sm relative group">
                         
                         <div class="w-full h-44 mb-5 overflow-hidden rounded-[1.5rem] bg-slate-50 flex items-center justify-center p-4 relative">
-                            <img :src="'/img/' + p.img" class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
-                            <div class="absolute top-3 right-3 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/50 shadow-sm">
+                            <img :src="'/img/' + p.img" 
+     :class="p.stock <= 0 ? 'opacity-75' : ''"
+     class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" 
+     x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
+                            
+                            <div x-show="p.stock <= 0" class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                                <div class="absolute w-[150%] py-2.5 bg-gradient-to-r from-[#991b1b] via-[#dc2626] to-[#991b1b] transform -rotate-[10deg] shadow-xl border-y border-white/30 flex items-center justify-center">
+                                    <div class="flex items-center gap-3">
+                                        <span class="w-10 h-0.5 bg-white/90"></span>
+                                        <span class="text-white text-3xl tracking-wide drop-shadow-md" style="font-family: 'Impact', 'Arial Black', sans-serif;">SOLD OUT</span>
+                                        <span class="w-10 h-0.5 bg-white/90"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div x-show="p.stock > 0" class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm z-20">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase">Stock: </span>
                                 <span class="text-[10px] font-black text-slate-700" x-text="p.stock"></span>
                             </div>
@@ -112,7 +121,6 @@
                                 <span class="text-lg font-black text-[#800000]" x-text="formatCurrency(p.price)"></span>
                             </div>
 
-                            <!-- Selected Addons Preview -->
                             <div class="mb-4 flex flex-wrap gap-1.5 min-h-[20px]">
                                 <template x-for="addon in p.selectedAddOns" :key="addon.name">
                                     <span class="bg-rose-50 text-[#800000] text-[9px] font-bold px-2 py-1 rounded-lg border border-rose-100">
@@ -123,7 +131,8 @@
 
                             <div class="space-y-3">
                                 <div class="flex items-center gap-2">
-                                    <div class="flex items-center rounded-xl border-2 border-slate-100 bg-slate-50 h-11 w-28 overflow-hidden">
+                                    <div class="flex items-center rounded-xl border-2 border-slate-100 bg-slate-50 h-11 w-28 overflow-hidden"
+                                         :class="p.stock <= 0 ? 'opacity-50 pointer-events-none' : ''">
                                         <button @click="if(p.qty > 1) p.qty--" class="w-10 h-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
                                             <i class="fas fa-minus text-[10px]"></i>
                                         </button>
@@ -133,15 +142,20 @@
                                         </button>
                                     </div>
 
-                                    <button @click="openCustomizeModal(p)" class="flex-1 rounded-xl border-2 border-slate-100 bg-white h-11 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:border-[#800000] hover:text-[#800000] transition-all">
+                                    <button @click="openCustomizeModal(p)" 
+                                            :disabled="p.stock <= 0"
+                                            class="flex-1 rounded-xl border-2 border-slate-100 bg-white h-11 text-[10px] font-bold uppercase tracking-widest text-slate-500 transition-all"
+                                            :class="p.stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:border-[#800000] hover:text-[#800000]'">
                                         Add-ons
                                     </button>
                                 </div>
                                 
                                 <button @click.prevent="addToCart(p)" 
-                                        :disabled="p.stock === 0"
-                                        class="w-full py-4 bg-[#800000] text-white rounded-xl text-[11px] font-black uppercase tracking-[0.1em] shadow-lg shadow-maroon/20 active:scale-95 transition-all disabled:bg-slate-200">
-                                    Add to Order
+                                        :disabled="p.stock <= 0"
+                                        class="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2"
+                                        :class="p.stock <= 0 ? 'bg-[#b8bcc6] text-white shadow-inner cursor-not-allowed' : 'bg-[#800000] text-white shadow-lg shadow-maroon/20 active:scale-95 hover:bg-[#600000]'">
+                                    <i x-show="p.stock <= 0" class="fa-solid fa-lock text-[11px]"></i>
+                                    <span x-text="p.stock <= 0 ? 'SOLD OUT' : 'Add to Order'"></span>
                                 </button>
                             </div>
                         </div>
@@ -150,7 +164,6 @@
             </div>
         </div>
 
-        <!-- Order Sidebar -->
         <div class="lg:col-span-5 xl:col-span-4 sticky top-8">
             <div class="glass-card rounded-[2.5rem] p-6 shadow-xl border-t-[8px] border-[#800000] h-[calc(100vh-120px)] flex flex-col">
                 <div class="flex justify-between items-center mb-6">
@@ -168,7 +181,6 @@
     <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative group">
         <div class="flex justify-between gap-4">
             <div class="flex gap-3">
-                <!-- DARK STYLE NA MAY 'x' -->
                 <div class="w-10 h-10 rounded-xl bg-[#0f172a] flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-inner" x-text="item.qty + 'x'"></div>
                 
                 <div>
@@ -177,7 +189,7 @@
                     <p class="text-xs font-black text-slate-400 mt-1" x-text="formatCurrency(item.price * item.qty)"></p>
                 </div>
             </div>
-            <button @click="openVoidModal(index)" class="text-slate-300 text-red-500 transition-colors">
+            <button @click="openVoidModal(index)" class="text-slate-300 hover:text-red-500 transition-colors">
                 <i class="fa-solid fa-trash-can text-sm"></i>
             </button>
         </div>
@@ -202,7 +214,6 @@
         </div>
     </div>
 
-    <!-- Customize Modal -->
     <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" x-cloak>
         <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden">
             <div class="bg-slate-50 p-6 border-b border-slate-100">
@@ -230,7 +241,6 @@
         </div>
     </div>
 
-    <!-- Void Modal -->
     <div x-show="showVoidModal" x-cloak class="fixed inset-0 z-[1300] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-3xl shadow-2xl">
             <div class="bg-red-600 p-8 text-white text-center">
@@ -383,21 +393,18 @@
             },
 
             completeOrder() {
-                // 1. Kunin ang mga kailangang data mula sa LocalStorage
                 let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
                 let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
                 let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
 
                 let idx = tables.findIndex(t => t.id == this.tableNumber);
 
-                // 2. Update stock sa product catalog
                 this.cart.forEach(item => {
                     let pIdx = products.findIndex(p => p.id === item.id);
                     if (pIdx !== -1) products[pIdx].stock -= item.qty;
                 });
                 localStorage.setItem('product_catalog', JSON.stringify(products));
 
-                // 3. Update table details (occupancy at billing)
                 if (idx !== -1) {
                     tables[idx].status = 'occupied';
                     tables[idx].adults = this.adults;
@@ -407,7 +414,6 @@
                 }
                 localStorage.setItem('ub_tables', JSON.stringify(tables));
 
-                // --- DINAGDAG NA ANALYTICS TRANSACTION ---
                 const transaction = {
                     orderId: 'ORD-' + Date.now(),
                     timestamp: new Date().toLocaleTimeString(),
@@ -426,7 +432,6 @@
                     JSON.stringify(analyticsHistory)
                 );
 
-                // 4. Alert at Redirect
                 alert('Order successfully sent to kitchen!');
                 window.location.href = "{{ route('waiter.dashboard') }}";
             }

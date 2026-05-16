@@ -108,8 +108,23 @@
 
                     <div class="w-full h-28 sm:h-36 md:h-40 lg:h-48 mb-2 sm:mb-3 md:mb-4 lg:mb-5 overflow-hidden rounded-lg sm:rounded-xl md:rounded-[1.25rem] lg:rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-2 sm:p-3 md:p-4 relative">
 
+                      <img :src="'/img/' + product.img" 
+         :class="product.stock <= 0 ? 'opacity-75' : ''"
+         class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" 
+         x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
 
-                        <img :src="'/img/' + product.img" class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
+                       
+
+                        <div x-show="product.stock <= 0" class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none overflow-hidden rounded-[inherit]">
+                            <div class="absolute w-[150%] py-1.5 sm:py-2.5 bg-gradient-to-r from-[#991b1b] via-[#dc2626] to-[#991b1b] transform -rotate-[12deg] shadow-xl border-y border-white/30 flex items-center justify-center">
+                                <div class="flex items-center gap-2 sm:gap-3">
+                                    <span class="w-6 sm:w-10 h-[1px] sm:h-0.5 bg-white/90"></span>
+                                    <span class="text-white text-lg sm:text-2xl md:text-3xl tracking-wide drop-shadow-md" style="font-family: 'Impact', 'Arial Black', sans-serif;">SOLD OUT</span>
+                                    <span class="w-6 sm:w-10 h-[1px] sm:h-0.5 bg-white/90"></span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="flex-grow flex flex-col">
@@ -128,45 +143,54 @@
 
                         <div class="mt-auto space-y-1 sm:space-y-1.5 md:space-y-2">
                             <div class="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-                                <div class="flex items-center rounded-lg sm:rounded-xl border-2 border-slate-100 bg-slate-50 h-8 sm:h-9 md:h-10 lg:h-11 w-20 sm:w-24 md:w-28 overflow-hidden flex-shrink-0">
+                                <div class="flex items-center rounded-lg sm:rounded-xl border-2 border-slate-100 bg-slate-50 h-8 sm:h-9 md:h-10 lg:h-11 w-20 sm:w-24 md:w-28 overflow-hidden flex-shrink-0"
+                                     :class="product.stock <= 0 ? 'opacity-60 pointer-events-none' : ''">
                                     <button
                                         @click="if (product.stock > 0 && product.qty > 1) product.qty = product.qty - 1"
-                                        :disabled="product.stock === 0"
-                                        :class="['w-6 sm:w-8 md:w-10 h-full flex items-center justify-center transition-colors text-[8px] sm:text-[9px] md:text-xs', product.stock === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200']">
+                                        :disabled="product.stock <= 0"
+                                        class="w-6 sm:w-8 md:w-10 h-full flex items-center justify-center transition-colors text-[8px] sm:text-[9px] md:text-xs text-slate-500 hover:bg-slate-200">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                     <div class="flex-1 h-full flex items-center justify-center font-black text-slate-800 text-xs sm:text-sm bg-white">
-                                        <span x-text="product.stock === 0 ? 0 : product.qty"></span>
+                                        <span x-text="product.stock <= 0 ? 0 : product.qty"></span>
                                     </div>
                                     <button
                                         @click="if (product.stock > product.qty) product.qty++"
-                                        :disabled="product.stock === 0 || product.qty >= product.stock"
-                                        :class="['w-6 sm:w-8 md:w-10 h-full flex items-center justify-center transition-colors text-[8px] sm:text-[9px] md:text-xs', product.stock === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-slate-500 hover:bg-slate-200']">
+                                        :disabled="product.stock <= 0 || product.qty >= product.stock"
+                                        class="w-6 sm:w-8 md:w-10 h-full flex items-center justify-center transition-colors text-[8px] sm:text-[9px] md:text-xs text-slate-500 hover:bg-slate-200 disabled:opacity-50 disabled:hover:bg-transparent">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
 
                                 <button @click="openCustomizeModal(product)"
-                                        :disabled="product.stock === 0"
-                                        :class="['flex-1 rounded-lg sm:rounded-xl border-2 border-slate-100 bg-white h-8 sm:h-9 md:h-10 lg:h-11 text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-center transition-all px-0.5 sm:px-1', product.stock === 0 ? 'text-slate-300 border-slate-200 cursor-not-allowed' : 'text-slate-500 hover:border-[#800000] hover:text-[#800000]']">
+                                        :disabled="product.stock <= 0"
+                                        :class="['flex-1 rounded-lg sm:rounded-xl border-2 border-slate-100 h-8 sm:h-9 md:h-10 lg:h-11 text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-center transition-all px-0.5 sm:px-1', product.stock <= 0 ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-500 hover:border-[#800000] hover:text-[#800000]']">
                                     <i class="fas fa-sliders-h mr-0.5 sm:mr-1"></i><span class="hidden sm:inline">Add-ons</span><span class="sm:hidden">+</span>
                                 </button>
                             </div>
 
                             <button @click.prevent="addToCart(product)"
-                                    :disabled="product.stock === 0"
-                                    :class="['w-full rounded-lg sm:rounded-xl md:rounded-[1rem] text-white h-8 sm:h-9 md:h-10 lg:h-11 text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-widest text-center shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-1', product.stock === 0 ? 'bg-gray-300 cursor-not-allowed shadow-none' : 'maroon-gradient shadow-maroon/20 hover:shadow-xl']">
-                                <i class="fas fa-shopping-bag text-[7px] sm:text-[8px] md:text-xs"></i> <span class="hidden sm:inline">Add</span>
+                                    :disabled="product.stock <= 0"
+                                    :class="['w-full rounded-lg sm:rounded-xl md:rounded-[1rem] h-8 sm:h-9 md:h-10 lg:h-11 text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-widest text-center transition-all flex items-center justify-center gap-1 sm:gap-2', product.stock <= 0 ? 'bg-[#b8bcc6] text-white shadow-inner cursor-not-allowed' : 'maroon-gradient text-white shadow-lg shadow-maroon/20 hover:shadow-xl active:scale-[0.98]']">
+                                
+                                <template x-if="product.stock > 0">
+                                    <span class="flex items-center gap-1 sm:gap-2">
+                                        <i class="fas fa-shopping-bag text-[7px] sm:text-[8px] md:text-xs"></i> 
+                                        <span class="hidden sm:inline">Add to Cart</span>
+                                        <span class="sm:hidden">Add</span>
+                                    </span>
+                                </template>
+
+                                <template x-if="product.stock <= 0">
+                                    <span class="flex items-center gap-1 sm:gap-2">
+                                        <i class="fas fa-lock text-[7px] sm:text-[8px] md:text-xs"></i> 
+                                        <span>SOLD OUT</span>
+                                    </span>
+                                </template>
                             </button>
                         </div>
                     </div>
-
-                    <div x-show="product.stock === 0" class="absolute inset-0 bg-black/60 rounded-lg sm:rounded-xl md:rounded-[1.5rem] flex items-center justify-center">
-                        <div class="text-center">
-                            <div class="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.45em] text-red-100 mb-1">Out of Stock</div>
-                            <div class="inline-flex items-center justify-center bg-red-600 text-white text-[7px] sm:text-[8px] md:text-[9px] font-black uppercase rounded-full px-2 sm:px-3 py-1 tracking-[0.2em] shadow-xl">
-                                SOLD OUT
-                            </div>
+                </div>
             </template>
 
             <div x-show="filteredProducts.length === 0" class="col-span-full py-8 sm:py-10 md:py-12 text-center" x-cloak>
@@ -214,7 +238,7 @@
          x-cloak>
 
         <div class="bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col"
-            
+             
              x-transition:enter="transition ease-out duration-300 delay-100"
              x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-8 sm:scale-95"
              x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -225,7 +249,6 @@
             <div class="bg-slate-50 p-5 sm:p-6 border-b border-slate-100 relative shrink-0">
                 <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4 sm:hidden"></div>
                 
-               
                 <h3 class="text-lg sm:text-xl font-black text-slate-900 pr-8" x-text="selectedProduct ? selectedProduct.name : ''"></h3>
                 <p class="text-xs sm:text-sm font-semibold text-[#800000] mt-1">Customize your order</p>
             </div>
@@ -290,11 +313,11 @@
             defaultProducts() {
                 return [
                     { id: 1, name: 'Burger Steak', price: 99, cat: 'Lunch', img: 'burgersteak.png', stock: 24, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Rice', price: 20 }, { name: 'Cheese', price: 15 }] },
-                    { id: 2, name: 'Tapa & Egg', price: 120, cat: 'Breakfast', img: 'tapa.png', stock: 18, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
+                    { id: 2, name: 'Tapa & Egg', price: 120, cat: 'Breakfast', img: 'tapa.png', stock: 0, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
                     { id: 3, name: 'Fries', price: 65, cat: 'Snacks', img: 'fries.png', stock: 30, qty: 1, selectedAddOns: [], addOns: [{ name: 'Cheese Sauce', price: 10 }, { name: 'Bacon Bits', price: 15 }] },
                     { id: 4, name: 'Fried Chicken', price: 150, cat: 'Dinner', img: 'chicken.png', stock: 12, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Gravy', price: 10 }, { name: 'Spicy Dip', price: 10 }] },
                     { id: 5, name: 'Ice Tea', price: 45, cat: 'Drinks', img: 'icetea.png', stock: 40, qty: 1, selectedAddOns: [], addOns: [{ name: 'Large Cup', price: 15 }] },
-                    { id: 6, name: 'Pancit Canton', price: 115, cat: 'Lunch', img: 'pancit.png', stock: 16, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }] },
+                    { id: 6, name: 'Pancit Canton', price: 115, cat: 'Lunch', img: 'pancit.png', stock: 0, qty: 1, selectedAddOns: [], addOns: [{ name: 'Extra Egg', price: 15 }] },
                     { id: 7, name: 'Latte', price: 95, cat: 'Drinks', img: 'latte.png', stock: 22, qty: 1, selectedAddOns: [], addOns: [{ name: 'Soy Milk', price: 20 }] }
                 ];
             },
