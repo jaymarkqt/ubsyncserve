@@ -14,37 +14,37 @@
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans" x-data="tableSelection()" x-init="init()" x-cloak>
-    <div class="max-w-7xl mx-auto p-6">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         <!-- Header -->
-        <div class="mb-8 rounded-[2rem] bg-white shadow-2xl border border-gray-200 overflow-hidden">
-            <div class="bg-maroon p-8 text-center text-white relative overflow-hidden">
+        <div class="mb-6 sm:mb-8 rounded-xl sm:rounded-2xl lg:rounded-[2rem] bg-white shadow-lg sm:shadow-xl lg:shadow-2xl border border-gray-200 overflow-hidden">
+            <div class="bg-maroon p-4 sm:p-6 md:p-8 text-center text-white relative overflow-hidden">
                 <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                <h1 class="text-3xl font-black uppercase tracking-widest relative z-10">Select Your Table</h1>
-                <p class="relative z-10 mt-2 text-sm text-white/80" x-text="currentReservation ? 'Complete your reservation for ' + currentReservation.name : (bookingType === 'advance-order' ? 'Choose a table for your advance order' : 'Choose a table for your reservation')"></p>
+                <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black uppercase tracking-widest relative z-10">Select Your Table</h1>
+                <p class="relative z-10 mt-1 sm:mt-2 text-xs sm:text-sm md:text-base text-white/80" x-text="currentReservation ? 'Complete your reservation for ' + currentReservation.name : (bookingType === 'advance-order' ? 'Choose a table for your advance order' : 'Choose a table for your table reservation')"></p>
             </div>
-            <div class="p-6 md:p-8">
+            <div class="p-4 sm:p-6 md:p-8">
                 <div class="flex flex-wrap gap-4 text-sm font-black">
                     <div class="flex items-center gap-2">
-                        
+
             </div>
         </div>
 
         <!-- Tables Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
             <template x-for="table in tables" :key="table.id">
-                <div @click="table.status === 'available' ? selectTable(table) : null" 
-                     class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
-                         :class="getTableClass(table) + (table.status !== 'available' ? ' cursor-not-allowed opacity-80' : ' cursor-pointer hover:shadow-xl hover:-translate-y-1')">
-                        
-                        <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
-                        
-                        <p class="text-[11px] font-extrabold uppercase tracking-widest" 
-                           :class="getTableTextClass(table)" 
+                <div @click="table.status === 'available' ? selectTable(table) : null"
+                     class="w-full aspect-square flex flex-col items-center justify-center space-y-1.5 sm:space-y-2 rounded-lg sm:rounded-xl border-2 shadow-sm transition-all relative group"
+                         :class="getTableClass(table) + (table.status !== 'available' ? ' cursor-not-allowed opacity-75' : ' cursor-pointer hover:shadow-lg sm:hover:shadow-xl hover:-translate-y-1')">
+
+                        <div class="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
+
+                        <p class="text-[9px] sm:text-[10px] md:text-[11px] font-extrabold uppercase tracking-widest text-center px-1"
+                           :class="getTableTextClass(table)"
                            x-text="getTableStatusText(table)"></p>
-                        
+
                         <template x-if="table.status === 'reserved-advance' || table.status === 'reserved-booking'">
-                            <div class="text-center pt-1 w-full">
-                                <p class="text-sm font-bold text-[#1e293b]"><span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests</p>
+                            <div class="text-center pt-0.5 sm:pt-1 w-full">
+                                <p class="text-xs sm:text-sm font-bold text-[#1e293b]"><span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests</p>
                             </div>
                         </template>
                     </div>
@@ -53,41 +53,41 @@
 
 
         <!-- Reservation Confirm Modal -->
-        <div x-show="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" x-cloak>
-            <div class="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl">
-                <div class="text-center mb-6 mt-2">
-                    <h3 class="text-lg font-extrabold text-[#800000] tracking-wide leading-tight uppercase">Confirm Reservation</h3>
-                    <p class="text-xs text-gray-500 mt-1">Reserve Table <span x-text="selectedTable ? selectedTable.id : ''"></span>?</p>
+        <div x-show="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4" x-cloak>
+            <div class="w-full max-w-sm rounded-2xl bg-white p-5 sm:p-6 shadow-lg sm:shadow-2xl">
+                <div class="text-center mb-5 sm:mb-6 mt-1 sm:mt-2">
+                    <h3 class="text-lg sm:text-xl font-extrabold text-[#800000] tracking-wide leading-tight uppercase">Confirm Reservation</h3>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">Reserve Table <span x-text="selectedTable ? selectedTable.id : ''"></span>?</p>
                 </div>
 
-                <div class="flex gap-3">
-                    <button @click="cancelReservation()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold uppercase text-sm">Cancel</button>
-                    <button @click="confirmReservation()" class="flex-1 bg-[#800000] text-white py-3 rounded-xl font-bold uppercase text-sm transition-all">Confirm</button>
+                <div class="flex gap-2 sm:gap-3">
+                    <button @click="cancelReservation()" class="flex-1 bg-gray-200 text-gray-700 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-bold uppercase text-xs sm:text-sm transition-all">Cancel</button>
+                    <button @click="confirmReservation()" class="flex-1 bg-[#800000] text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-bold uppercase text-xs sm:text-sm transition-all hover:bg-red-900">Confirm</button>
                 </div>
             </div>
         </div>
 
         <!-- Table Details Modal -->
-        <div x-show="showDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" x-cloak>
-            <div class="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl">
-                <div class="text-center mb-6 mt-2">
-                    <h3 class="text-lg font-extrabold text-[#800000] tracking-wide leading-tight uppercase">Table <span x-text="selectedTable ? selectedTable.id : ''"></span></h3>
-                    <p class="text-xs text-gray-500 mt-1" x-text="getDetailsText()"></p>
+        <div x-show="showDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4" x-cloak>
+            <div class="w-full max-w-sm rounded-2xl bg-white p-5 sm:p-6 shadow-lg sm:shadow-2xl">
+                <div class="text-center mb-5 sm:mb-6 mt-1 sm:mt-2">
+                    <h3 class="text-lg sm:text-xl font-extrabold text-[#800000] tracking-wide leading-tight uppercase">Table <span x-text="selectedTable ? selectedTable.id : ''"></span></h3>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2" x-text="getDetailsText()"></p>
                 </div>
 
                 <template x-if="selectedTable && selectedTable.status === 'reserved-advance' && selectedTable.orders && selectedTable.orders.length > 0">
-                    <div class="space-y-2 mb-6 max-h-40 overflow-y-auto">
+                    <div class="space-y-2 mb-5 sm:mb-6 max-h-40 overflow-y-auto">
                         <template x-for="order in selectedTable.orders" :key="order.id">
-                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
-                                <span class="text-sm font-bold" x-text="order.name"></span>
-                                <span class="text-sm text-[#800000] font-black" x-text="'₱' + order.price.toFixed(2)"></span>
+                            <div class="flex justify-between items-center bg-gray-50 p-2 sm:p-3 rounded-lg">
+                                <span class="text-xs sm:text-sm font-bold" x-text="order.name"></span>
+                                <span class="text-xs sm:text-sm text-[#800000] font-black" x-text="'₱' + order.price.toFixed(2)"></span>
                             </div>
                         </template>
                     </div>
                 </template>
 
-                <div class="flex gap-3">
-                    <button @click="closeDetailsModal()" class="flex-1 bg-[#800000] text-white py-3 rounded-xl font-bold uppercase text-sm transition-all">Close</button>
+                <div class="flex gap-2 sm:gap-3">
+                    <button @click="closeDetailsModal()" class="flex-1 bg-[#800000] text-white py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-bold uppercase text-xs sm:text-sm transition-all hover:bg-red-900">Close</button>
                 </div>
             </div>
         </div>
