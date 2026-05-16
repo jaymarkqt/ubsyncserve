@@ -57,6 +57,17 @@
                 </div>
             </div>
 
+            <!-- Phone Number -->
+            <div>
+                <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Phone Number</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-phone text-gray-400"></i>
+                    </div>
+                    <input type="tel" name="phone" required class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white" placeholder="+63 123 456 7890">
+                </div>
+            </div>
+
             <!-- Date and Time -->
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
@@ -173,6 +184,7 @@
             id: 'RES-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
             name: formData.get('name'),
             email: formData.get('email'),
+            phone: formData.get('phone'),
             type: type,
             adults: adults,
             children: children,

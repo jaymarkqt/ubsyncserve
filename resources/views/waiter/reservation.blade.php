@@ -31,8 +31,8 @@
                                 <span x-text="res.type ? res.type.replace('-', ' ') : 'Table Reservation'"></span>
                                 <span x-show="res.table">| Table <span x-text="res.table"></span></span>
                             </div>
-                            <div class="mt-2 text-[11px] text-slate-400">
-                                Booked: <span x-text="res.createdAt ? new Date(res.createdAt).toLocaleString() : 'N/A'"></span>
+                            <div class="mt-2 text-[11px] text-black font-medium">
+                                Booked: <span x-text="res.createdAt ? new Date(res.createdAt).toLocaleDateString() + ', ' + new Date(res.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A'"></span>
                             </div>
                         </div>
                         <div class="shrink-0">
@@ -47,6 +47,10 @@
                         <div class="text-sm flex justify-between items-center bg-gray-50/70 p-2.5 rounded-xl overflow-hidden">
                             <span class="text-slate-500 font-medium italic shrink-0">Email:</span>
                             <span class="font-black text-slate-900 truncate ml-2 text-right" :title="res.email" x-text="res.email || 'N/A'"></span>
+                        </div>
+                        <div class="text-sm flex justify-between items-center bg-gray-50/70 p-2.5 rounded-xl overflow-hidden">
+                            <span class="text-slate-500 font-medium italic shrink-0">Phone:</span>
+                            <span class="font-black text-slate-900 truncate ml-2 text-right" :title="res.phone" x-text="res.phone || 'N/A'"></span>
                         </div>
                         <div class="text-sm flex justify-between items-center bg-gray-50/70 p-2.5 rounded-xl">
                             <span class="text-slate-500 font-medium italic">Guests:</span>
