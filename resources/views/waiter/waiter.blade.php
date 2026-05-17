@@ -102,7 +102,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div class="clay-card border-t-4 border-t-emerald-500 p-6 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                    <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
                         <i class="fas fa-door-open text-5xl text-emerald-600"></i>
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available Tables</p>
@@ -111,7 +111,7 @@
                 </div>
 
                 <div class="clay-card border-t-4 border-t-red-800 p-6 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                    <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
                         <i class="fas fa-utensils text-5xl text-red-800"></i>
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Tables</p>
@@ -120,7 +120,7 @@
                 </div>
 
                 <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                    <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
                         <i class="fas fa-clock text-5xl text-blue-600"></i>
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reservations</p>
@@ -166,17 +166,17 @@
             <div class="p-8 space-y-6">
                 <div class="grid grid-cols-2 gap-4">
                    <div class="space-y-2">
-    <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block text-center">Adults</label>
+    <label class="text-[10px] font-black uppercase text-black tracking-widest block text-center">Adults</label>
     <input type="number" x-model.number="guestSetup.adults" min="0" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-center font-black text-xl focus:border-[#800000] focus:bg-white outline-none transition-all">
 </div>
                     <div class="space-y-2 text-center">
-                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block text-center">Children</label>
+                        <label class="text-[10px] font-black uppercase text-black tracking-widest block text-center">Children</label>
                         <input type="number" x-model.number="guestSetup.children" min="0" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-center font-black text-xl focus:border-[#800000] focus:bg-white outline-none transition-all">
                     </div>
                 </div>
 
                 <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center border border-slate-100">
-                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Total Pax</span>
+                    <span class="text-xs font-black text-black uppercase tracking-widest">Total Pax</span>
                     <span class="text-2xl font-black text-[#800000]" x-text="guestSetup.adults + guestSetup.children"></span>
                 </div>
 
@@ -184,7 +184,7 @@
                     <button @click="startSession()" class="w-full py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/20 hover:bg-red-900 transition-all">
                         Open Table & Order Menu
                     </button>
-                    <button @click="showSetupModal = false" class="w-full py-3 text-slate-400 font-black text-[10px] uppercase hover:text-slate-600 transition-all">
+                    <button @click="showSetupModal = false" class="w-full py-3 text-black font-black text-[10px] uppercase  transition-all">
                         Cancel
                     </button>
                 </div>
@@ -235,7 +235,7 @@
 
                 <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
                     <div class="flex justify-between items-center px-1">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Running Total</span>
+                    <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Running Total</span>
                         <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill)"></span>
                     </div>
                 </div>
@@ -335,7 +335,7 @@
 
                 <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
                     <div class="flex justify-between items-center px-1">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total</span>
+                         <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Running Total</span>
                         <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill)"></span>
                     </div>
                 </div>

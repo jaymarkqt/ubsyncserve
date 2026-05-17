@@ -53,9 +53,7 @@
         <div class="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 mb-6 sm:mb-8 relative">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5">
                 <div>
-                    <p class="text-[10px] sm:text-xs font-black tracking-[0.35em] uppercase text-slate-400 mb-1">
-                        Digital Ordering
-                    </p>
+                   
                     <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
                         Our <span class="text-[#800000]">Menu</span>
                     </h1>
@@ -66,7 +64,7 @@
                         <i class="fas fa-utensils text-[#800000] text-sm sm:text-base"></i>
                     </div>
                     <div>
-                        <p class="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 tracking-wider">Current Table</p>
+                        <p class="text-[9px] sm:text-[10px] uppercase font-bold text-black-400 tracking-wider">Current Table</p>
                         <p class="font-black text-slate-800 text-xs sm:text-sm tracking-wide" x-text="tableNumber ? 'Table ' + tableNumber : 'Unassigned'"></p>
                     </div>
                 </div>
@@ -164,7 +162,7 @@
 
                                 <button @click="openCustomizeModal(product)"
                                         :disabled="product.stock <= 0"
-                                        :class="['flex-1 rounded-lg sm:rounded-xl border-2 border-slate-100 h-8 sm:h-9 md:h-10 lg:h-11 text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-center transition-all px-0.5 sm:px-1', product.stock <= 0 ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-500 hover:border-[#800000] hover:text-[#800000]']">
+                                        :class="['flex-1 rounded-lg sm:rounded-xl border-2 border-slate-100 h-8 sm:h-9 md:h-10 lg:h-11 text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-center transition-all px-0.5 sm:px-1', product.stock <= 0 ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-white text-black-500 hover:border-[#800000] hover:text-[#800000]']">
                                     <i class="fas fa-sliders-h mr-0.5 sm:mr-1"></i><span class="hidden sm:inline">Add-ons</span><span class="sm:hidden">+</span>
                                 </button>
                             </div>

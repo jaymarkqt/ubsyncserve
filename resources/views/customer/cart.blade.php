@@ -34,7 +34,7 @@
                 <div class="lg:col-span-8 space-y-4 sm:space-y-6">
                     
                     <template x-if="cart.length === 0">
-                        <div class="rounded-3xl border-2 border-dashed border-gray-200 bg-white p-12 text-center text-gray-500">
+                        <div class="rounded-3xl border border-gray-200 bg-white p-12 text-center text-gray-500 shadow-sm">
                             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 mb-4">
                                 <i class="fas fa-shopping-cart text-3xl text-gray-400"></i>
                             </div>
@@ -64,7 +64,7 @@
                                 <div class="flex flex-col sm:items-end justify-between gap-4 border-t border-gray-50 sm:border-t-0 pt-4 sm:pt-0">
                                     
                                     <div class="flex items-center justify-between sm:justify-end gap-4 w-full">
-                                        <button @click="removeItem(index)" class="h-10 w-10 flex items-center justify-center rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors" aria-label="Remove item">
+                                        <button @click="removeItem(index)" class="h-10 w-10 flex items-center justify-center rounded-full text-gray-400 text-red-500 transition-colors" aria-label="Remove item">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
 
@@ -81,7 +81,7 @@
                                         </div>
                                     </div>
 
-                                    <button @click="editItem(index)" class="w-full sm:w-auto rounded-xl border border-gray-200 bg-white hover:border-[#800000] hover:text-[#800000] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-600 transition-colors shadow-sm">
+                                    <button @click="editItem(index)" class="w-full sm:w-auto rounded-xl border border-gray-200 bg-white hover:border-[#800000] hover:text-[#800000] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-black-600 transition-colors shadow-sm">
                                         <i class="fas fa-sliders-h mr-1.5"></i> Customize
                                     </button>
                                 </div>
@@ -104,8 +104,8 @@
                                 </div>
                             </template>
                             
-                            <div class="mt-4 pt-4 border-t border-dashed border-gray-200 flex justify-between items-center">
-                                <span class="text-sm font-bold text-gray-500 uppercase">Subtotal</span>
+                           <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                                <span class="text-sm font-bold text-black-500 uppercase">Subtotal</span>
                                 <span class="text-xl font-black text-gray-900" x-text="formatCurrency((item.price + (item.addOns || []).reduce((sum, addon) => sum + addon.price, 0)) * item.qty)"></span>
                             </div>
                         </div>
@@ -116,20 +116,22 @@
                     <div class="rounded-3xl bg-white p-6 sm:p-8 shadow-lg border border-gray-100">
                         <h2 class="text-xl font-black uppercase tracking-tight text-gray-900 mb-6">Order Summary</h2>
                         
-                        <div class="space-y-4 mb-6">
-                            <div class="flex justify-between items-center p-3 rounded-xl bg-gray-50 border border-gray-100 text-sm">
-                                <span class="text-gray-500 font-bold uppercase tracking-wider">Table</span>
-                                <span class="font-black text-[#800000]" x-text="tableNumber ? '#' + tableNumber : 'N/A'"></span>
-                            </div>
-                            <div class="flex justify-between text-sm text-gray-600">
-                                <span>Total Items</span>
-                                <span class="font-bold text-gray-900" x-text="cart.length"></span>
-                            </div>
-                            <div class="flex justify-between text-sm text-gray-600">
-                                <span>Total Quantity</span>
-                                <span class="font-bold text-gray-900" x-text="cart.reduce((sum, item) => sum + item.qty, 0)"></span>
-                            </div>
-                        </div>
+                       <div class="space-y-4 mb-6">
+    <div class="flex justify-between items-center px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-100">
+        <span class="text-black-500 text-sm font-bold uppercase tracking-widest">Table</span>
+        <span class="text-base font-black text-[#800000]" x-text="tableNumber ? '#' + tableNumber : 'N/A'"></span>
+    </div>
+    
+    <div class="flex justify-between text-sm text-gray-600 px-4">
+        <span>Total Items</span>
+        <span class="font-bold text-black-900" x-text="cart.length"></span>
+    </div>
+    
+    <div class="flex justify-between text-sm text-gray-600 px-4">
+        <span>Total Quantity</span>
+        <span class="font-bold text-black-900" x-text="cart.reduce((sum, item) => sum + item.qty, 0)"></span>
+    </div>
+</div>
 
                         <div class="border-t border-gray-200 pt-4 mb-6 flex justify-between items-end">
                             <span class="text-base font-black uppercase text-gray-900">Total Amount</span>
@@ -280,10 +282,10 @@
                 },
 
                 removeItem(index) {
-                    if(confirm("Are you sure you want to remove this item?")) {
+                   
                         this.cart.splice(index, 1);
                         this.saveCart();
-                    }
+                    
                 },
 
                 gotoCheckout() {

@@ -59,7 +59,7 @@
 
         <div class="flex items-center gap-4">
             <div class="text-right hidden sm:block">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Table</p>
+                <p class="text-[10px] font-bold text-black-400 uppercase tracking-widest">Active Table</p>
                 <p class="text-sm font-black text-[#800000] tracking-wide" x-text="tableNumber ? 'TABLE ' + tableNumber : 'WALK-IN'"></p>
             </div>
             <div class="w-12 h-12 rounded-2xl maroon-gradient flex items-center justify-center text-white shadow-lg shadow-maroon/20">
@@ -144,7 +144,7 @@
 
                                     <button @click="openCustomizeModal(p)" 
                                             :disabled="p.stock <= 0"
-                                            class="flex-1 rounded-xl border-2 border-slate-100 bg-white h-11 text-[10px] font-bold uppercase tracking-widest text-slate-500 transition-all"
+                                            class="flex-1 rounded-xl border-2 border-slate-100 bg-white h-11 text-[10px] font-bold uppercase tracking-widest text-black-500 transition-all"
                                             :class="p.stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:border-[#800000] hover:text-[#800000]'">
                                         Add-ons
                                     </button>
@@ -165,7 +165,7 @@
         </div>
 
         <div class="lg:col-span-5 xl:col-span-4 sticky top-8">
-            <div class="glass-card rounded-[2.5rem] p-6 shadow-xl border-t-[8px] border-[#800000] h-[calc(100vh-120px)] flex flex-col">
+            <div class="bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-red-900/10 border-4 border-[#800000] h-[calc(100vh-120px)] flex flex-col">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Order Details</h2>
                     <span class="bg-rose-50 text-[#800000] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" x-text="cart.length + ' Items'"></span>
@@ -186,10 +186,10 @@
                 <div>
                     <p class="text-sm font-bold text-slate-900 leading-tight uppercase" x-text="item.name"></p>
                     <p x-show="item.addonName" class="text-[10px] text-[#800000] font-bold mt-0.5" x-text="'+ ' + item.addonName"></p>
-                    <p class="text-xs font-black text-slate-400 mt-1" x-text="formatCurrency(item.price * item.qty)"></p>
+                    <p class="text-xs font-black text-black-400 mt-1" x-text="formatCurrency(item.price * item.qty)"></p>
                 </div>
             </div>
-            <button @click="openVoidModal(index)" class="text-slate-300 hover:text-red-500 transition-colors">
+            <button @click="openVoidModal(index)" class="text-red-500 transition-colors">
                 <i class="fa-solid fa-trash-can text-sm"></i>
             </button>
         </div>
@@ -200,7 +200,7 @@
                 <div class="mt-6 pt-6 border-t border-slate-100">
                     <div class="bg-slate-50 rounded-2xl p-4 mb-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Bill</span>
+                           <span class="text-base font-black text-black uppercase tracking-widest">Total Bill</span>
                             <span class="text-3xl font-black text-[#800000]" x-text="formatCurrency(cartTotal)"></span>
                         </div>
                     </div>

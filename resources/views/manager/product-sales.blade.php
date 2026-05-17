@@ -9,7 +9,7 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
         <div class="clay-card border-t-4 border-t-[#800000] p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
                 <i class="fas fa-coins text-5xl text-[#800000]"></i>
             </div>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Revenue</p>
@@ -18,7 +18,7 @@
         </div>
 
         <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
                 <i class="fas fa-box text-5xl text-blue-600"></i>
             </div>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Products Sold</p>

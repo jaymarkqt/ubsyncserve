@@ -19,7 +19,7 @@
     </style>
 
     <div class="clay-card border-t-4 border-t-emerald-500 p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
                 <i class="fas fa-door-open text-5xl text-emerald-600"></i>
             </div>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available Tables</p>
@@ -30,7 +30,7 @@
 
         
         <div class="clay-card border-t-4 border-t-red-800 p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
                 <i class="fas fa-utensils text-5xl text-red-800"></i>
             </div>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Occupied Tables</p>
@@ -40,7 +40,7 @@
 
         
         <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
                 <i class="fas fa-users text-5xl text-blue-600"></i>
             </div>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Guests</p>
@@ -116,7 +116,7 @@
 
                     <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
                         <div class="flex justify-between items-center px-1">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Running Total</span>
+                           <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Running Total</span>
                             <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
                         </div>
                     </div>
@@ -207,7 +207,7 @@
 
                     <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
                         <div class="flex justify-between items-center px-1">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total</span>
+                             <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Running Total</span>
                             <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
                         </div>
                     </div>

@@ -48,11 +48,11 @@
 
                                     <div class="flex flex-1 flex-col w-full">
                                         <div class="flex justify-between items-start w-full">
-                                            <div class="pr-4">
-                                                <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-[#800000]" x-text="item.cat"></p>
-                                                <h3 class="mt-1 text-lg font-black uppercase text-gray-900 leading-tight" x-text="item.name"></h3>
-                                                <p class="mt-1 text-sm font-medium text-gray-500" x-text="item.qty + ' x ' + formatCurrency(item.price)"></p>
-                                            </div>
+                                           <div class="pr-4">
+    <p class="inline-block rounded-md bg-[#fff4f4] px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-[#800000]" x-text="item.cat"></p>
+    <h3 class="mt-2 text-lg font-black uppercase text-gray-900 leading-tight" x-text="item.name"></h3>
+    <p class="mt-1 text-sm font-medium text-gray-500" x-text="item.qty + ' x ' + formatCurrency(item.price)"></p>
+</div>
                                             <div class="text-right flex-shrink-0">
                                                 <p class="text-lg font-black text-[#800000]" x-text="formatCurrency((item.price + (item.addOns || []).reduce((sum, addon) => sum + addon.price, 0)) * item.qty)"></p>
                                             </div>
@@ -150,7 +150,7 @@
                 <p class="mt-2 text-sm text-gray-500">Your payment has been received. The kitchen will begin preparing your order.</p>
                 
                 <div class="mt-6 rounded-[1.5rem] bg-gray-50 p-5 text-left border border-gray-100">
-                    <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 mb-3 border-b border-gray-200 pb-2">Receipt Summary</p>
+                   <p class="text-[11px] font-black uppercase tracking-widest text-gray-900 mb-4 border-b border-gray-200 pb-3">Receipt Summary</p>
                     <div class="space-y-2">
                         <div class="flex justify-between"><span class="text-sm text-gray-500">Table:</span> <span class="text-sm font-black text-gray-900" x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span></div>
                         <div class="flex justify-between"><span class="text-sm text-gray-500">Method:</span> <span class="text-sm font-black text-gray-900" x-text="paymentMethod === 'credit' ? 'Credit Card' : 'GCash'"></span></div>
