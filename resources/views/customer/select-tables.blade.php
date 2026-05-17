@@ -14,7 +14,7 @@
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans" x-data="tableSelection()" x-init="init()" x-cloak>
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+    <div class="w-full px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         <!-- Header -->
         <div class="mb-6 sm:mb-8 rounded-xl sm:rounded-2xl lg:rounded-[2rem] bg-white shadow-lg sm:shadow-xl lg:shadow-2xl border border-gray-200 overflow-hidden">
             <div class="bg-maroon p-4 sm:p-6 md:p-8 text-center text-white relative overflow-hidden">

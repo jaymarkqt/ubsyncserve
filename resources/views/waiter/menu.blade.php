@@ -44,7 +44,7 @@
 
 <body class="antialiased text-slate-800">
 
-<div x-data="posSystem()" x-init="initStore()" class="max-w-[1600px] mx-auto p-4 lg:p-8" x-cloak>
+<div x-data="posSystem()" x-init="initStore()" class="w-full px-4 py-6 lg:px-8 lg:py-8 min-h-screen" x-cloak>
     
     <div class="glass-card rounded-[2rem] p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
         <div class="flex items-center gap-6">
@@ -95,7 +95,7 @@
                         
                         <div class="w-full h-44 mb-5 overflow-hidden rounded-[1.5rem] bg-slate-50 flex items-center justify-center p-4 relative">
                             <img :src="'/img/' + p.img" 
-     :class="p.stock <= 0 ? 'opacity-75' : ''"
+     :class="p.stock <= 0 ? 'opacity-90' : ''"
      class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" 
      x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
                             
@@ -165,7 +165,7 @@
         </div>
 
         <div class="lg:col-span-5 xl:col-span-4 sticky top-8">
-            <div class="bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-red-900/10 border-4 border-[#800000] h-[calc(100vh-120px)] flex flex-col">
+           <div class="bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-red-900/10 border-2 border-[#800000]/50 h-[calc(100vh-120px)] flex flex-col">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Order Details</h2>
                     <span class="bg-rose-50 text-[#800000] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" x-text="cart.length + ' Items'"></span>

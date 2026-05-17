@@ -15,7 +15,7 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 via-white to-slate-100 min-h-screen font-sans">
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-8 sm:py-12 md:py-16">
+    <div class="w-full px-3 sm:px-4 py-8 sm:py-12 md:py-16">
         <!-- Header -->
         <div class="text-center mb-10 sm:mb-14 md:mb-16">
             <h1 class="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-2 sm:mb-3">Choose Your Dining Experience</h1>

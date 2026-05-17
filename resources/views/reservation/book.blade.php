@@ -13,7 +13,7 @@
         .focus-maroon:focus { border-color: #800000; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
     </style>
 </head>
-<body class="bg-[url('{{ asset('img/backgroundlogo.png') }}')] bg-cover bg-center bg-no-repeat bg-fixed min-h-screen flex items-center justify-center px-3 py-6 sm:px-4 md:p-8 font-sans">
+<body class="bg-slate-50 min-h-screen flex items-center justify-center px-3 py-6 sm:px-4 md:p-8 font-sans">
 
     <div class="max-w-lg w-full bg-white rounded-2xl sm:rounded-[2rem] shadow-lg sm:shadow-2xl overflow-hidden border border-gray-100">
         

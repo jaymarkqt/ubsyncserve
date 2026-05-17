@@ -15,7 +15,7 @@
 </head>
 <body class="bg-gray-50 font-sans antialiased">
     <div x-data="checkoutPage()" x-init="loadOrder()" class="min-h-screen pb-10" x-cloak>
-        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div class="w-full px-4 sm:px-6 lg:px-8 pt-8">
             <div class="mb-6 rounded-[2rem] bg-white p-5 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>

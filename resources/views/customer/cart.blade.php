@@ -15,7 +15,7 @@
 </head>
 <body class="bg-gray-50 font-sans antialiased text-gray-900">
     <div x-data="customerCart()" x-init="loadCart()" class="min-h-screen pb-20 sm:pb-10" x-cloak>
-        <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
+        <div class="w-full px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
             
             <div class="mb-6 rounded-[2rem] bg-white p-5 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

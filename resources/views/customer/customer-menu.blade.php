@@ -48,9 +48,9 @@
 
 <div x-data="digitalOrdering()" x-init="initOrder()" class="min-h-screen pb-40 sm:pb-32" x-cloak>
 
-    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 2xl:px-12 pt-6 sm:pt-8">
+    <div class="w-full px-4 sm:px-6 lg:px-10 2xl:px-12 pt-6 sm:pt-8">
 
-        <div class="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 mb-6 sm:mb-8 relative">
+        <div class="glass-card rounded-[1rem] sm:rounded-[1.5rem] p-3 sm:p-9 mb-8 relative">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 sm:gap-5">
                 <div>
                    
@@ -107,7 +107,7 @@
                     <div class="w-full h-28 sm:h-36 md:h-40 lg:h-48 mb-2 sm:mb-3 md:mb-4 lg:mb-5 overflow-hidden rounded-lg sm:rounded-xl md:rounded-[1.25rem] lg:rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-2 sm:p-3 md:p-4 relative">
 
                       <img :src="'/img/' + product.img" 
-         :class="product.stock <= 0 ? 'opacity-75' : ''"
+         :class="product.stock <= 0 ? 'opacity-90' : ''"
          class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" 
          x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
 
