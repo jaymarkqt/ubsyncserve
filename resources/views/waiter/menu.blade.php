@@ -180,16 +180,16 @@
                   <template x-for="(item, index) in cart" :key="index">
     <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm relative group">
         <div class="flex justify-between gap-4">
-            <div class="flex gap-3">
+            <div class="flex gap-3 flex-1">
                 <div class="w-10 h-10 rounded-xl bg-[#0f172a] flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-inner" x-text="item.qty + 'x'"></div>
-                
-                <div>
+
+                <div class="flex-1">
                     <p class="text-sm font-bold text-slate-900 leading-tight uppercase" x-text="item.name"></p>
                     <p x-show="item.addonName" class="text-[10px] text-[#800000] font-bold mt-0.5" x-text="'+ ' + item.addonName"></p>
                     <p class="text-xs font-black text-black-400 mt-1" x-text="formatCurrency(item.price * item.qty)"></p>
                 </div>
             </div>
-            <button @click="openVoidModal(index)" class="text-red-500 transition-colors">
+            <button @click="openVoidModal(index)" class="text-red-500 transition-colors shrink-0">
                 <i class="fa-solid fa-trash-can text-sm"></i>
             </button>
         </div>
@@ -259,6 +259,78 @@
             </div>
         </div>
     </div>
+
+    <div x-show="showCompleteOrderModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="p-8 font-mono text-sm leading-relaxed border-b-2 border-black max-h-[70vh] overflow-y-auto">
+                <!-- Header with location -->
+                
+
+                <!-- Restaurant Info -->
+                <div class="text-center mb-6 pb-4 border-b-2 border-dashed border-black">
+                    <p class="text-sm font-black text-black">UNIVERSITY OF BATANGAS</p>
+                    <p class="text-xs text-black">Hilltop Rd. Batangas City, 4250 Batangas</p>
+                </div>
+
+                <!-- Table Number -->
+                <div class="border-4 border-black rounded-lg p-4 mb-6 text-center">
+                    <p class="text-2xl font-black tracking-widest text-black" x-text="'TABLE ' + (tableNumber || 'WALK-IN')"></p>
+                </div>
+
+                <!-- Order Info -->
+                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
+                    <div class="flex justify-between text-xs mb-2">
+                        <span class="text-black font-semibold">ORDER ID:</span>
+                        <span class="text-black font-semibold" x-text="currentOrderId"></span>
+                    </div>
+                    <div class="flex justify-between text-xs mb-2">
+                        <span class="text-black font-semibold">DATE:</span>
+                        <span class="text-black font-semibold" x-text="formatDate()"></span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-black font-semibold">TIME:</span>
+                        <span class="text-black font-semibold" x-text="formatTime()"></span>
+                    </div>
+                </div>
+
+                <!-- Items Section -->
+                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
+                    <p class="text-xs font-black mb-3 text-black">QTY ITEM/S</p>
+                    <template x-for="item in cart" :key="item.id">
+                        <div class="mb-2 text-xs">
+                            <div class="flex justify-between text-black">
+                                <span><span x-text="item.qty"></span>x <span x-text="item.name.toUpperCase()"></span></span>
+                                <span x-text="formatCurrency(item.price * item.qty)"></span>
+                            </div>
+                            <p x-show="item.addonName" class="text-[10px] text-black ml-4" x-text="'+ ' + item.addonName"></p>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Total -->
+                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
+                    <div class="flex justify-between font-black text-sm text-black">
+                        <span>TOTAL:</span>
+                        <span x-text="formatCurrency(cartTotal)"></span>
+                    </div>
+                </div>
+
+                <!-- Footer Message -->
+                <div class="text-center text-xs">
+                    <p class="font-bold mb-1 text-black">THANK YOU!</p>
+                    <p class="text-black">Please come again.</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-slate-50 p-6 flex gap-3 border-t border-slate-100">
+                <button @click="closeCompleteOrderModal()" class="flex-1 py-3 bg-slate-100 text-slate-500 font-black rounded-xl uppercase text-xs tracking-widest hover:bg-slate-200 transition-all">Cancel</button>
+                <button @click="finalizeOrder()" class="flex-1 py-3 maroon-gradient text-white font-black rounded-xl uppercase text-xs tracking-widest shadow-lg shadow-maroon/20 hover:shadow-xl transition-all">
+                    <i class="fas fa-paper-plane mr-2"></i>Send to Kitchen
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -279,6 +351,8 @@
             voidOrderIndex: null,
             voidCodeInput: '',
             managerCode: '1234',
+            showCompleteOrderModal: false,
+            currentOrderId: '',
 
             initStore() {
                 this.loadProducts();
@@ -315,6 +389,39 @@
                 return '₱' + parseFloat(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             },
 
+            formatDateTime() {
+                const now = new Date();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const year = now.getFullYear();
+                let hours = now.getHours();
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                const hoursStr = String(hours).padStart(2, '0');
+                return `${month}/${day}/${year} ${hoursStr}:${minutes} ${ampm}`;
+            },
+
+            formatDate() {
+                const now = new Date();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const year = now.getFullYear();
+                return `${month}/${day}/${year}`;
+            },
+
+            formatTime() {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                const hoursStr = String(hours).padStart(2, '0');
+                return `${hoursStr}:${minutes} ${ampm}`;
+            },
+
             openCustomizeModal(product) {
                 this.selectedFood = product;
                 this.tempSelectedAddOns = product.selectedAddOns ? [...product.selectedAddOns] : [];
@@ -336,7 +443,7 @@
 
             addToCart(product) {
                 if (product.stock <= 0) return;
-                
+
                 const addOnPrice = (product.selectedAddOns || []).reduce((sum, a) => sum + a.price, 0);
                 const addonNameStr = (product.selectedAddOns || []).map(a => a.name).join(', ');
                 const cartId = product.id + '-' + addonNameStr;
@@ -353,8 +460,7 @@
                         qty: product.qty
                     });
                 }
-                
-                // RESET product state without notification
+
                 product.selectedAddOns = [];
                 product.qty = 1;
             },
@@ -393,6 +499,15 @@
             },
 
             completeOrder() {
+                this.currentOrderId = 'ORD-' + Date.now();
+                this.showCompleteOrderModal = true;
+            },
+
+            closeCompleteOrderModal() {
+                this.showCompleteOrderModal = false;
+            },
+
+            finalizeOrder() {
                 let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
                 let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
                 let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
@@ -415,7 +530,7 @@
                 localStorage.setItem('ub_tables', JSON.stringify(tables));
 
                 const transaction = {
-                    orderId: 'ORD-' + Date.now(),
+                    orderId: this.currentOrderId,
                     timestamp: new Date().toLocaleTimeString(),
                     totalAmount: this.cartTotal,
                     tableId: this.tableNumber,
@@ -432,7 +547,8 @@
                     JSON.stringify(analyticsHistory)
                 );
 
-                alert('Order successfully sent to kitchen!');
+                alert('✓ Order ' + this.currentOrderId + ' sent to kitchen!');
+                this.closeCompleteOrderModal();
                 window.location.href = "{{ route('waiter.dashboard') }}";
             }
         }
