@@ -99,7 +99,7 @@
             <div>
                 <div class="text-center mb-10">
                     <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
-                    <p class="text-gray-500 text-sm font-medium">Please enter your details</p>
+                    <p class="text-black-500 text-sm font-medium">Please enter your details</p>
                 </div>
 
                 <form @submit.prevent="handleLogin" class="space-y-6">
@@ -113,13 +113,13 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Email</label>
+                        <label class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">Email</label>
                         <input type="email" x-model="email" id="email" required
                                class="custom-input" placeholder="Enter your email">
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Password</label>
+                        <label class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">Password</label>
                         <input :type="showPassword ? 'text' : 'password'" x-model="password" id="password" required
                                class="custom-input" placeholder="Enter your password">
                     </div>
@@ -128,12 +128,12 @@
                         <div class="flex items-center cursor-pointer select-none" @click="showPassword = !showPassword">
                             <input type="checkbox" x-model="showPassword"
                                    class="w-4 h-4 rounded border-gray-300 accent-[#800000] cursor-pointer transition-all duration-300">
-                            <label class="ml-2 text-[12px] font-semibold text-gray-600 cursor-pointer">
+                            <label class="ml-2 text-[12px] font-semibold text-black-600 cursor-pointer">
                                 Show password
                             </label>
                         </div>
 
-                        <button type="button" @click="switchToForgot()" class="text-[12px] font-semibold text-gray-400 hover:text-[#800000] transition-colors duration-300">
+                        <button type="button" @click="switchToForgot()" class="text-[12px] font-semibold text-black-400 hover:text-[#800000] transition-colors duration-300">
                             Forgot Password?
                         </button>
                     </div>
@@ -151,7 +151,7 @@
             <div>
                 <div class="text-center mb-10">
                     <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
-                    <p class="text-gray-500 text-sm font-medium">Reset Your Password</p>
+                    <p class="text-black-500 text-sm font-medium">Reset Your Password</p>
                 </div>
 
                 <form @submit.prevent="verifyEmail" class="space-y-6">
@@ -165,7 +165,7 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Enter Your Email</label>
+                        <label class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">Enter Your Email</label>
                         <input type="email" x-model="email" required
                                class="custom-input" placeholder="Enter registered email">
                     </div>
@@ -189,7 +189,7 @@
             <div>
                 <div class="text-center mb-10">
                     <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
-                    <p class="text-gray-500 text-sm font-medium">Reset Your Password</p>
+                    <p class="text-black-500 text-sm font-medium">Reset Your Password</p>
                 </div>
 
                 <form @submit.prevent="resetPassword" class="space-y-6">
@@ -207,13 +207,13 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">New Password</label>
+                        <label class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">New Password</label>
                         <input :type="showPassword ? 'text' : 'password'" x-model="newPassword" required
                                class="custom-input" placeholder="Enter new password">
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-gray-700 uppercase tracking-wider ml-1">Confirm Password</label>
+                        <label class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">Confirm Password</label>
                         <input :type="showPassword ? 'text' : 'password'" x-model="confirmPassword" required
                                class="custom-input" placeholder="Confirm new password">
                     </div>
@@ -221,7 +221,7 @@
                     <div class="flex items-center cursor-pointer select-none" @click="showPassword = !showPassword">
                         <input type="checkbox" x-model="showPassword"
                                class="w-4 h-4 rounded border-gray-300 accent-[#800000] cursor-pointer transition-all duration-300">
-                        <label class="ml-2 text-[12px] font-semibold text-gray-600 cursor-pointer">
+                        <label class="ml-2 text-[12px] font-semibold text-black-600 cursor-pointer">
                             Show password
                         </label>
                     </div>
@@ -231,7 +231,7 @@
                         <span x-show="isLoading">Updating...</span>
                     </button>
 
-                    <button type="button" @click="switchToForgotStep1()" class="w-full text-[12px] font-semibold text-gray-600 hover:text-gray-800 py-2 transition-colors duration-300">
+                    <button type="button" @click="switchToForgotStep1()" class="w-full text-[12px] font-semibold text-black-600 hover:text-gray-800 py-2 transition-colors duration-300">
                         Back
                     </button>
                 </form>
