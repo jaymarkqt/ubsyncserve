@@ -166,16 +166,6 @@
                 formData: { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] },
                 products: [],
 
-                defaultProducts() {
-                    return [
-                        { id: 1, name: 'Burger Steak', stock: 24, cost: 59, sellingPrice: 99, price: 99, cat: 'Lunch', img: 'burgersteak.png', addOns: [{ name: 'Extra Rice', price: 20 }, { name: 'Cheese', price: 15 }] },
-                        { id: 2, name: 'Tapa & Egg', stock: 18, cost: 75, sellingPrice: 120, price: 120, cat: 'Breakfast', img: 'tapa.png', addOns: [{ name: 'Extra Egg', price: 15 }, { name: 'Garlic Rice', price: 20 }] },
-                        { id: 3, name: 'Fries', stock: 30, cost: 28, sellingPrice: 65, price: 65, cat: 'Snacks', img: 'fries.png', addOns: [{ name: 'Cheese Sauce', price: 10 }, { name: 'Bacon Bits', price: 15 }] },
-                        { id: 4, name: 'Fried Chicken', stock: 12, cost: 95, sellingPrice: 150, price: 150, cat: 'Dinner', img: 'chicken.png', addOns: [{ name: 'Extra Gravy', price: 10 }, { name: 'Spicy Dip', price: 10 }] },
-                        { id: 5, name: 'Ice Tea', stock: 40, cost: 20, sellingPrice: 45, price: 45, cat: 'Drinks', img: 'icetea.png', addOns: [{ name: 'Large Cup', price: 15 }] },
-                    ];
-                },
-
                 normalizeProducts(products) {
                     return products.map(product => ({
                         ...product,
@@ -190,12 +180,10 @@
                         try {
                             this.products = JSON.parse(savedProducts);
                         } catch (error) {
-                            this.products = this.defaultProducts();
-                            this.saveProducts();
+                            this.products = [];
                         }
                     } else {
-                        this.products = this.defaultProducts();
-                        this.saveProducts();
+                        this.products = [];
                     }
                 },
 

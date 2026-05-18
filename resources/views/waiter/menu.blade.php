@@ -381,11 +381,17 @@
             loadProducts() {
                 const saved = localStorage.getItem('product_catalog');
                 if (saved) {
-                    this.products = JSON.parse(saved).map(p => ({
-                        ...p,
-                        qty: 1,
-                        selectedAddOns: []
-                    }));
+                    try {
+                        this.products = JSON.parse(saved).map(p => ({
+                            ...p,
+                            qty: 1,
+                            selectedAddOns: []
+                        }));
+                    } catch (error) {
+                        this.products = [];
+                    }
+                } else {
+                    this.products = [];
                 }
             },
 
