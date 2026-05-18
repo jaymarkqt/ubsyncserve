@@ -133,12 +133,12 @@
     <template x-for="table in tables" :key="table.id">
         <div @click="selectTable(table)" 
              class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
-             :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.status === 'reserved-advance' ? 'bg-[#fed7aa] border-[#ea580c]' : (table.status === 'reserved-booking' ? 'bg-[#ffedd5] border-[#fb923c]' : 'bg-[#ffdada] border-[#f87171]'))">
+             :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.status === 'reserved-advance' ? 'bg-[#fed7aa] border-[#ea580c]' : (table.status === 'reserved-booking' ? 'bg-[#ffedd5] border-[#fb923c]' : (table.isPaid === true ? 'bg-[#bfdbfe] border-[#3b82f6]' : 'bg-[#ffdada] border-[#f87171]')))">
             <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
             
             <p class="text-[11px] font-extrabold uppercase tracking-widest" 
-               :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : 'text-[#cc0000]'))"
-               x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.status === 'available' ? 'available' : 'occupied'))"></p>
+               :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : (table.isPaid === true ? 'text-blue-700' : 'text-[#cc0000]')))"
+               x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.status === 'available' ? 'available' : (table.isPaid === true ? 'paid' : 'occupied')))"></p>
             
             <template x-if="table.status !== 'available'">
                 <div class="text-center pt-1 w-full">
@@ -241,7 +241,7 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <button x-show="selectedTable?.isPaid === true && selectedTable?.status !== 'reserved-advance'" class="col-span-2 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 flex items-center justify-center gap-2">
+                    <button x-show="selectedTable?.isPaid === true && selectedTable?.status !== 'reserved-advance'" class="col-span-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-blue-900/10 flex items-center justify-center gap-2">
                         <i class="fas fa-check-circle text-xs"></i>
                         <span>PAID</span>
                     </button>
@@ -345,7 +345,7 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <button x-show="selectedTable?.isPaid === true" class="col-span-2 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 flex items-center justify-center gap-2">
+                    <button x-show="selectedTable?.isPaid === true" class="col-span-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-blue-900/10 flex items-center justify-center gap-2">
                         <i class="fas fa-check-circle text-xs"></i>
                         <span>PAID</span>
                     </button>

@@ -58,15 +58,15 @@
             'bg-[#fed7aa] border-[#ea580c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-advance',
             'bg-[#ffedd5] border-[#fb923c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-booking',
             'bg-[#ffdada] border-[#f87171] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'occupied',
-            'bg-[#d1fae5] border-[#10b981] cursor-pointer hover:shadow-xl hover:-translate-y-1': (table.status === 'paid' || table.isPaid) && table.status !== 'reserved-advance'
+            'bg-[#bfdbfe] border-[#3b82f6] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.isPaid === true
           }">
 
         <div class="text-4xl font-black text-[#1e293b] tracking-tight"
              x-text="table.tableNumber"></div>
 
         <p class="text-[11px] font-extrabold uppercase tracking-widest"
-           :class="(table.status === 'available' && !table.isPaid) ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : (((table.status === 'paid' || table.isPaid) && table.status !== 'reserved-advance') ? 'text-emerald-700' : 'text-[#cc0000]')))"
-           x-text="((table.status === 'paid' || table.isPaid) && table.status !== 'reserved-advance') ? 'paid' : (table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.status === 'available' ? 'available' : 'occupied')))"></p>
+           :class="(table.status === 'available' && !table.isPaid) ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : (table.isPaid === true ? 'text-blue-700' : 'text-[#cc0000]')))"
+           x-text="table.isPaid === true ? 'paid' : (table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.status === 'available' ? 'available' : 'occupied')))"></p>
 
         <template x-if="table.status !== 'available'">
             <div class="text-center pt-1 w-full">
