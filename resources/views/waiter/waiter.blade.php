@@ -124,7 +124,7 @@
                         <i class="fas fa-clock text-5xl text-blue-600"></i>
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reservations</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.length"></p>
+                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.filter(r => r.status === 'confirmed').length"></p>
                     <p class="text-[10px] font-bold text-slate-400 mt-2">For today's schedule</p>
                 </div>
             </div>
