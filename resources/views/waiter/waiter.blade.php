@@ -241,10 +241,14 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <button @click="clearTable(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-check-circle text-xs"></i> Finish and Clear 
+                    <button x-show="selectedTable?.isPaid === true && selectedTable?.status !== 'reserved-advance'" class="col-span-2 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle text-xs"></i>
+                        <span>PAID</span>
                     </button>
-                   <button @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)" 
+                    <button x-show="selectedTable?.isPaid !== true || selectedTable?.status === 'reserved-advance'" @click="printOrder(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-print text-xs"></i> Print
+                    </button>
+                    <button x-show="selectedTable?.isPaid !== true || selectedTable?.status === 'reserved-advance'" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)"
     class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
     <i class="fas fa-plus text-xs"></i> Add Order
 </button>
@@ -341,14 +345,79 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <button @click="clearTable(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-check-circle text-xs"></i> Finish and Clear
+                    <button x-show="selectedTable?.isPaid === true" class="col-span-2 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle text-xs"></i>
+                        <span>PAID</span>
                     </button>
-                    <button @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)"
+                    <button x-show="selectedTable?.isPaid !== true" @click="printOrder(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-print text-xs"></i> Print
+                    </button>
+                    <button x-show="selectedTable?.isPaid !== true" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)"
         class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
         <i class="fas fa-plus text-xs"></i> Add Order
     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="showCompleteOrderModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="p-8 font-mono text-sm leading-relaxed border-b-2 border-black max-h-[70vh] overflow-y-auto">
+                <div class="text-center mb-6 pb-4 border-b-2 border-dashed border-black">
+                    <p class="text-sm font-black text-black">UNIVERSITY OF BATANGAS</p>
+                    <p class="text-xs text-black">Hilltop Rd. Batangas City, 4250 Batangas</p>
+                </div>
+
+                <div class="border-4 border-black rounded-lg p-4 mb-6 text-center">
+                    <p class="text-2xl font-black tracking-widest text-black" x-text="'TABLE ' + (selectedTable?.id || 'WALK-IN')"></p>
+                </div>
+
+                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
+                    <div class="flex justify-between text-xs mb-2">
+                        <span class="text-black font-semibold">ORDER ID:</span>
+                        <span class="text-black font-semibold" x-text="currentReceiptOrderId"></span>
+                    </div>
+                    <div class="flex justify-between text-xs mb-2">
+                        <span class="text-black font-semibold">DATE:</span>
+                        <span class="text-black font-semibold" x-text="getCurrentDate()"></span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-black font-semibold">TIME:</span>
+                        <span class="text-black font-semibold" x-text="getCurrentTime()"></span>
+                    </div>
+                </div>
+
+                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
+                    <p class="text-xs font-black mb-3 text-black">QTY ITEM/S</p>
+                    <template x-for="item in (selectedTable?.orders || [])" :key="item.name">
+                        <div class="mb-2 text-xs">
+                            <div class="flex justify-between text-black">
+                                <span><span x-text="item.qty"></span>x <span x-text="item.name.toUpperCase()"></span></span>
+                                <span x-text="formatCurrency(item.price * item.qty)"></span>
+                            </div>
+                            <p x-show="item.addonName && item.addonName.toLowerCase() !== 'default'" class="text-[10px] text-black ml-4" x-text="'+ ' + item.addonName"></p>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
+                    <div class="flex justify-between font-black text-sm text-black">
+                        <span>TOTAL:</span>
+                        <span x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                    </div>
+                </div>
+
+                <div class="text-center text-xs">
+                    <p class="font-bold mb-1 text-black">THANK YOU!</p>
+                    <p class="text-black">Please come again.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
+                <button @click="confirmPrint(selectedTable?.id)" class="w-full py-3 maroon-gradient text-white font-semibold rounded-lg text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> Confirm Print
+                </button>
             </div>
         </div>
     </div>
@@ -363,9 +432,11 @@ function waiterSystem() {
         showOrderModal: false,
         showReservedModal: false,
         showAdvanceOrderModal: false,
-        
+        showCompleteOrderModal: false,
+        currentReceiptOrderId: '',
+
         // Data Arrays
-        tables: [], 
+        tables: [],
         reservations: [],
         guestSetup: { adults: 0, children: 0 },
         salesSummary: { total: 0 },
@@ -396,7 +467,7 @@ function waiterSystem() {
             if (stored) {
                 let parsedTables = JSON.parse(stored);
                 const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
-                
+
                 // AUTOMATIC STATUS CHECKER:
                 // Preserve reserved states and only set occupied when there are real orders.
                 parsedTables = parsedTables.map(t => {
@@ -414,6 +485,7 @@ function waiterSystem() {
                     return {
                         ...t,
                         status: status,
+                        isPaid: t.isPaid || false,
                         adults: adults,
                         children: children,
                         guests: guests,
@@ -421,7 +493,7 @@ function waiterSystem() {
                         orders: t.orders || []
                     };
                 });
-                
+
                 this.tables = parsedTables;
                 this.saveTables();
             } else {
@@ -443,7 +515,7 @@ function waiterSystem() {
 
             if (table.status === 'reserved-advance') {
                 this.showAdvanceOrderModal = true;
-            } else if (table.status === 'occupied' || (table.orders && table.orders.length > 0)) {
+            } else if (table.status === 'occupied' || table.status === 'paid' || table.isPaid || (table.orders && table.orders.length > 0)) {
                 this.showOrderModal = true;
             } else if (table.status === 'reserved-booking') {
                 this.showReservedModal = true;
@@ -619,6 +691,70 @@ startSession() {
         getImageUrl(img) {
             if (!img || img === 'Default.png') return 'https://placehold.co/150x150/eeeeee/800000?text=No+Image';
             return img.startsWith('http') ? img : '/img/' + img;
+        },
+
+        getCurrentDate() {
+            const now = new Date();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const year = now.getFullYear();
+            return `${month}/${day}/${year}`;
+        },
+
+        getCurrentTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            const hoursStr = String(hours).padStart(2, '0');
+            return `${hoursStr}:${minutes} ${ampm}`;
+        },
+
+        printOrder(tableId) {
+            this.currentReceiptOrderId = 'ORD-' + Date.now();
+            this.showOrderModal = false;
+            this.showAdvanceOrderModal = false;
+            this.showCompleteOrderModal = true;
+        },
+
+        confirmPrint(tableId) {
+            let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+            let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+
+            if (this.selectedTable && this.selectedTable.orders && this.selectedTable.orders.length > 0) {
+                const transaction = {
+                    orderId: this.currentReceiptOrderId,
+                    timestamp: new Date().toLocaleTimeString(),
+                    totalAmount: this.selectedTable.bill || 0,
+                    tableId: tableId,
+                    items: this.selectedTable.orders.map(item => ({
+                        name: item.name,
+                        qty: item.qty,
+                        price: item.price,
+                        addonName: item.addonName
+                    })),
+                    status: 'completed'
+                };
+
+                analyticsHistory.unshift(transaction);
+                localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+
+                let tableIndex = tables.findIndex(t => t.id === tableId);
+                if (tableIndex !== -1) {
+                    // Preserve advance order status
+                    if (tables[tableIndex].status !== 'reserved-advance') {
+                        tables[tableIndex].status = 'paid';
+                    }
+                    tables[tableIndex].isPaid = true;
+                    localStorage.setItem('ub_tables', JSON.stringify(tables));
+                }
+            }
+
+            alert('✓ Order ' + this.currentReceiptOrderId + ' printed successfully!');
+            this.showCompleteOrderModal = false;
+            this.loadTables();
         }
     }
 }

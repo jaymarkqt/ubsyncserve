@@ -260,77 +260,91 @@
         </div>
     </div>
 
-    <div x-show="showCompleteOrderModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-            <div class="p-8 font-mono text-sm leading-relaxed border-b-2 border-black max-h-[70vh] overflow-y-auto">
-                <!-- Header with location -->
-                
+    <!-- Order Summary Modal -->
+    <div x-show="showOrderSummaryModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
+            <div class="p-6 text-center border-b border-slate-200">
+                <p class="text-lg font-bold text-slate-900">Order Summary</p>
+                <p class="text-xs text-slate-500 mt-1">Order #<span x-text="currentOrderId"></span></p>
+            </div>
 
-                <!-- Restaurant Info -->
-                <div class="text-center mb-6 pb-4 border-b-2 border-dashed border-black">
-                    <p class="text-sm font-black text-black">UNIVERSITY OF BATANGAS</p>
-                    <p class="text-xs text-black">Hilltop Rd. Batangas City, 4250 Batangas</p>
-                </div>
-
-                <!-- Table Number -->
-                <div class="border-4 border-black rounded-lg p-4 mb-6 text-center">
-                    <p class="text-2xl font-black tracking-widest text-black" x-text="'TABLE ' + (tableNumber || 'WALK-IN')"></p>
-                </div>
-
-                <!-- Order Info -->
-                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
-                    <div class="flex justify-between text-xs mb-2">
-                        <span class="text-black font-semibold">ORDER ID:</span>
-                        <span class="text-black font-semibold" x-text="currentOrderId"></span>
-                    </div>
-                    <div class="flex justify-between text-xs mb-2">
-                        <span class="text-black font-semibold">DATE:</span>
-                        <span class="text-black font-semibold" x-text="formatDate()"></span>
-                    </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-black font-semibold">TIME:</span>
-                        <span class="text-black font-semibold" x-text="formatTime()"></span>
-                    </div>
-                </div>
-
-                <!-- Items Section -->
-                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
-                    <p class="text-xs font-black mb-3 text-black">QTY ITEM/S</p>
+            <div class="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
+                <!-- Items List -->
+                <div class="space-y-3 pb-4 border-b border-slate-200">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Items</p>
                     <template x-for="item in cart" :key="item.id">
-                        <div class="mb-2 text-xs">
-                            <div class="flex justify-between text-black">
-                                <span><span x-text="item.qty"></span>x <span x-text="item.name.toUpperCase()"></span></span>
-                                <span x-text="formatCurrency(item.price * item.qty)"></span>
+                        <div class="flex justify-between items-start text-sm">
+                            <div class="flex-1">
+                                <p class="font-semibold text-slate-900" x-text="item.qty + 'x ' + item.name"></p>
+                                <p x-show="item.addonName" class="text-xs text-slate-600 mt-0.5" x-text="'+ ' + item.addonName"></p>
                             </div>
-                            <p x-show="item.addonName" class="text-[10px] text-black ml-4" x-text="'+ ' + item.addonName"></p>
+                            <p class="font-bold text-slate-900 ml-2" x-text="formatCurrency(item.price * item.qty)"></p>
                         </div>
                     </template>
                 </div>
 
-                <!-- Total -->
-                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
-                    <div class="flex justify-between font-black text-sm text-black">
-                        <span>TOTAL:</span>
-                        <span x-text="formatCurrency(cartTotal)"></span>
-                    </div>
+                <!-- Subtotal -->
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-slate-600">Subtotal:</span>
+                    <span class="text-lg font-bold text-slate-900" x-text="formatCurrency(cartTotal)"></span>
                 </div>
 
-                <!-- Footer Message -->
-                <div class="text-center text-xs">
-                    <p class="font-bold mb-1 text-black">THANK YOU!</p>
-                    <p class="text-black">Please come again.</p>
+                <!-- VAT 5% -->
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-slate-600">VAT (5%):</span>
+                    <span class="text-lg font-bold text-slate-900" x-text="formatCurrency(cartTotal * 0.05)"></span>
+                </div>
+
+                <!-- Total -->
+                <div class="border-t border-slate-200 pt-4 flex justify-between items-center">
+                    <span class="text-sm font-bold text-slate-900 uppercase">Total:</span>
+                    <span class="text-2xl font-black text-[#800000]" x-text="formatCurrency(cartTotal + (cartTotal * 0.05))"></span>
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="bg-slate-50 p-6 flex gap-3 border-t border-slate-100">
-                <button @click="closeCompleteOrderModal()" class="flex-1 py-3 bg-slate-100 text-slate-500 font-black rounded-xl uppercase text-xs tracking-widest hover:bg-slate-200 transition-all">Cancel</button>
-                <button @click="finalizeOrder()" class="flex-1 py-3 maroon-gradient text-white font-black rounded-xl uppercase text-xs tracking-widest shadow-lg shadow-maroon/20 hover:shadow-xl transition-all">
-                    <i class="fas fa-paper-plane mr-2"></i>Send to Kitchen
+            <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
+                <button @click="closeOrderSummaryModal()" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
+                <button @click="proceedToKitchenTicket()" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
+                    Next
                 </button>
             </div>
         </div>
     </div>
+
+    <!-- Kitchen Ticket Modal -->
+    <div x-show="showKitchenTicketModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
+            <!-- Simple Header -->
+            <div class="p-4 text-center border-b border-slate-200">
+                <p class="text-lg font-bold text-slate-900">ORDER #<span x-text="currentOrderId"></span></p>
+                <p class="text-xs text-slate-500 mt-1">TABLE <span x-text="tableNumber || 'WALK-IN'"></span> • <span x-text="formatTime()"></span></p>
+            </div>
+
+            <!-- Items -->
+            <div class="p-6 max-h-[60vh] overflow-y-auto">
+                <template x-for="item in cart" :key="item.id">
+                    <div class="mb-5 pb-4 border-b border-slate-100 last:border-b-0 last:pb-0 last:mb-0">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-slate-900 uppercase" x-text="item.name"></p>
+                                <p x-show="item.addonName" class="text-xs text-slate-600 mt-1" x-text="'+ ' + item.addonName"></p>
+                            </div>
+                            <p class="text-2xl font-black text-slate-900" x-text="item.qty"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
+                <button @click="closeKitchenTicketModal()" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
+                <button @click="finalizeOrder()" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
+                    Send to Kitchen
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -352,6 +366,8 @@
             voidCodeInput: '',
             managerCode: '1234',
             showCompleteOrderModal: false,
+            showOrderSummaryModal: false,
+            showKitchenTicketModal: false,
             currentOrderId: '',
 
             initStore() {
@@ -500,17 +516,27 @@
 
             completeOrder() {
                 this.currentOrderId = 'ORD-' + Date.now();
-                this.showCompleteOrderModal = true;
+                this.showOrderSummaryModal = true;
             },
 
-            closeCompleteOrderModal() {
-                this.showCompleteOrderModal = false;
+            closeOrderSummaryModal() {
+                this.showOrderSummaryModal = false;
+            },
+
+            proceedToKitchenTicket() {
+                this.showOrderSummaryModal = false;
+                this.showKitchenTicketModal = true;
+            },
+
+            closeKitchenTicketModal() {
+                this.showKitchenTicketModal = false;
             },
 
             finalizeOrder() {
                 let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
                 let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
                 let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+                let kitchenOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
 
                 let idx = tables.findIndex(t => t.id == this.tableNumber);
 
@@ -521,11 +547,12 @@
                 localStorage.setItem('product_catalog', JSON.stringify(products));
 
                 if (idx !== -1) {
-                    tables[idx].status = 'occupied';
+                    tables[idx].status = 'pending';
                     tables[idx].adults = this.adults;
                     tables[idx].children = this.children;
                     tables[idx].orders = [...(tables[idx].orders || []), ...this.cart];
                     tables[idx].bill = (tables[idx].bill || 0) + this.cartTotal;
+                    tables[idx].orderStatus = 'pending';
                 }
                 localStorage.setItem('ub_tables', JSON.stringify(tables));
 
@@ -536,19 +563,20 @@
                     tableId: this.tableNumber,
                     items: this.cart.map(item => ({
                         name: item.name,
-                        qty: item.qty
-                    }))
+                        qty: item.qty,
+                        addonName: item.addonName
+                    })),
+                    status: 'pending'
                 };
 
-                analyticsHistory.unshift(transaction);
+                kitchenOrders.push(transaction);
+                localStorage.setItem('ub_kitchen_orders', JSON.stringify(kitchenOrders));
 
-                localStorage.setItem(
-                    'ub_order_history',
-                    JSON.stringify(analyticsHistory)
-                );
+                analyticsHistory.unshift(transaction);
+                localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
 
                 alert('✓ Order ' + this.currentOrderId + ' sent to kitchen!');
-                this.closeCompleteOrderModal();
+                this.closeKitchenTicketModal();
                 window.location.href = "{{ route('waiter.dashboard') }}";
             }
         }

@@ -54,18 +54,19 @@
     <div @click="table.status !== 'available' ? handleTableClick(table) : null"
           class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
           :class="{
-            'bg-[#ccfad8] border-[#4ade80] cursor-not-allowed opacity-80': table.status === 'available',
+            'bg-[#ccfad8] border-[#4ade80] cursor-not-allowed opacity-80': table.status === 'available' && !table.isPaid,
             'bg-[#fed7aa] border-[#ea580c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-advance',
             'bg-[#ffedd5] border-[#fb923c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-booking',
-            'bg-[#ffdada] border-[#f87171] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'occupied'
+            'bg-[#ffdada] border-[#f87171] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'occupied',
+            'bg-[#d1fae5] border-[#10b981] cursor-pointer hover:shadow-xl hover:-translate-y-1': (table.status === 'paid' || table.isPaid) && table.status !== 'reserved-advance'
           }">
 
         <div class="text-4xl font-black text-[#1e293b] tracking-tight"
              x-text="table.tableNumber"></div>
 
         <p class="text-[11px] font-extrabold uppercase tracking-widest"
-           :class="table.status === 'available' ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : 'text-[#cc0000]'))"
-           x-text="table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.status === 'available' ? 'available' : 'occupied'))"></p>
+           :class="(table.status === 'available' && !table.isPaid) ? 'text-emerald-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : (((table.status === 'paid' || table.isPaid) && table.status !== 'reserved-advance') ? 'text-emerald-700' : 'text-[#cc0000]')))"
+           x-text="((table.status === 'paid' || table.isPaid) && table.status !== 'reserved-advance') ? 'paid' : (table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.status === 'available' ? 'available' : 'occupied')))"></p>
 
         <template x-if="table.status !== 'available'">
             <div class="text-center pt-1 w-full">
@@ -122,10 +123,17 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                            <i class="fas fa-check-circle text-xs"></i> Finish and Clear
-                        </button>
-                        <button @click="showOrderModal = false" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
+                        <template x-if="selectedTable?.status === 'paid' || selectedTable?.isPaid">
+                            <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle text-xs"></i> PAID
+                            </button>
+                        </template>
+                        <template x-if="selectedTable?.status !== 'paid' && !selectedTable?.isPaid">
+                            <button @click="showOrderModal = false" class="py-4 bg-blue-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-blue-900/10 hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-clock text-xs"></i> Pending
+                            </button>
+                        </template>
+                        <button @click="showOrderModal = false" class="py-4 bg-slate-400 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-slate-900/10 hover:bg-slate-500 transition-all flex items-center justify-center gap-2">
                             <i class="fas fa-times text-xs"></i> Close
                         </button>
                     </div>
@@ -213,13 +221,91 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                            <i class="fas fa-check-circle text-xs"></i> Finish and Clear
-                        </button>
-                        <button @click="showAdvanceOrderModal = false" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
+                        <template x-if="selectedTable?.status === 'paid' || selectedTable?.isPaid">
+                            <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle text-xs"></i> PAID
+                            </button>
+                        </template>
+                        <template x-if="selectedTable?.status !== 'paid' && !selectedTable?.isPaid">
+                            <button @click="showAdvanceOrderModal = false" class="py-4 bg-blue-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-blue-900/10 hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-clock text-xs"></i> Pending
+                            </button>
+                        </template>
+                        <button @click="showAdvanceOrderModal = false" class="py-4 bg-slate-400 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-slate-900/10 hover:bg-slate-500 transition-all flex items-center justify-center gap-2">
                             <i class="fas fa-times text-xs"></i> Close
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Receipt Modal -->
+    <template x-teleport="body">
+        <div x-show="showCompleteOrderModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+                <div class="p-8 font-mono text-sm leading-relaxed border-b-2 border-black max-h-[70vh] overflow-y-auto">
+                    <!-- Restaurant Info -->
+                    <div class="text-center mb-6 pb-4 border-b-2 border-dashed border-black">
+                        <p class="text-sm font-black text-black">UNIVERSITY OF BATANGAS</p>
+                        <p class="text-xs text-black">Hilltop Rd. Batangas City, 4250 Batangas</p>
+                    </div>
+
+                    <!-- Table Number -->
+                    <div class="border-4 border-black rounded-lg p-4 mb-6 text-center">
+                        <p class="text-2xl font-black tracking-widest text-black" x-text="'TABLE ' + (selectedTable?.tableNumber || selectedTable?.id || 'WALK-IN')"></p>
+                    </div>
+
+                    <!-- Order Info -->
+                    <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-black font-semibold">ORDER ID:</span>
+                            <span class="text-black font-semibold" x-text="currentReceiptOrderId"></span>
+                        </div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-black font-semibold">DATE:</span>
+                            <span class="text-black font-semibold" x-text="getCurrentDate()"></span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-black font-semibold">TIME:</span>
+                            <span class="text-black font-semibold" x-text="getCurrentTime()"></span>
+                        </div>
+                    </div>
+
+                    <!-- Items Section -->
+                    <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
+                        <p class="text-xs font-black mb-3 text-black">QTY ITEM/S</p>
+                        <template x-for="item in (selectedTable?.orders || [])" :key="item.name">
+                            <div class="mb-2 text-xs">
+                                <div class="flex justify-between text-black">
+                                    <span><span x-text="item.qty"></span>x <span x-text="item.name.toUpperCase()"></span></span>
+                                    <span x-text="formatCurrency(item.price * item.qty)"></span>
+                                </div>
+                                <p x-show="item.addonName && item.addonName.toLowerCase() !== 'default'" class="text-[10px] text-black ml-4" x-text="'+ ' + item.addonName"></p>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Total -->
+                    <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
+                        <div class="flex justify-between font-black text-sm text-black">
+                            <span>TOTAL:</span>
+                            <span x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Footer Message -->
+                    <div class="text-center text-xs">
+                        <p class="font-bold mb-1 text-black">THANK YOU!</p>
+                        <p class="text-black">Please come again.</p>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
+                    <button @click="confirmPrint(selectedTable?.tableNumber || selectedTable?.id)" class="w-full py-3 maroon-gradient text-white font-semibold rounded-lg text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check"></i> Confirm Print
+                    </button>
                 </div>
             </div>
         </div>

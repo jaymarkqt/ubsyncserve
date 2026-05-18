@@ -145,6 +145,7 @@
                 showOrderModal: false,
                 showReservedModal: false,
                 showAdvanceOrderModal: false,
+                showCompleteOrderModal: false,
                 showSetupModal: false,
                 editingIndex: null,
                 reservations: [],
@@ -152,6 +153,7 @@
                voidCodeInput: '',
                managerCode: '1234',
                salesDateFilter: 'today',
+               currentReceiptOrderId: '',
 
                 // Analytics Data
                 salesSummary: { total: 0 },
@@ -255,7 +257,7 @@ loadTablesFromStorage() {
                         const tableOrders = t.orders || [];
                         let calculatedBill = tableOrders.reduce((sum, item) => sum + (item.price * item.qty), 0);
                         let status = t.status;
-                        if (!status) {
+                        if (!status || (status !== 'paid' && status !== 'reserved-advance' && status !== 'reserved-booking')) {
                             status = tableOrders.length > 0 ? 'occupied' : 'available';
                         }
 
@@ -270,6 +272,7 @@ loadTablesFromStorage() {
                             id: t.id,
                             tableNumber: t.id,
                             status: status,
+                            isPaid: t.isPaid || false,
                             adults: adults,
                             children: children,
                             guests: guests,
@@ -359,7 +362,7 @@ getDuration(table) {
 
 
 handleTableClick(table) {
-    if (table.status === 'available') {
+    if (table.status === 'available' && !table.isPaid) {
         return;
     }
 
@@ -368,7 +371,7 @@ handleTableClick(table) {
         this.showAdvanceOrderModal = true;
         this.showOrderModal = false;
         this.showReservedModal = false;
-    } else if (table.status === 'occupied' || (table.orders && table.orders.length > 0)) {
+    } else if (table.status === 'occupied' || table.status === 'paid' || table.isPaid || (table.orders && table.orders.length > 0)) {
         this.showOrderModal = true;
         this.showAdvanceOrderModal = false;
         this.showReservedModal = false;
@@ -392,6 +395,7 @@ clearTable(tableId) {
                             tables[index].children = 0;
                             tables[index].bill = 0;
                             tables[index].orders = [];
+                            tables[index].isPaid = false;
 
                             localStorage.setItem('ub_tables', JSON.stringify(tables));
 
@@ -692,6 +696,59 @@ init() {
                         ...p,
                         percentageOfSales: totalRevenue > 0 ? (p.totalRevenue / totalRevenue) * 100 : 0
                     })).sort((a, b) => b.totalRevenue - a.totalRevenue);
+                },
+
+                getCurrentDate() {
+                    const now = new Date();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const year = now.getFullYear();
+                    return `${month}/${day}/${year}`;
+                },
+
+                getCurrentTime() {
+                    const now = new Date();
+                    let hours = now.getHours();
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    const hoursStr = String(hours).padStart(2, '0');
+                    return `${hoursStr}:${minutes} ${ampm}`;
+                },
+
+                printOrder(tableId) {
+                    this.currentReceiptOrderId = 'ORD-' + Date.now();
+                    this.showOrderModal = false;
+                    this.showAdvanceOrderModal = false;
+                    this.showCompleteOrderModal = true;
+                },
+
+                confirmPrint(tableId) {
+                    let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+
+                    if (this.selectedTable && this.selectedTable.orders && this.selectedTable.orders.length > 0) {
+                        const transaction = {
+                            orderId: this.currentReceiptOrderId,
+                            timestamp: new Date().toLocaleTimeString(),
+                            totalAmount: this.selectedTable.bill || 0,
+                            tableId: tableId,
+                            items: this.selectedTable.orders.map(item => ({
+                                name: item.name,
+                                qty: item.qty,
+                                price: item.price,
+                                addonName: item.addonName
+                            })),
+                            status: 'completed'
+                        };
+
+                        analyticsHistory.unshift(transaction);
+                        localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                    }
+
+                    alert('✓ Order ' + this.currentReceiptOrderId + ' printed successfully!');
+                    this.showCompleteOrderModal = false;
+                    this.clearTable(tableId);
                 }
             }
         }
