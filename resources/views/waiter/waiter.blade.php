@@ -303,7 +303,7 @@
                     <h3 class="text-xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span> - Advance Order</h3>
                     <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Pre-ordered Items</p>
                 </div>
-                <button @click="showAdvanceOrderModal = false" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+                <button @click="showAdvanceOrderModal = false; advanceOrderSentToKitchen = false" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -349,13 +349,15 @@
                         <i class="fas fa-check-circle text-xs"></i>
                         <span>PAID</span>
                     </button>
-                    <button x-show="selectedTable?.isPaid !== true" @click="printOrder(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                    <button x-show="selectedTable?.isPaid !== true && !advanceOrderSentToKitchen" @click="currentReceiptOrderId = 'ORD-' + Date.now(); showAdvanceOrderModal = false; showAdvanceKitchenTicketModal = true" class="col-span-2 py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
+                        Send to Kitchen
+                    </button>
+                    <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="printOrder(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
                         <i class="fas fa-print text-xs"></i> Print
                     </button>
-                    <button x-show="selectedTable?.isPaid !== true" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)"
-        class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
-        <i class="fas fa-plus text-xs"></i> Add Order
-    </button>
+                    <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-plus text-xs"></i> Add Order
+                    </button>
                 </div>
             </div>
         </div>
@@ -422,6 +424,41 @@
         </div>
     </div>
 
+    <!-- Advance Order Kitchen Ticket Modal -->
+    <div x-show="showAdvanceKitchenTicketModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
+            <!-- Simple Header -->
+            <div class="p-4 text-center border-b border-slate-200">
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Advance Order</p>
+                <p class="text-lg font-bold text-slate-900">ORDER #<span x-text="currentReceiptOrderId"></span></p>
+                <p class="text-xs text-slate-500 mt-1">TABLE <span x-text="selectedTable?.id || 'WALK-IN'"></span> • <span x-text="getCurrentTime()"></span></p>
+            </div>
+
+            <!-- Items -->
+            <div class="p-6 max-h-[60vh] overflow-y-auto">
+                <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
+                    <div class="mb-5 pb-4 border-b border-slate-100 last:border-b-0 last:pb-0 last:mb-0">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-slate-900 uppercase" x-text="item.name"></p>
+                                <p x-show="item.addonName && item.addonName.toLowerCase() !== 'default'" class="text-xs text-slate-600 mt-1" x-text="'+ ' + item.addonName"></p>
+                            </div>
+                            <p class="text-2xl font-black text-slate-900" x-text="item.qty"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
+                <button @click="showAdvanceKitchenTicketModal = false; showAdvanceOrderModal = true" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
+                <button @click="finalizeAdvanceOrder(selectedTable?.id)" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
+                    Send to Kitchen
+                </button>
+            </div>
+        </div>
+    </div>
+
 <script>
 function waiterSystem() {
     return {
@@ -432,7 +469,9 @@ function waiterSystem() {
         showOrderModal: false,
         showReservedModal: false,
         showAdvanceOrderModal: false,
+        showAdvanceKitchenTicketModal: false,
         showCompleteOrderModal: false,
+        advanceOrderSentToKitchen: false,
         currentReceiptOrderId: '',
 
         // Data Arrays
@@ -717,6 +756,32 @@ startSession() {
             this.showOrderModal = false;
             this.showAdvanceOrderModal = false;
             this.showCompleteOrderModal = true;
+        },
+
+        finalizeAdvanceOrder(tableId) {
+            let kitchenOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
+
+            const transaction = {
+                orderId: this.currentReceiptOrderId,
+                timestamp: new Date().toLocaleTimeString(),
+                totalAmount: this.selectedTable.bill || 0,
+                tableId: tableId,
+                items: this.selectedTable.orders.map(item => ({
+                    name: item.name,
+                    qty: item.qty,
+                    price: item.price,
+                    addonName: item.addonName
+                })),
+                status: 'pending'
+            };
+
+            kitchenOrders.push(transaction);
+            localStorage.setItem('ub_kitchen_orders', JSON.stringify(kitchenOrders));
+
+            this.advanceOrderSentToKitchen = true;
+            this.showAdvanceKitchenTicketModal = false;
+            this.showAdvanceOrderModal = true;
+            alert('✓ Order ' + this.currentReceiptOrderId + ' sent to kitchen!');
         },
 
         confirmPrint(tableId) {
