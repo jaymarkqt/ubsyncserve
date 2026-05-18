@@ -56,9 +56,9 @@
           :class="{
             'bg-[#ccfad8] border-[#4ade80] cursor-not-allowed opacity-80': table.status === 'available' && !table.isPaid,
             'bg-[#bfdbfe] border-[#3b82f6] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.isPaid === true,
-            'bg-[#fed7aa] border-[#ea580c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-advance',
-            'bg-[#ffedd5] border-[#fb923c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-booking',
-            'bg-[#ffdada] border-[#f87171] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'occupied'
+            'bg-[#fed7aa] border-[#ea580c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-advance' && table.isPaid !== true,
+            'bg-[#ffedd5] border-[#fb923c] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'reserved-booking' && table.isPaid !== true,
+            'bg-[#ffdada] border-[#f87171] cursor-pointer hover:shadow-xl hover:-translate-y-1': table.status === 'occupied' && table.isPaid !== true
           }">
 
         <div class="text-4xl font-black text-[#1e293b] tracking-tight"
