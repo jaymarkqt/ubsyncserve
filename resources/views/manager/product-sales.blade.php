@@ -8,15 +8,6 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-        <div class="clay-card border-t-4 border-t-[#800000] p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
-                <i class="fas fa-coins text-5xl text-[#800000]"></i>
-            </div>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Revenue</p>
-            <p class="text-3xl font-black text-[#800000] mt-1" x-text="formatCurrency(productSalesMetrics.totalRevenue * 1.05)"></p>
-            <p class="text-[10px] font-bold text-emerald-600 mt-2"><i class="fas fa-caret-up"></i> Incl. 5% VAT</p>
-        </div>
-
         <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">
             <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
                 <i class="fas fa-box text-5xl text-blue-600"></i>
@@ -24,6 +15,15 @@
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Products Sold</p>
             <p class="text-3xl font-black text-blue-600 mt-1" x-text="productSalesMetrics.totalItemsSold"></p>
             <p class="text-[10px] font-bold text-slate-400 mt-2">Total quantity</p>
+        </div>
+
+        <div class="clay-card border-t-4 border-t-[#800000] p-6 shadow-sm relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
+                <i class="fas fa-coins text-5xl text-[#800000]"></i>
+            </div>
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Revenue</p>
+            <p class="text-3xl font-black text-[#800000] mt-1" x-text="formatCurrency(productSalesMetrics.totalRevenue + (productSalesMetrics.totalRevenue * 0.05))"></p>
+            <p class="text-[10px] font-bold text-emerald-600 mt-2"><i class="fas fa-caret-up"></i> Incl. 5% VAT</p>
         </div>
     </div>
 
@@ -40,7 +40,7 @@
                         <th class="px-6 py-4 text-left text-[10px] font-black text-slate-600 uppercase tracking-wider">Product</th>
                         <th class="px-6 py-4 text-center text-[10px] font-black text-slate-600 uppercase tracking-wider">Qty Sold</th>
                         <th class="px-6 py-4 text-right text-[10px] font-black text-slate-600 uppercase tracking-wider">Unit Cost</th>
-                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-600 uppercase tracking-wider">Total Revenue</th>
+                        <th class="px-6 py-4 text-right text-[10px] font-black text-slate-600 uppercase tracking-wider">Subtotal</th>
                         <th class="px-6 py-4 text-center text-[10px] font-black text-slate-600 uppercase tracking-wider">% of Sales</th>
                     </tr>
                 </thead>

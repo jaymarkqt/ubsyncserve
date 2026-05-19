@@ -13,7 +13,7 @@
                 <i class="fas fa-wallet text-5xl text-[#800000]"></i>
             </div>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Sales</p>
-            <p class="text-3xl font-black text-[#800000] mt-1" x-text="formatCurrency(salesSummary.total * 1.05)"></p>
+            <p class="text-3xl font-black text-[#800000] mt-1" x-text="formatCurrency(salesSummary.total)"></p>
             <p class="text-[10px] font-bold text-emerald-600 mt-2"><i class="fas fa-caret-up"></i> Incl. 5% VAT</p>
         </div>
 

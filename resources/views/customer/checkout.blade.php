@@ -305,15 +305,19 @@
                     window.dispatchEvent(new Event('storage'));
 
                     const analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+                    const subtotal = this.cartTotal;
+                    const vat = this.cartTotal * 0.05;
                     const totalAmount = this.cartTotal * 1.05;
                     const transaction = {
                         orderId: 'ORD-' + Date.now(),
                         timestamp: new Date().toISOString(),
+                        subtotal,
+                        vat,
                         totalAmount,
                         tableId,
                         paymentMethod: this.paymentMethod,
                         bookingType: this.bookingType,
-                        items: this.cart.map(item => ({ name: item.name, qty: item.qty, price: item.price }))
+                        items: orderItems
                     };
                     analyticsHistory.unshift(transaction);
                     try {

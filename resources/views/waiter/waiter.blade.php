@@ -485,7 +485,7 @@
     <div x-show="showAdvanceOrderSummaryModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
             <div class="p-6 text-center border-b border-slate-200">
-                <p class="text-lg font-bold text-slate-900">Order Summary</p>
+                <p class="text-lg font-bold text-slate-900">Advance Order</p>
                 <p class="text-xs text-slate-500 mt-1">Table <span x-text="selectedTable?.id"></span></p>
             </div>
 
@@ -525,7 +525,7 @@
 
             <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
                 <button @click="showAdvanceOrderSummaryModal = false; showAdvanceOrderModal = true" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
-                <button @click="currentReceiptOrderId = 'ORD-' + Date.now(); showAdvanceOrderSummaryModal = false; showAdvanceKitchenTicketModal = true" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
+                <button @click="finalizeAdvanceOrder(selectedTable?.id)" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
                     Send Order
                 </button>
             </div>
@@ -625,6 +625,7 @@ function waiterSystem() {
 
         selectTable(table) {
             this.selectedTable = table;
+            this.advanceOrderSentToKitchen = false;
 
             if (table.status === 'reserved-advance') {
                 this.showAdvanceOrderModal = true;
@@ -652,6 +653,7 @@ function waiterSystem() {
                 this.showOrderModal = false;
                 this.showReservedModal = false;
                 this.showAdvanceOrderModal = false;
+                this.advanceOrderSentToKitchen = false;
                 this.selectedTable = null;
 
                 let kOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
@@ -833,27 +835,30 @@ startSession() {
         },
 
         finalizeAdvanceOrder(tableId) {
-            let kitchenOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
+            // Only record transaction if NOT already paid (not paid during checkout)
+            if (this.selectedTable.isPaid !== true) {
+                let kitchenOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
 
-            const transaction = {
-                orderId: this.currentReceiptOrderId,
-                timestamp: new Date().toLocaleTimeString(),
-                totalAmount: (this.selectedTable.bill || 0) * 1.05,
-                tableId: tableId,
-                items: this.selectedTable.orders.map(item => ({
-                    name: item.name,
-                    qty: item.qty,
-                    price: item.price,
-                    addonName: item.addonName
-                })),
-                status: 'pending'
-            };
+                const transaction = {
+                    orderId: 'ORD-' + Date.now(),
+                    timestamp: new Date().toLocaleTimeString(),
+                    totalAmount: (this.selectedTable.bill || 0) * 1.05,
+                    tableId: tableId,
+                    items: this.selectedTable.orders.map(item => ({
+                        name: item.name,
+                        qty: item.qty,
+                        price: item.price,
+                        addonName: item.addonName
+                    })),
+                    status: 'pending'
+                };
 
-            kitchenOrders.push(transaction);
-            localStorage.setItem('ub_kitchen_orders', JSON.stringify(kitchenOrders));
+                kitchenOrders.push(transaction);
+                localStorage.setItem('ub_kitchen_orders', JSON.stringify(kitchenOrders));
+            }
 
             this.advanceOrderSentToKitchen = true;
-            this.showAdvanceKitchenTicketModal = false;
+            this.showAdvanceOrderSummaryModal = false;
             this.showAdvanceOrderModal = true;
             alert('Order successfully sent to stations!');
         },
@@ -863,35 +868,39 @@ startSession() {
             let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
 
             if (this.selectedTable && this.selectedTable.orders && this.selectedTable.orders.length > 0) {
-                // Check if this transaction already exists to prevent duplicates
-                const transactionExists = analyticsHistory.some(t => t.orderId === this.currentReceiptOrderId);
+                // Only record transaction for regular orders, NOT for advance orders
+                // Advance orders are already recorded during checkout
+                if (this.selectedTable.status !== 'reserved-advance' && this.selectedTable.isPaid !== true) {
+                    const transactionExists = analyticsHistory.some(t => t.orderId === this.currentReceiptOrderId);
 
-                if (!transactionExists) {
-                    const transaction = {
-                        orderId: this.currentReceiptOrderId,
-                        timestamp: new Date().toLocaleTimeString(),
-                        totalAmount: (this.selectedTable.bill || 0) * 1.05,
-                        tableId: tableId,
-                        items: this.selectedTable.orders.map(item => ({
-                            name: item.name,
-                            qty: item.qty,
-                            price: item.price,
-                            addonName: item.addonName
-                        })),
-                        status: 'completed'
-                    };
+                    if (!transactionExists) {
+                        const transaction = {
+                            orderId: this.currentReceiptOrderId,
+                            timestamp: new Date().toLocaleTimeString(),
+                            totalAmount: (this.selectedTable.bill || 0) * 1.05,
+                            tableId: tableId,
+                            items: this.selectedTable.orders.map(item => ({
+                                name: item.name,
+                                qty: item.qty,
+                                price: item.price,
+                                addonName: item.addonName
+                            })),
+                            status: 'completed'
+                        };
 
-                    analyticsHistory.unshift(transaction);
-                    localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                        analyticsHistory.unshift(transaction);
+                        localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                    }
                 }
 
+                // Always set isPaid and update table status for ALL orders
                 let tableIndex = tables.findIndex(t => t.id === tableId);
                 if (tableIndex !== -1) {
-                    // Preserve advance order status
+                    tables[tableIndex].isPaid = true;
+                    // For advance orders, keep status as reserved-advance; for others, change to paid
                     if (tables[tableIndex].status !== 'reserved-advance') {
                         tables[tableIndex].status = 'paid';
                     }
-                    tables[tableIndex].isPaid = true;
                     localStorage.setItem('ub_tables', JSON.stringify(tables));
 
                     // Update selectedTable immediately
