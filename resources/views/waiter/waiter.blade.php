@@ -234,9 +234,16 @@
                 </div>
 
                 <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
-                    <div class="flex justify-between items-center px-1">
-                    <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Running Total</span>
-                        <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill)"></span>
+                    <div class="flex justify-between items-center px-1 pb-3 border-b border-slate-200 mb-3">
+                        <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Subtotal</span>
+                        <span class="text-xl font-black text-slate-700 tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                    </div>
+                    <div class="flex justify-between items-center px-1 pb-3">
+                        <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">VAT (5%)</span>
+                        <span class="text-sm font-bold text-slate-700 tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
+                    </div>
+                    <div class="flex justify-between items-center px-1 pt-3 border-t border-slate-200">
+                        <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
                     </div>
                 </div>
 
@@ -338,9 +345,16 @@
                 </div>
 
                 <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
-                    <div class="flex justify-between items-center px-1">
-                         <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Running Total</span>
-                        <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill)"></span>
+                    <div class="flex justify-between items-center px-1 pb-3 border-b border-slate-200 mb-3">
+                        <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Subtotal</span>
+                        <span class="text-xl font-black text-slate-700 tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                    </div>
+                    <div class="flex justify-between items-center px-1 pb-3">
+                        <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">VAT (5%)</span>
+                        <span class="text-sm font-bold text-slate-700 tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
+                    </div>
+                    <div class="flex justify-between items-center px-1 pt-3 border-t border-slate-200">
+                        <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
                     </div>
                 </div>
 
@@ -349,8 +363,8 @@
                         <i class="fas fa-check-circle text-xs"></i>
                         <span>PAID</span>
                     </button>
-                    <button x-show="selectedTable?.isPaid !== true && !advanceOrderSentToKitchen" @click="currentReceiptOrderId = 'ORD-' + Date.now(); showAdvanceOrderModal = false; showAdvanceKitchenTicketModal = true" class="col-span-2 py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
-                        Send to Kitchen
+                    <button x-show="selectedTable?.isPaid !== true && !advanceOrderSentToKitchen" @click="showAdvanceOrderModal = false; showAdvanceOrderSummaryModal = true" class="col-span-2 py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-eye text-xs"></i> View Orders
                     </button>
                     <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="printOrder(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
                         <i class="fas fa-print text-xs"></i> Print
@@ -404,9 +418,17 @@
                 </div>
 
                 <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
-                    <div class="flex justify-between font-black text-sm text-black">
-                        <span>TOTAL:</span>
+                    <div class="flex justify-between font-black text-sm text-black mb-2">
+                        <span>SUBTOTAL:</span>
                         <span x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                    </div>
+                    <div class="flex justify-between font-bold text-xs text-black mb-2">
+                        <span>VAT (5%):</span>
+                        <span x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
+                    </div>
+                    <div class="flex justify-between font-black text-sm text-black pt-2 border-t-2 border-dashed border-black">
+                        <span>TOTAL:</span>
+                        <span x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
                     </div>
                 </div>
 
@@ -459,6 +481,57 @@
         </div>
     </div>
 
+    <!-- Advance Order Summary Modal -->
+    <div x-show="showAdvanceOrderSummaryModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
+            <div class="p-6 text-center border-b border-slate-200">
+                <p class="text-lg font-bold text-slate-900">Order Summary</p>
+                <p class="text-xs text-slate-500 mt-1">Table <span x-text="selectedTable?.id"></span></p>
+            </div>
+
+            <div class="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
+                <!-- Items List -->
+                <div class="space-y-3 pb-4 border-b border-slate-200">
+                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Items</p>
+                    <template x-for="item in (selectedTable?.orders || [])" :key="item.id">
+                        <div class="flex justify-between items-start text-sm">
+                            <div class="flex-1">
+                                <p class="font-semibold text-slate-900" x-text="item.qty + 'x ' + item.name"></p>
+                                <p x-show="item.addonName && item.addonName.toLowerCase() !== 'default'" class="text-xs text-slate-600 mt-0.5" x-text="'+ ' + item.addonName"></p>
+                            </div>
+                            <p class="font-bold text-slate-900 ml-2" x-text="formatCurrency(item.price * item.qty)"></p>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Subtotal -->
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-slate-600">Subtotal:</span>
+                    <span class="text-lg font-bold text-slate-900" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                </div>
+
+                <!-- VAT 5% -->
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-slate-600">VAT (5%):</span>
+                    <span class="text-lg font-bold text-slate-900" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
+                </div>
+
+                <!-- Total -->
+                <div class="border-t border-slate-200 pt-4 flex justify-between items-center">
+                    <span class="text-sm font-bold text-slate-900 uppercase">Total:</span>
+                    <span class="text-2xl font-black text-[#800000]" x-text="formatCurrency((selectedTable?.bill || 0) + ((selectedTable?.bill || 0) * 0.05))"></span>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
+                <button @click="showAdvanceOrderSummaryModal = false; showAdvanceOrderModal = true" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
+                <button @click="currentReceiptOrderId = 'ORD-' + Date.now(); showAdvanceOrderSummaryModal = false; showAdvanceKitchenTicketModal = true" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
+                    Send Order
+                </button>
+            </div>
+        </div>
+    </div>
+
 <script>
 function waiterSystem() {
     return {
@@ -470,6 +543,7 @@ function waiterSystem() {
         showReservedModal: false,
         showAdvanceOrderModal: false,
         showAdvanceKitchenTicketModal: false,
+        showAdvanceOrderSummaryModal: false,
         showCompleteOrderModal: false,
         advanceOrderSentToKitchen: false,
         currentReceiptOrderId: '',
@@ -764,7 +838,7 @@ startSession() {
             const transaction = {
                 orderId: this.currentReceiptOrderId,
                 timestamp: new Date().toLocaleTimeString(),
-                totalAmount: this.selectedTable.bill || 0,
+                totalAmount: (this.selectedTable.bill || 0) * 1.05,
                 tableId: tableId,
                 items: this.selectedTable.orders.map(item => ({
                     name: item.name,
@@ -781,7 +855,7 @@ startSession() {
             this.advanceOrderSentToKitchen = true;
             this.showAdvanceKitchenTicketModal = false;
             this.showAdvanceOrderModal = true;
-            alert('✓ Order ' + this.currentReceiptOrderId + ' sent to kitchen!');
+            alert('Order successfully sent to stations!');
         },
 
         confirmPrint(tableId) {
@@ -792,7 +866,7 @@ startSession() {
                 const transaction = {
                     orderId: this.currentReceiptOrderId,
                     timestamp: new Date().toLocaleTimeString(),
-                    totalAmount: this.selectedTable.bill || 0,
+                    totalAmount: (this.selectedTable.bill || 0) * 1.05,
                     tableId: tableId,
                     items: this.selectedTable.orders.map(item => ({
                         name: item.name,

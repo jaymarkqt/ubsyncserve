@@ -94,9 +94,17 @@
                                 <span>Total Quantity</span>
                                 <span class="font-bold text-gray-900" x-text="cart.reduce((sum, item) => sum + item.qty, 0)"></span>
                             </div>
+                            <div class="flex justify-between text-sm pt-2 font-bold text-gray-600 pb-2 border-b border-gray-100">
+                                <span>Subtotal</span>
+                                <span x-text="formatCurrency(cartTotal)"></span>
+                            </div>
+                            <div class="flex justify-between text-sm pt-2 font-bold text-gray-600 pb-2">
+                                <span>VAT (5%)</span>
+                                <span x-text="formatCurrency(cartTotal * 0.05)"></span>
+                            </div>
                             <div class="flex justify-between text-xl pt-2 font-black text-gray-900">
                                 <span>Total</span>
-                                <span class="text-[#800000]" x-text="formatCurrency(cartTotal)"></span>
+                                <span class="text-[#800000]" x-text="formatCurrency(cartTotal * 1.05)"></span>
                             </div>
                         </div>
                     </div>
@@ -154,7 +162,9 @@
                     <div class="space-y-2">
                         <div class="flex justify-between"><span class="text-sm text-gray-500">Table:</span> <span class="text-sm font-black text-gray-900" x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span></div>
                         <div class="flex justify-between"><span class="text-sm text-gray-500">Method:</span> <span class="text-sm font-black text-gray-900" x-text="paymentMethod === 'credit' ? 'Credit Card' : 'GCash'"></span></div>
-                        <div class="flex justify-between pt-2 border-t border-gray-200 mt-2"><span class="text-base font-bold text-gray-900">Total Paid:</span> <span class="text-base font-black text-[#800000]" x-text="formatCurrency(cartTotal)"></span></div>
+                        <div class="flex justify-between pb-2 border-b border-gray-200"><span class="text-sm text-gray-500">Subtotal:</span> <span class="text-sm font-black text-gray-900" x-text="formatCurrency(cartTotal)"></span></div>
+                        <div class="flex justify-between pb-2"><span class="text-sm text-gray-500">VAT (5%):</span> <span class="text-sm font-black text-gray-900" x-text="formatCurrency(cartTotal * 0.05)"></span></div>
+                        <div class="flex justify-between pt-2 border-t border-gray-200 mt-2"><span class="text-base font-bold text-gray-900">Total Paid:</span> <span class="text-base font-black text-[#800000]" x-text="formatCurrency(cartTotal * 1.05)"></span></div>
                     </div>
                 </div>
                 
@@ -295,7 +305,7 @@
                     window.dispatchEvent(new Event('storage'));
 
                     const analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
-                    const totalAmount = this.cartTotal;
+                    const totalAmount = this.cartTotal * 1.05;
                     const transaction = {
                         orderId: 'ORD-' + Date.now(),
                         timestamp: new Date().toISOString(),

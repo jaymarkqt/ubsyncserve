@@ -304,42 +304,8 @@
 
             <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
                 <button @click="closeOrderSummaryModal()" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
-                <button @click="proceedToKitchenTicket()" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
-                    Next
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Kitchen Ticket Modal -->
-    <div x-show="showKitchenTicketModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
-            <!-- Simple Header -->
-            <div class="p-4 text-center border-b border-slate-200">
-                <p class="text-lg font-bold text-slate-900">ORDER #<span x-text="currentOrderId"></span></p>
-                <p class="text-xs text-slate-500 mt-1">TABLE <span x-text="tableNumber || 'WALK-IN'"></span> • <span x-text="formatTime()"></span></p>
-            </div>
-
-            <!-- Items -->
-            <div class="p-6 max-h-[60vh] overflow-y-auto">
-                <template x-for="item in cart" :key="item.id">
-                    <div class="mb-5 pb-4 border-b border-slate-100 last:border-b-0 last:pb-0 last:mb-0">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="flex-1">
-                                <p class="text-sm font-bold text-slate-900 uppercase" x-text="item.name"></p>
-                                <p x-show="item.addonName" class="text-xs text-slate-600 mt-1" x-text="'+ ' + item.addonName"></p>
-                            </div>
-                            <p class="text-2xl font-black text-slate-900" x-text="item.qty"></p>
-                        </div>
-                    </div>
-                </template>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
-                <button @click="closeKitchenTicketModal()" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
                 <button @click="finalizeOrder()" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
-                    Send to Kitchen
+                    Send Order
                 </button>
             </div>
         </div>
@@ -367,7 +333,6 @@
             managerCode: '1234',
             showCompleteOrderModal: false,
             showOrderSummaryModal: false,
-            showKitchenTicketModal: false,
             currentOrderId: '',
 
             initStore() {
@@ -529,15 +494,6 @@
                 this.showOrderSummaryModal = false;
             },
 
-            proceedToKitchenTicket() {
-                this.showOrderSummaryModal = false;
-                this.showKitchenTicketModal = true;
-            },
-
-            closeKitchenTicketModal() {
-                this.showKitchenTicketModal = false;
-            },
-
             finalizeOrder() {
                 let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
                 let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
@@ -581,8 +537,8 @@
                 analyticsHistory.unshift(transaction);
                 localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
 
-                alert('✓ Order ' + this.currentOrderId + ' sent to kitchen!');
-                this.closeKitchenTicketModal();
+                alert('Order successfully sent to stations!');
+                this.closeOrderSummaryModal();
                 window.location.href = "{{ route('waiter.dashboard') }}";
             }
         }

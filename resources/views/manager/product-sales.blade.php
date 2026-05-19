@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8" x-effect="() => $watch('orderHistory', () => {}, { deep: true })">
     <div class="mb-8">
         <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-none">Product Sales</h1>
         <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
@@ -13,8 +13,8 @@
                 <i class="fas fa-coins text-5xl text-[#800000]"></i>
             </div>
             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Revenue</p>
-            <p class="text-3xl font-black text-[#800000] mt-1" x-text="formatCurrency(productSalesMetrics.totalRevenue)"></p>
-            <p class="text-[10px] font-bold text-emerald-600 mt-2"><i class="fas fa-caret-up"></i> From all products</p>
+            <p class="text-3xl font-black text-[#800000] mt-1" x-text="formatCurrency(productSalesMetrics.totalRevenue * 1.05)"></p>
+            <p class="text-[10px] font-bold text-emerald-600 mt-2"><i class="fas fa-caret-up"></i> Incl. 5% VAT</p>
         </div>
 
         <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">

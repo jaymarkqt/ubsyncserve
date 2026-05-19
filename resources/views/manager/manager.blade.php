@@ -39,9 +39,9 @@
     <header class="aws-header">
         <div class="flex items-center gap-4">
             <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
-                <i class="fas fa-bars"></i> 
+                <i class="fas fa-bars"></i>
             </button>
-          
+
         </div>
 
         <div class="flex items-center gap-6 text-sm font-bold">
@@ -533,6 +533,7 @@ clearTable(tableId) {
 init() {
             localStorage.removeItem('ub_order_history');
             localStorage.removeItem('ub_tables');
+
             this.loadProducts();
             this.loadAnalytics();
             this.loadTablesFromStorage();
@@ -639,27 +640,11 @@ init() {
 
                     let productSalesMap = {};
                     let totalRevenue = 0;
-                    let allOrders = [];
 
-                    // Get orders from tables only (to avoid double counting)
-                    if (this.openTables && Array.isArray(this.openTables)) {
-                        this.openTables.forEach(table => {
-                            if (table.orders && Array.isArray(table.orders)) {
-                                table.orders.forEach(order => {
-                                    allOrders.push({
-                                        items: [order],
-                                        timestamp: order.timestamp || new Date().toISOString()
-                                    });
-                                });
-                            }
-                        });
-                    }
-
-                    allOrders.forEach(order => {
-                        let orderDate = new Date(order.timestamp);
-                        if (orderDate >= startDate && orderDate <= endDate) {
-                            if (order.items && Array.isArray(order.items)) {
-                                order.items.forEach(item => {
+                    if (this.orderHistory && Array.isArray(this.orderHistory)) {
+                        this.orderHistory.forEach(transaction => {
+                            if (transaction.items && Array.isArray(transaction.items)) {
+                                transaction.items.forEach(item => {
                                     if (!productSalesMap[item.name]) {
                                         let product = this.products.find(p => p.name === item.name);
                                         productSalesMap[item.name] = {
@@ -677,8 +662,8 @@ init() {
                                     totalRevenue += itemTotal;
                                 });
                             }
-                        }
-                    });
+                        });
+                    }
 
                     return Object.values(productSalesMap).map(p => ({
                         ...p,
@@ -719,7 +704,7 @@ init() {
                         const transaction = {
                             orderId: this.currentReceiptOrderId,
                             timestamp: new Date().toLocaleTimeString(),
-                            totalAmount: this.selectedTable.bill || 0,
+                            totalAmount: (this.selectedTable.bill || 0) * 1.05,
                             tableId: tableId,
                             items: this.selectedTable.orders.map(item => ({
                                 name: item.name,

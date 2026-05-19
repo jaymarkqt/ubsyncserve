@@ -116,9 +116,16 @@
                     </div>
 
                     <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
-                        <div class="flex justify-between items-center px-1">
-                           <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Running Total</span>
-                            <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                        <div class="flex justify-between items-center px-1 pb-3 border-b border-slate-200 mb-3">
+                           <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Subtotal</span>
+                            <span class="text-xl font-black text-slate-700 tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                        </div>
+                        <div class="flex justify-between items-center px-1 pb-3">
+                           <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">VAT (5%)</span>
+                            <span class="text-sm font-bold text-slate-700 tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
+                        </div>
+                        <div class="flex justify-between items-center px-1 pt-3 border-t border-slate-200">
+                            <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
                         </div>
                     </div>
 
@@ -214,9 +221,16 @@
                     </div>
 
                     <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
-                        <div class="flex justify-between items-center px-1">
-                             <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Running Total</span>
-                            <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                        <div class="flex justify-between items-center px-1 pb-3 border-b border-slate-200 mb-3">
+                             <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Subtotal</span>
+                            <span class="text-xl font-black text-slate-700 tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                        </div>
+                        <div class="flex justify-between items-center px-1 pb-3">
+                             <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">VAT (5%)</span>
+                            <span class="text-sm font-bold text-slate-700 tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
+                        </div>
+                        <div class="flex justify-between items-center px-1 pt-3 border-t border-slate-200">
+                            <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
                         </div>
                     </div>
 
@@ -288,9 +302,17 @@
 
                     <!-- Total -->
                     <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
-                        <div class="flex justify-between font-black text-sm text-black">
-                            <span>TOTAL:</span>
+                        <div class="flex justify-between font-black text-sm text-black mb-2">
+                            <span>SUBTOTAL:</span>
                             <span x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                        </div>
+                        <div class="flex justify-between font-bold text-xs text-black mb-2">
+                            <span>VAT (5%):</span>
+                            <span x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
+                        </div>
+                        <div class="flex justify-between font-black text-sm text-black pt-2 border-t-2 border-dashed border-black">
+                            <span>TOTAL:</span>
+                            <span x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
                         </div>
                     </div>
 
