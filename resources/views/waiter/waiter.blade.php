@@ -863,22 +863,27 @@ startSession() {
             let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
 
             if (this.selectedTable && this.selectedTable.orders && this.selectedTable.orders.length > 0) {
-                const transaction = {
-                    orderId: this.currentReceiptOrderId,
-                    timestamp: new Date().toLocaleTimeString(),
-                    totalAmount: (this.selectedTable.bill || 0) * 1.05,
-                    tableId: tableId,
-                    items: this.selectedTable.orders.map(item => ({
-                        name: item.name,
-                        qty: item.qty,
-                        price: item.price,
-                        addonName: item.addonName
-                    })),
-                    status: 'completed'
-                };
+                // Check if this transaction already exists to prevent duplicates
+                const transactionExists = analyticsHistory.some(t => t.orderId === this.currentReceiptOrderId);
 
-                analyticsHistory.unshift(transaction);
-                localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                if (!transactionExists) {
+                    const transaction = {
+                        orderId: this.currentReceiptOrderId,
+                        timestamp: new Date().toLocaleTimeString(),
+                        totalAmount: (this.selectedTable.bill || 0) * 1.05,
+                        tableId: tableId,
+                        items: this.selectedTable.orders.map(item => ({
+                            name: item.name,
+                            qty: item.qty,
+                            price: item.price,
+                            addonName: item.addonName
+                        })),
+                        status: 'completed'
+                    };
+
+                    analyticsHistory.unshift(transaction);
+                    localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                }
 
                 let tableIndex = tables.findIndex(t => t.id === tableId);
                 if (tableIndex !== -1) {

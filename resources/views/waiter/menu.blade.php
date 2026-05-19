@@ -497,7 +497,6 @@
             finalizeOrder() {
                 let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
                 let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
-                let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
                 let kitchenOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
 
                 let idx = tables.findIndex(t => t.id == this.tableNumber);
@@ -533,9 +532,6 @@
 
                 kitchenOrders.push(transaction);
                 localStorage.setItem('ub_kitchen_orders', JSON.stringify(kitchenOrders));
-
-                analyticsHistory.unshift(transaction);
-                localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
 
                 alert('Order successfully sent to stations!');
                 this.closeOrderSummaryModal();
