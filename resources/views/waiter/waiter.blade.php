@@ -457,20 +457,20 @@
                     <i class="fas fa-check-circle text-sm"></i>
                     <span>PAID</span>
                 </button>
-                
+
                 <button x-show="selectedTable?.isPaid !== true && !advanceOrderSentToKitchen" @click="showAdvanceOrderModal = false; showAdvanceOrderSummaryModal = true"
-                    class="col-span-2 py-4 bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-orange-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    class="py-4 bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-orange-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
                     <i class="fas fa-eye text-sm"></i> View Orders
                 </button>
-                
-                <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="printOrder(selectedTable.id)"
-                    class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-print text-sm"></i> Print
+
+                <button x-show="selectedTable?.isPaid !== true && !advanceOrderSentToKitchen" @click="showAdvanceOrderModal = false; advanceOrderSentToKitchen = false"
+                    class="py-4 bg-slate-800 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+                    Close
                 </button>
-                
-                <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)"
-                    class="py-4 bg-[#800000] text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-red-900/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-plus text-sm"></i> Add Order
+
+                <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="printOrder(selectedTable.id)"
+                    class="col-span-2 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-print text-sm"></i> Print
                 </button>
             </div>
         </div>
