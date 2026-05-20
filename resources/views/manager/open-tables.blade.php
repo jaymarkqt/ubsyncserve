@@ -104,9 +104,6 @@
         <h3 class="text-2xl font-black uppercase tracking-tight">Table <span x-text="selectedTable?.tableNumber || selectedTable?.id"></span> Bill</h3>
         <p class="text-xs font-semibold uppercase tracking-widest text-red-200 mt-1">Current Active Session</p>
     </div>
-    <button @click="showOrderModal = false" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-all backdrop-blur-sm">
-        <i class="fas fa-times text-lg"></i>
-    </button>
 </div>
             
             <!-- Body -->
@@ -171,7 +168,7 @@
                         </button>
                     </template>
 
-                    <button @click="showReservedModal = false"
+                    <button @click="showOrderModal = false"
         class="py-4 bg-slate-800 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
     Close
 </button>
