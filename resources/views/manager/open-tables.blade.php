@@ -324,6 +324,9 @@
                     </template>
 
                     <template x-if="selectedTable?.status !== 'paid' && !selectedTable?.isPaid">
+                        <button class="py-4 bg-blue-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-60">
+                            <i class="fas fa-clock text-sm"></i> Pending
+                        </button>
                     </template>
 
                     <button @click="showAdvanceOrderModal = false"
