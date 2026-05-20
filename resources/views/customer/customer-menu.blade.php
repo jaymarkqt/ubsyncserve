@@ -174,7 +174,7 @@
                                 <template x-if="product.stock > 0">
                                     <span class="flex items-center gap-1 sm:gap-2">
                                         <i class="fas fa-shopping-bag text-[7px] sm:text-[8px] md:text-xs"></i> 
-                                        <span class="hidden sm:inline">Add to Cart</span>
+                                        <span class="hidden sm:inline">Add to Order</span>
                                         <span class="sm:hidden">Add</span>
                                     </span>
                                 </template>

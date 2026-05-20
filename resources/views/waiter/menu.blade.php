@@ -265,7 +265,7 @@
         <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
             <div class="p-6 text-center border-b border-slate-200">
                 <p class="text-lg font-bold text-slate-900">Order Summary</p>
-                <p class="text-xs text-slate-500 mt-1">Order #<span x-text="currentOrderId"></span></p>
+                
             </div>
 
             <div class="p-6 space-y-4 max-h-[50vh] overflow-y-auto">

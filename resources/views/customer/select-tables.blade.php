@@ -56,8 +56,8 @@
         <div x-show="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4" x-cloak>
             <div class="w-full max-w-sm rounded-2xl bg-white p-5 sm:p-6 shadow-lg sm:shadow-2xl">
                 <div class="text-center mb-5 sm:mb-6 mt-1 sm:mt-2">
-                    <h3 class="text-lg sm:text-xl font-extrabold text-[#800000] tracking-wide leading-tight uppercase">Confirm Reservation</h3>
-                    <p class="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2">Reserve Table <span x-text="selectedTable ? selectedTable.id : ''"></span>?</p>
+                    <h3 class="text-lg sm:text-xl font-extrabold text-[#800000] tracking-wide leading-tight uppercase" x-text="bookingType === 'advance-order' ? 'Confirm Advance Order' : 'Confirm Reservation'"></h3>
+                    <p class="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-2" x-text="bookingType === 'advance-order' ? 'Place order for Table ' + (selectedTable ? selectedTable.id : '') + '?' : 'Reserve Table ' + (selectedTable ? selectedTable.id : '') + '?'"></p>
                 </div>
 
                 <div class="flex gap-2 sm:gap-3">
@@ -184,10 +184,18 @@
                     }
 
                     if (table.status === 'available') {
+                        // Show confirm modal for both advance order and reservation
+                        this.selectedTable = table;
+                        this.showConfirmModal = true;
+                    }
+                },
+
+                confirmReservation() {
+                    if (this.selectedTable) {
                         if (this.bookingType === 'advance-order') {
-                            // Mark table as reserved-advance before redirecting
+                            // For advance order, mark table as reserved-advance and redirect
                             let storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-                            let tableIndex = storedTables.findIndex(t => t.id === table.id);
+                            let tableIndex = storedTables.findIndex(t => t.id === this.selectedTable.id);
                             if (tableIndex !== -1) {
                                 storedTables[tableIndex].status = 'reserved-advance';
                                 // Get guest count from current reservation or latest pending
@@ -210,55 +218,47 @@
                                 localStorage.setItem('ub_tables', JSON.stringify(storedTables));
                                 window.dispatchEvent(new Event('storage'));
                             }
-                            // For advance order, redirect to menu with table parameter
-                            window.location.href = `{{ route('order.menu') }}?table=` + table.id;
+                            // Redirect to menu with table parameter
+                            window.location.href = `{{ route('order.menu') }}?table=` + this.selectedTable.id;
                         } else {
-                            // For reservation, show confirm modal
-                            this.selectedTable = table;
-                            this.showConfirmModal = true;
-                        }
-                    }
-                },
-
-                confirmReservation() {
-                    if (this.selectedTable) {
-                        // Mark table as reserved-booking
-                        let storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-                        let tableIndex = storedTables.findIndex(t => t.id === this.selectedTable.id);
-                        if (tableIndex !== -1) {
-                            storedTables[tableIndex].status = 'reserved-booking';
-                            // Get guest count from current reservation or latest pending
-                            if (this.currentReservation) {
-                                let adults = this.currentReservation.adults || 0;
-                                let children = this.currentReservation.children || 0;
-                                storedTables[tableIndex].adults = adults;
-                                storedTables[tableIndex].children = children;
-                                storedTables[tableIndex].guests = adults + children;
-                                this.currentReservation.status = 'confirmed';
-                                this.currentReservation.table = this.selectedTable.id;
-                                let reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
-                                let resIndex = reservations.findIndex(r => r.id === this.currentReservation.id);
-                                if (resIndex !== -1) {
-                                    reservations[resIndex] = this.currentReservation;
-                                    localStorage.setItem('ub_reservations', JSON.stringify(reservations));
-                                }
-                            } else {
-                                let reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
-                                let latestReservation = reservations.find(r => r.status === 'pending');
-                                if (latestReservation) {
-                                    let adults = latestReservation.adults || 0;
-                                    let children = latestReservation.children || 0;
+                            // For table reservation, mark table as reserved-booking
+                            let storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+                            let tableIndex = storedTables.findIndex(t => t.id === this.selectedTable.id);
+                            if (tableIndex !== -1) {
+                                storedTables[tableIndex].status = 'reserved-booking';
+                                // Get guest count from current reservation or latest pending
+                                if (this.currentReservation) {
+                                    let adults = this.currentReservation.adults || 0;
+                                    let children = this.currentReservation.children || 0;
                                     storedTables[tableIndex].adults = adults;
                                     storedTables[tableIndex].children = children;
                                     storedTables[tableIndex].guests = adults + children;
-                                    latestReservation.status = 'confirmed';
-                                    localStorage.setItem('ub_reservations', JSON.stringify(reservations));
+                                    this.currentReservation.status = 'confirmed';
+                                    this.currentReservation.table = this.selectedTable.id;
+                                    let reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
+                                    let resIndex = reservations.findIndex(r => r.id === this.currentReservation.id);
+                                    if (resIndex !== -1) {
+                                        reservations[resIndex] = this.currentReservation;
+                                        localStorage.setItem('ub_reservations', JSON.stringify(reservations));
+                                    }
+                                } else {
+                                    let reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
+                                    let latestReservation = reservations.find(r => r.status === 'pending');
+                                    if (latestReservation) {
+                                        let adults = latestReservation.adults || 0;
+                                        let children = latestReservation.children || 0;
+                                        storedTables[tableIndex].adults = adults;
+                                        storedTables[tableIndex].children = children;
+                                        storedTables[tableIndex].guests = adults + children;
+                                        latestReservation.status = 'confirmed';
+                                        localStorage.setItem('ub_reservations', JSON.stringify(reservations));
+                                    }
                                 }
                             }
+                            localStorage.setItem('ub_tables', JSON.stringify(storedTables));
+                            this.loadTables();
+                            window.dispatchEvent(new Event('storage'));
                         }
-                        localStorage.setItem('ub_tables', JSON.stringify(storedTables));
-                        this.loadTables();
-                        window.dispatchEvent(new Event('storage'));
                     }
                     this.showConfirmModal = false;
                     this.selectedTable = null;

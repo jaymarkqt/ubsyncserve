@@ -182,7 +182,7 @@
 
                 <div class="flex flex-col gap-3 pt-2">
                     <button @click="startSession()" class="w-full py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/20 hover:bg-red-900 transition-all">
-                        Open Table & Order Menu
+                        Start
                     </button>
                     <button @click="showSetupModal = false" class="w-full py-3 text-black font-black text-[10px] uppercase  transition-all">
                         Cancel
@@ -307,7 +307,7 @@
         <div class="clay-card w-full max-w-md overflow-hidden bg-white rounded-3xl shadow-2xl">
             <div class="maroon-gradient p-6 text-white flex justify-between items-center">
                 <div>
-                    <h3 class="text-xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span> - Advance Order</h3>
+                    <h3 class="text-xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span> - Advance Order Bill</h3>
                     <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Pre-ordered Items</p>
                 </div>
                 <button @click="showAdvanceOrderModal = false; advanceOrderSentToKitchen = false" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
@@ -485,8 +485,8 @@
     <div x-show="showAdvanceOrderSummaryModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
             <div class="p-6 text-center border-b border-slate-200">
-                <p class="text-lg font-bold text-slate-900">Advance Order</p>
-                <p class="text-xs text-slate-500 mt-1">Table <span x-text="selectedTable?.id"></span></p>
+                <p class="text-lg font-bold text-slate-900">Order Summary</p>
+               
             </div>
 
             <div class="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
