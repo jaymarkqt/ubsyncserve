@@ -406,6 +406,9 @@
                 <h3 class="text-2xl font-black uppercase tracking-tight">Table <span x-text="selectedTable?.id"></span> Bill</h3>
                 <p class="text-xs font-semibold uppercase tracking-widest text-orange-200 mt-1">Advance Pre-orders</p>
             </div>
+            <button x-show="selectedTable?.isPaid === true" @click="showAdvanceOrderModal = false" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-all">
+                <i class="fas fa-times text-lg"></i>
+            </button>
         </div>
 
         <div class="p-6 bg-white">
