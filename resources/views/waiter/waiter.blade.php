@@ -36,7 +36,7 @@
 
     <header class="aws-header">
         <div class="flex items-center gap-4">
-            <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
+            <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded transition cursor-pointer">
                 <i class="fas fa-bars"></i> 
             </button>
            
@@ -44,7 +44,7 @@
 
         <div class="flex items-center gap-6 text-sm font-bold">
             <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                <button @click="open = !open" class="flex items-center gap-3 border-l border-white/20 pl-6 h-full hover:bg-white/5 p-2 rounded transition-all focus:outline-none">
+                <button @click="open = !open" class="flex items-center gap-3 border-l border-white/20 pl-6 h-full p-2 rounded transition-all focus:outline-none">
                     <div class="hidden md:block text-right">
                         <span class="text-[10px] text-white/60 block leading-none uppercase tracking-widest font-black">Staff</span>
                         <p class="font-bold text-white uppercase text-sm tracking-tight">{{ Auth::user()->name ?? 'Guest User' }}</p>
@@ -63,7 +63,7 @@
                     <div class="px-2">
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button type="submit" class="w-full text-left px-3 py-2.5 text-[11px] font-black text-red-600 hover:bg-red-50 rounded-lg uppercase tracking-widest flex items-center gap-3">
+                            <button type="submit" class="w-full text-left px-3 py-2.5 text-[11px] font-black text-red-600 rounded-lg uppercase tracking-widest flex items-center gap-3">
                                 <i class="fa-solid fa-power-off text-sm"></i> Sign Out
                             </button>
                         </form>
@@ -77,13 +77,13 @@
     <aside class="aws-sidebar shadow-sm" :class="!sidebarOpen ? 'sidebar-collapsed' : ''">
         <div class="p-4 space-y-2">
             
-            <button @click="switchTab('home')" 
-                :class="tab === 'home' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'" 
+            <button @click="switchTab('home')"
+                :class="tab === 'home' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 font-bold'"
                 class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                 <i class="fa-solid fa-table-cells-large w-5"></i> Floor Plan
             </button>
-            <button @click="switchTab('reservations')" 
-                :class="tab === 'reservations' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'" 
+            <button @click="switchTab('reservations')"
+                :class="tab === 'reservations' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 font-bold'"
                 class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                 <i class="fas fa-calendar-check w-5"></i> Reservations
             </button>
@@ -102,7 +102,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div class="clay-card border-t-4 border-t-emerald-500 p-6 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
+                    <div class="absolute top-0 right-0 p-4 opacity-20 transition-transform">
                         <i class="fas fa-door-open text-5xl text-emerald-600"></i>
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available Tables</p>
@@ -111,7 +111,7 @@
                 </div>
 
                 <div class="clay-card border-t-4 border-t-red-800 p-6 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
+                    <div class="absolute top-0 right-0 p-4 opacity-20 transition-transform">
                         <i class="fas fa-utensils text-5xl text-red-800"></i>
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Tables</p>
@@ -120,7 +120,7 @@
                 </div>
 
                 <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
+                    <div class="absolute top-0 right-0 p-4 opacity-20 transition-transform">
                         <i class="fas fa-clock text-5xl text-blue-600"></i>
                     </div>
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reservations</p>
@@ -131,8 +131,8 @@
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
     <template x-for="table in tables" :key="table.id">
-        <div @click="selectTable(table)" 
-             class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all hover:shadow-xl hover:-translate-y-1 flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
+        <div @click="selectTable(table)"
+             class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
              :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.isPaid === true ? 'bg-[#bfdbfe] border-[#3b82f6]' : (table.status === 'reserved-advance' ? 'bg-[#fed7aa] border-[#ea580c]' : (table.status === 'reserved-booking' ? 'bg-[#ffedd5] border-[#fb923c]' : 'bg-[#ffdada] border-[#f87171]')))">
             <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
             
@@ -156,226 +156,329 @@
         </div>
     </main>
 
-    <div x-show="showSetupModal" x-cloak class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-3xl shadow-2xl">
-            <div class="maroon-gradient p-8 text-white text-center">
-                <h3 class="text-2xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span> Setup</h3>
-                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">Initialize Guest Session</p>
-            </div>
-            
-            <div class="p-8 space-y-6">
-                <div class="grid grid-cols-2 gap-4">
-                   <div class="space-y-2">
-    <label class="text-[10px] font-black uppercase text-black tracking-widest block text-center">Adults</label>
-    <input type="number" x-model.number="guestSetup.adults" min="0" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-center font-black text-xl focus:border-[#800000] focus:bg-white outline-none transition-all">
-</div>
-                    <div class="space-y-2 text-center">
-                        <label class="text-[10px] font-black uppercase text-black tracking-widest block text-center">Children</label>
-                        <input type="number" x-model.number="guestSetup.children" min="0" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-center font-black text-xl focus:border-[#800000] focus:bg-white outline-none transition-all">
-                    </div>
-                </div>
-
-                <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center border border-slate-100">
-                    <span class="text-xs font-black text-black uppercase tracking-widest">Total Pax</span>
-                    <span class="text-2xl font-black text-[#800000]" x-text="guestSetup.adults + guestSetup.children"></span>
-                </div>
-
-                <div class="flex flex-col gap-3 pt-2">
-                    <button @click="startSession()" class="w-full py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/20 hover:bg-red-900 transition-all">
-                        Start
-                    </button>
-                    <button @click="showSetupModal = false" class="w-full py-3 text-black font-black text-[10px] uppercase  transition-all">
-                        Cancel
-                    </button>
-                </div>
-            </div>
+ <div x-show="showSetupModal" x-cloak 
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4">
+    
+    <div x-show="showSetupModal"
+        x-transition:enter="transition ease-out duration-300 delay-75"
+        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+      
+        class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-[2rem] shadow-2xl border border-white/20">
+        
+        <div class="maroon-gradient bg-gradient-to-br from-[#800000] to-[#5a0000] p-8 text-white text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-white/5 pattern-dots"></div>
+            <h3 class="text-3xl font-black uppercase tracking-tight relative z-10 flex justify-center items-center gap-3">
+                <i class="fas fa-chair opacity-80 text-2xl"></i> Table <span x-text="selectedTable?.id"></span>
+            </h3>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-200 mt-2 relative z-10">Initialize Guest Session</p>
         </div>
-    </div>
-
-    <div x-show="showOrderModal" x-cloak class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="clay-card w-full max-w-md overflow-hidden bg-white rounded-3xl shadow-2xl">
-            <div class="maroon-gradient p-6 text-white flex justify-between items-center">
-                <div>
-                    <h3 class="text-xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span> Bill</h3>
-                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Current Active Session</p>
+        
+        <div class="p-8 space-y-6">
+            <div class="grid grid-cols-2 gap-5">
+                <div class="space-y-2">
+                    <label class="text-sm font-black uppercase text-slate-600 tracking-wider flex items-center justify-center">
+                        Adults
+                    </label>
+                    <input type="number" x-model.number="guestSetup.adults" min="0" 
+                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center font-black text-2xl text-slate-800 focus:border-[#800000] focus:ring-4 focus:ring-[#800000]/10 focus:bg-white outline-none transition-all shadow-inner">
                 </div>
-                <button @click="showOrderModal = false" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
-                    <i class="fas fa-times"></i>
+                <div class="space-y-2">
+                    <label class="text-sm font-black uppercase text-slate-600 tracking-wider flex items-center justify-center">
+                        Children
+                    </label>
+                    <input type="number" x-model.number="guestSetup.children" min="0" 
+                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center font-black text-2xl text-slate-800 focus:border-[#800000] focus:ring-4 focus:ring-[#800000]/10 focus:bg-white outline-none transition-all shadow-inner">
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-slate-50 to-slate-100 p-5 rounded-2xl flex justify-between items-center border border-slate-200 shadow-sm">
+                <span class="text-sm font-bold text-slate-600 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-users text-slate-400 text-lg"></i> Total Pax
+                </span>
+                <span class="text-3xl font-black text-[#800000]" x-text="guestSetup.adults + guestSetup.children"></span>
+            </div>
+
+            <div class="flex flex-col gap-3 pt-4">
+                <button @click="startSession()"
+                    class="w-full py-4 bg-gradient-to-r from-[#800000] to-[#990000] text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg shadow-red-900/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-play text-xs"></i> Start
+                </button>
+                <button @click="showSetupModal = false"
+                    class="w-full py-4 bg-slate-100 text-slate-600 font-black text-sm uppercase tracking-wider rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                   Cancel
                 </button>
             </div>
-            
-            <div class="p-6">
-                <div class="space-y-3 max-h-64 overflow-y-auto custom-scroll mb-6 pr-2">
-                    <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
-                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
-                            <div class="flex items-center gap-4">
-                                <span class="w-8 h-8 flex items-center justify-center bg-red-100 text-[#800000] text-xs font-black rounded-lg" x-text="item.qty + 'x'"></span>
-                                <div>
-                                    <p class="text-[11px] font-black text-slate-800 uppercase tracking-tight" x-text="item.name"></p>
-                                    <template x-if="item.addonName && item.addonName.toLowerCase() !== 'default'">
-                                        <p class="text-[9px] text-orange-600 font-bold uppercase tracking-widest" x-text="item.addonName"></p>
-                                    </template>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <p class="text-sm font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
+        </div>
+    </div>
+</div>
+
+<div x-show="showOrderModal" x-cloak 
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4">
+    
+    <div x-show="showOrderModal"
+        x-transition:enter="transition ease-out duration-300 delay-75"
+        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+       
+        class="clay-card w-full max-w-md overflow-hidden bg-white rounded-[2rem] shadow-2xl border border-white/20">
+        
+   <div class="p-6 text-white flex justify-between items-center shadow-md relative z-10 bg-[#800000]">
+    <div>
+        <h3 class="text-2xl font-black uppercase tracking-tight">Table <span x-text="selectedTable?.id"></span> Bill</h3>
+        <p class="text-xs font-semibold uppercase tracking-widest text-red-200 mt-1">Current Active Session</p>
+    </div>
+    <button @click="showOrderModal = false" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-all backdrop-blur-sm">
+        <i class="fas fa-times text-lg"></i>
+    </button>
+</div>
+        
+        <div class="p-6 bg-white">
+            <div class="space-y-3 max-h-[50vh] overflow-y-auto custom-scroll mb-6 pr-2">
+                <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
+                    <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all group">
+                        <div class="flex items-center gap-4">
+                            <span class="w-10 h-10 flex items-center justify-center bg-red-50 text-[#800000] text-sm font-black rounded-xl border border-red-100" x-text="item.qty + 'x'"></span>
+                            <div>
+                                <p class="text-sm font-black text-slate-800 tracking-tight" x-text="item.name"></p>
+                                <template x-if="item.addonName && item.addonName.toLowerCase() !== 'default'">
+                                    <p class="text-[10px] text-orange-600 font-bold uppercase tracking-widest mt-0.5" x-text="item.addonName"></p>
+                                </template>
                             </div>
                         </div>
-                    </template>
-
-                    <template x-if="!selectedTable?.orders || selectedTable?.orders.length === 0">
-                        <div class="text-center py-10">
-                            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-receipt text-slate-200 text-2xl"></i>
-                            </div>
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No orders yet</p>
+                        <div class="flex items-center gap-4">
+                            <p class="text-base font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
                         </div>
-                    </template>
-                </div>
-
-                <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
-                    <div class="flex justify-between items-center px-1 pb-3 border-b border-slate-200 mb-3">
-                        <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Subtotal</span>
-                        <span class="text-xl font-black text-slate-700 tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
                     </div>
-                    <div class="flex justify-between items-center px-1 pb-3">
-                        <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">VAT (5%)</span>
-                        <span class="text-sm font-bold text-slate-700 tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
-                    </div>
-                    <div class="flex justify-between items-center px-1 pt-3 border-t border-slate-200">
-                        <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
-                    </div>
-                </div>
+                </template>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <button x-show="selectedTable?.isPaid === true" class="col-span-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-blue-900/10 flex items-center justify-center gap-2">
-                        <i class="fas fa-check-circle text-xs"></i>
-                        <span>PAID</span>
-                    </button>
-                    <button x-show="selectedTable?.isPaid !== true" @click="printOrder(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-print text-xs"></i> Print
-                    </button>
-                    <button x-show="selectedTable?.isPaid !== true" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)"
-    class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
-    <i class="fas fa-plus text-xs"></i> Add Order
-</button>
+                <template x-if="!selectedTable?.orders || selectedTable?.orders.length === 0">
+                    <div class="text-center py-12 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200">
+                        <div class="w-20 h-20 bg-white shadow-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                            <i class="fas fa-receipt text-slate-300 text-3xl"></i>
+                        </div>
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">No orders yet</p>
+                    </div>
+                </template>
+            </div>
 
+            <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 mb-6">
+                <div class="flex justify-between items-center pb-3 border-b border-dashed border-slate-300 mb-3">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Subtotal</span>
+                    <span class="text-lg font-black text-slate-700 tracking-tight" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
                 </div>
+                <div class="flex justify-between items-center pb-3 border-b border-dashed border-slate-300 mb-3">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">VAT (5%)</span>
+                    <span class="text-sm font-bold text-slate-600 tracking-tight" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-xl font-black text-slate-800 uppercase tracking-wider">Total</span>
+                    <span class="text-3xl font-black text-[#800000] tracking-tight" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button x-show="selectedTable?.isPaid === true" class="col-span-2 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-default">
+                    <i class="fas fa-check-circle text-sm"></i>
+                    <span>PAID</span>
+                </button>
+                
+                <button x-show="selectedTable?.isPaid !== true" @click="printOrder(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-print text-sm"></i> Print
+                </button>
+                
+                <button x-show="selectedTable?.isPaid !== true" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)"
+                    class="py-4 bg-[#800000] text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-red-900/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-plus text-sm"></i> Add Order
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <div x-show="showReservedModal" x-cloak class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-3xl shadow-2xl">
-            <div class="bg-amber-500 p-8 text-white text-center">
-                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-calendar-check text-xl"></i>
-                </div>
-                <h3 class="text-2xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span></h3>
-                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1" x-text="selectedTable?.status === 'reserved-advance' ? 'Advance Order Reserved' : 'Table Reservation'"></p>
+<div x-show="showReservedModal" x-cloak 
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4">
+    
+    <div x-show="showReservedModal"
+        x-transition:enter="transition ease-out duration-300 delay-75"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+       
+        class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-[2rem] shadow-2xl border border-white/20">
+        
+        <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-8 text-white text-center shadow-inner relative">
+            <div class="absolute inset-0 bg-white/5 pattern-dots"></div>
+            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-white/30 shadow-lg relative z-10">
+                <i class="fas fa-calendar-check text-2xl"></i>
             </div>
-            <div class="p-8 space-y-6">
-                <div class="text-center">
-                    <p class="text-sm font-bold text-slate-600 mb-4">
+            <h3 class="text-3xl font-black uppercase tracking-tight relative z-10">Table <span x-text="selectedTable?.id"></span></h3>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] opacity-90 mt-2 relative z-10" x-text="selectedTable?.status === 'reserved-advance' ? 'Advance Order Reserved' : 'Table Reservation'"></p>
+        </div>
+        
+        <div class="p-8 space-y-6 bg-white">
+            <div class="text-center">
+                <div class="inline-block px-4 py-2 bg-amber-50 rounded-full border border-amber-100 mb-6">
+                    <p class="text-sm font-bold text-amber-800">
+                        <i class="fas fa-users mr-2 opacity-70"></i>
                         <span x-text="selectedTable?.guests ?? ((selectedTable?.adults || 0) + (selectedTable?.children || 0))"></span> guests reserved
                     </p>
-                    <template x-if="selectedTable?.status === 'reserved-advance' && selectedTable?.orders && selectedTable?.orders.length > 0">
-                        <div class="space-y-2">
-                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Advance Orders</p>
+                </div>
+                
+                <template x-if="selectedTable?.status === 'reserved-advance' && selectedTable?.orders && selectedTable?.orders.length > 0">
+                    <div class="space-y-3 text-left">
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <i class="fas fa-utensils"></i> Advance Orders
+                        </p>
+                        <div class="max-h-40 overflow-y-auto custom-scroll pr-2 space-y-2">
                             <template x-for="order in selectedTable.orders" :key="order.id">
-                                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                                    <span class="text-sm font-bold" x-text="order.name"></span>
+                                <div class="flex justify-between items-center bg-slate-50 border border-slate-100 p-4 rounded-xl transition-colors">
+                                    <span class="text-sm font-bold text-slate-700" x-text="order.name"></span>
                                     <span class="text-sm text-[#800000] font-black" x-text="'₱' + order.price.toFixed(2)"></span>
                                 </div>
                             </template>
                         </div>
-                    </template>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-check-circle text-xs"></i> Finish and Clear
-                    </button>
-                    <button @click="showReservedModal = false" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-times text-xs"></i> Close
-                    </button>
-                </div>
+                    </div>
+                </template>
             </div>
-        </div>
-    </div>
-
-    <div x-show="showAdvanceOrderModal" x-cloak class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="clay-card w-full max-w-md overflow-hidden bg-white rounded-3xl shadow-2xl">
-            <div class="maroon-gradient p-6 text-white flex justify-between items-center">
-                <div>
-                    <h3 class="text-xl font-black uppercase tracking-tighter">Table <span x-text="selectedTable?.id"></span> - Advance Order Bill</h3>
-                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-80">Pre-ordered Items</p>
-                </div>
-                <button @click="showAdvanceOrderModal = false; advanceOrderSentToKitchen = false" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
-                    <i class="fas fa-times"></i>
+            
+            <div class="grid grid-cols-2 gap-4 pt-2">
+                <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)"
+                    class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-check-circle text-sm"></i> Finish
+                </button>
+                <button @click="showReservedModal = false"
+                    class="py-4 bg-slate-800 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+                    Close
                 </button>
             </div>
+        </div>
+    </div>
+</div>
 
-            <div class="p-6">
-                <div class="space-y-3 max-h-64 overflow-y-auto custom-scroll mb-6 pr-2">
-                    <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
-                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
-                            <div class="flex items-center gap-4">
-                                <span class="w-8 h-8 flex items-center justify-center bg-orange-100 text-orange-700 text-xs font-black rounded-lg" x-text="item.qty + 'x'"></span>
-                                <div>
-                                    <p class="text-[11px] font-black text-slate-800 uppercase tracking-tight" x-text="item.name"></p>
-                                    <template x-if="item.addonName && item.addonName.toLowerCase() !== 'default'">
-                                        <p class="text-[9px] text-orange-600 font-bold uppercase tracking-widest" x-text="item.addonName"></p>
-                                    </template>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <p class="text-sm font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
+<div x-show="showAdvanceOrderModal" x-cloak 
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4">
+    
+    <div x-show="showAdvanceOrderModal"
+        x-transition:enter="transition ease-out duration-300 delay-75"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95"
+       
+        class="clay-card w-full max-w-md overflow-hidden bg-white rounded-[2rem] shadow-2xl border border-white/20">
+        
+        <div class="bg-gradient-to-r from-orange-600 to-red-700 p-6 text-white flex justify-between items-center shadow-md">
+            <div>
+                <h3 class="text-2xl font-black uppercase tracking-tight">Table <span x-text="selectedTable?.id"></span> Bill</h3>
+                <p class="text-xs font-semibold uppercase tracking-widest text-orange-200 mt-1">Advance Pre-orders</p>
+            </div>
+            <button @click="showAdvanceOrderModal = false; advanceOrderSentToKitchen = false" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-all">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div class="p-6 bg-white">
+            <div class="space-y-3 max-h-[50vh] overflow-y-auto custom-scroll mb-6 pr-2">
+                <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
+                    <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all group">
+                        <div class="flex items-center gap-4">
+                            <span class="w-10 h-10 flex items-center justify-center bg-orange-50 text-orange-600 text-sm font-black rounded-xl border border-orange-100" x-text="item.qty + 'x'"></span>
+                            <div>
+                                <p class="text-sm font-black text-slate-800 tracking-tight" x-text="item.name"></p>
+                                <template x-if="item.addonName && item.addonName.toLowerCase() !== 'default'">
+                                    <p class="text-[10px] text-orange-500 font-bold uppercase tracking-widest mt-0.5" x-text="item.addonName"></p>
+                                </template>
                             </div>
                         </div>
-                    </template>
-
-                    <template x-if="!selectedTable?.orders || selectedTable?.orders.length === 0">
-                        <div class="text-center py-10">
-                            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-receipt text-slate-200 text-2xl"></i>
-                            </div>
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No advance orders</p>
+                        <div class="flex items-center gap-4">
+                            <p class="text-base font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
                         </div>
-                    </template>
-                </div>
+                    </div>
+                </template>
 
-                <div class="border-t border-dashed border-slate-200 pt-5 mb-6">
-                    <div class="flex justify-between items-center px-1 pb-3 border-b border-slate-200 mb-3">
-                        <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">Subtotal</span>
-                        <span class="text-xl font-black text-slate-700 tracking-tighter" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                <template x-if="!selectedTable?.orders || selectedTable?.orders.length === 0">
+                    <div class="text-center py-12 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200">
+                        <div class="w-20 h-20 bg-white shadow-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                            <i class="fas fa-receipt text-slate-300 text-3xl"></i>
+                        </div>
+                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">No advance orders</p>
                     </div>
-                    <div class="flex justify-between items-center px-1 pb-3">
-                        <span class="text-[12px] font-bold text-black uppercase tracking-[0.2em]">VAT (5%)</span>
-                        <span class="text-sm font-bold text-slate-700 tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
-                    </div>
-                    <div class="flex justify-between items-center px-1 pt-3 border-t border-slate-200">
-                        <span class="text-3xl font-black text-[#800000] tracking-tighter" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
-                    </div>
-                </div>
+                </template>
+            </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <button x-show="selectedTable?.isPaid === true" class="col-span-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-blue-900/10 flex items-center justify-center gap-2">
-                        <i class="fas fa-check-circle text-xs"></i>
-                        <span>PAID</span>
-                    </button>
-                    <button x-show="selectedTable?.isPaid !== true && !advanceOrderSentToKitchen" @click="showAdvanceOrderModal = false; showAdvanceOrderSummaryModal = true" class="col-span-2 py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-eye text-xs"></i> View Orders
-                    </button>
-                    <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="printOrder(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-emerald-900/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-print text-xs"></i> Print
-                    </button>
-                    <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)" class="py-4 bg-[#800000] text-white rounded-2xl font-black text-[11px] uppercase shadow-lg shadow-red-900/10 hover:bg-red-900 transition-all flex items-center justify-center gap-2">
-                        <i class="fas fa-plus text-xs"></i> Add Order
-                    </button>
+            <div class="bg-orange-50/50 rounded-2xl p-5 border border-orange-100 mb-6">
+                <div class="flex justify-between items-center pb-3 border-b border-dashed border-orange-200 mb-3">
+                    <span class="text-xs font-bold text-orange-800 uppercase tracking-[0.2em]">Subtotal</span>
+                    <span class="text-lg font-black text-slate-700 tracking-tight" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
                 </div>
+                <div class="flex justify-between items-center pb-3 border-b border-dashed border-orange-200 mb-3">
+                    <span class="text-xs font-bold text-orange-800 uppercase tracking-[0.2em]">VAT (5%)</span>
+                    <span class="text-sm font-bold text-slate-600 tracking-tight" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-xl font-black text-orange-950 uppercase tracking-wider">Total</span>
+                    <span class="text-3xl font-black text-[#800000] tracking-tight" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button x-show="selectedTable?.isPaid === true" class="col-span-2 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-default">
+                    <i class="fas fa-check-circle text-sm"></i>
+                    <span>PAID</span>
+                </button>
+                
+                <button x-show="selectedTable?.isPaid !== true && !advanceOrderSentToKitchen" @click="showAdvanceOrderModal = false; showAdvanceOrderSummaryModal = true"
+                    class="col-span-2 py-4 bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-orange-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-eye text-sm"></i> View Orders
+                </button>
+                
+                <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="printOrder(selectedTable.id)"
+                    class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-print text-sm"></i> Print
+                </button>
+                
+                <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)"
+                    class="py-4 bg-[#800000] text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-red-900/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-plus text-sm"></i> Add Order
+                </button>
             </div>
         </div>
     </div>
+</div>
 
     <div x-show="showCompleteOrderModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
@@ -439,7 +542,7 @@
             </div>
 
             <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
-                <button @click="confirmPrint(selectedTable?.id)" class="w-full py-3 maroon-gradient text-white font-semibold rounded-lg text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <button @click="confirmPrint(selectedTable?.id)" class="w-full py-3 maroon-gradient text-white font-semibold rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2">
                     <i class="fa-solid fa-check"></i> Confirm Print
                 </button>
             </div>
@@ -473,8 +576,8 @@
 
             <!-- Action Buttons -->
             <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
-                <button @click="showAdvanceKitchenTicketModal = false; showAdvanceOrderModal = true" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
-                <button @click="finalizeAdvanceOrder(selectedTable?.id)" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
+                <button @click="showAdvanceKitchenTicketModal = false; showAdvanceOrderModal = true" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs transition-all">Cancel</button>
+                <button @click="finalizeAdvanceOrder(selectedTable?.id)" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md transition-all">
                     Send to Kitchen
                 </button>
             </div>
@@ -524,8 +627,8 @@
             </div>
 
             <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
-                <button @click="showAdvanceOrderSummaryModal = false; showAdvanceOrderModal = true" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
-                <button @click="finalizeAdvanceOrder(selectedTable?.id)" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
+                <button @click="showAdvanceOrderSummaryModal = false; showAdvanceOrderModal = true" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs transition-all">Cancel</button>
+                <button @click="finalizeAdvanceOrder(selectedTable?.id)" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md transition-all">
                     Send Order
                 </button>
             </div>
