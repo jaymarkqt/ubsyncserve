@@ -162,8 +162,7 @@
                         </button>
                     </template>
                     <template x-if="selectedTable?.status !== 'paid' && !selectedTable?.isPaid">
-                        <button @click="showOrderModal = false"
-                            class="py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-blue-500/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <button class="py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-60">
                             <i class="fas fa-clock text-sm"></i> Pending
                         </button>
                     </template>
@@ -326,6 +325,10 @@
                     </template>
                     <template x-if="selectedTable?.status !== 'paid' && !selectedTable?.isPaid">
                     </template>
+
+                    <button class="py-4 bg-blue-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-60">
+                        <i class="fas fa-clock text-sm"></i> Pending
+                    </button>
 
                     <button @click="showAdvanceOrderModal = false"
         class="py-4 bg-slate-800 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
