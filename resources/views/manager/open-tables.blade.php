@@ -262,9 +262,6 @@
                     <h3 class="text-2xl font-black uppercase tracking-tight">Table <span x-text="selectedTable?.tableNumber || selectedTable?.id"></span> Bill</h3>
                     <p class="text-xs font-semibold uppercase tracking-widest text-orange-200 mt-1">Advance Pre-orders</p>
                 </div>
-                <button @click="showAdvanceOrderModal = false" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-all backdrop-blur-sm">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
             </div>
 
             <!-- Body -->
@@ -326,14 +323,13 @@
                     <template x-if="selectedTable?.status !== 'paid' && !selectedTable?.isPaid">
                     </template>
 
-                    <button class="py-4 bg-blue-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-60">
-                        <i class="fas fa-clock text-sm"></i> Pending
-                    </button>
+                    <template x-if="selectedTable?.status !== 'paid' && !selectedTable?.isPaid">
+                    </template>
 
                     <button @click="showAdvanceOrderModal = false"
-        class="py-4 bg-slate-800 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
-    Close
-</button>
+                        class="py-4 bg-slate-800 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
+                        Close
+                    </button>
 
                 </div>
             </div>
