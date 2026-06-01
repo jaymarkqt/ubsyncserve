@@ -41,27 +41,25 @@
    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
   <template x-for="(table, index) in openTables" :key="index">
     <div @click="table.status !== 'available' ? handleTableClick(table) : null"
-          class="clay-card w-full flex flex-col items-center justify-center space-y-3 p-6 rounded-2xl transition-all relative group"
+          class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
           :class="{
-            'table-card-available cursor-not-allowed opacity-70': table.status === 'available' && !table.isPaid,
-            'table-card-occupied cursor-pointer hover:shadow-lg': table.status === 'occupied' && table.isPaid !== true,
-            'bg-gradient-to-br from-blue-100 to-blue-200 cursor-pointer hover:shadow-lg border border-blue-300': table.isPaid === true,
-            'bg-gradient-to-br from-amber-100 to-amber-200 cursor-pointer hover:shadow-lg border border-amber-300': table.status === 'reserved-advance' && table.isPaid !== true,
-            'bg-gradient-to-br from-orange-100 to-orange-200 cursor-pointer hover:shadow-lg border border-orange-300': table.status === 'reserved-booking' && table.isPaid !== true
+            'bg-[#ccfad8] border-[#4ade80] cursor-not-allowed opacity-80': table.status === 'available' && !table.isPaid,
+            'bg-[#bfdbfe] border-[#3b82f6] cursor-pointer': table.isPaid === true,
+            'bg-[#fed7aa] border-[#ea580c] cursor-pointer': table.status === 'reserved-advance' && table.isPaid !== true,
+            'bg-[#ffedd5] border-[#fb923c] cursor-pointer': table.status === 'reserved-booking' && table.isPaid !== true,
+            'bg-[#ffdada] border-[#f87171] cursor-pointer': table.status === 'occupied' && table.isPaid !== true
           }">
 
-        <div class="text-5xl font-black text-slate-800 tracking-tight drop-shadow-sm"
+        <div class="text-4xl font-black text-[#1e293b] tracking-tight"
              x-text="table.tableNumber"></div>
 
-        <p class="text-xs font-black uppercase tracking-widest text-slate-700"
-           x-text="table.status === 'available' ? '🟢 Available' : (table.isPaid === true && table.status === 'reserved-advance' ? '💳 Paid (Advance)' : (table.status === 'reserved-advance' ? '⏰ Advance Order' : (table.status === 'reserved-booking' ? '📅 Reserved' : (table.isPaid === true ? '💳 Paid' : '🍽️ Occupied'))))"></p>
+        <p class="text-[11px] font-extrabold uppercase tracking-widest"
+           :class="(table.status === 'available' && !table.isPaid) ? 'text-emerald-700' : (table.status === 'reserved-advance' && table.isPaid === true ? 'text-blue-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.isPaid === true ? 'text-blue-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : 'text-[#cc0000]'))))"
+           x-text="table.status === 'available' ? 'available' : (table.isPaid === true && table.status === 'reserved-advance' ? 'advance order (paid)' : (table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.isPaid === true ? 'paid' : 'occupied'))))"></p>
 
         <template x-if="table.status !== 'available'">
-            <div class="text-center w-full bg-white/40 rounded-lg px-3 py-2 backdrop-blur-sm">
-                <p class="text-sm font-bold text-slate-800"><span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests</p>
-                <template x-if="table.duration">
-                  <p class="text-xs font-semibold text-slate-600" x-text="table.duration"></p>
-                </template>
+            <div class="text-center pt-1 w-full">
+                <p class="text-sm font-bold text-[#1e293b]"><span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests</p>
             </div>
         </template>
     </div>
