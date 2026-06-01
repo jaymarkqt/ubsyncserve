@@ -30,26 +30,50 @@
         </div>
 
         <!-- Tables Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <template x-for="table in tables" :key="table.id">
                 <div @click="table.status === 'available' ? selectTable(table) : null"
-                     class="w-full aspect-square flex flex-col items-center justify-center space-y-1.5 sm:space-y-2 rounded-lg sm:rounded-xl border-2 shadow-sm transition-all relative group"
-                         :class="getTableClass(table) + (table.status !== 'available' ? ' cursor-not-allowed opacity-75' : ' cursor-pointer hover:shadow-lg sm:hover:shadow-xl hover:-translate-y-1')">
+                     class="clay-card p-6 flex flex-col items-center justify-center gap-4 transition-all hover:shadow-lg hover:scale-105 border-2"
+                     :class="{
+                       'bg-emerald-50 border-emerald-300 cursor-pointer': table.status === 'available',
+                       'bg-orange-50 border-orange-300 cursor-pointer': table.status === 'reserved-advance',
+                       'bg-amber-50 border-amber-300 cursor-pointer': table.status === 'reserved-booking',
+                       'bg-red-50 border-red-300 cursor-not-allowed opacity-60': table.status === 'occupied'
+                     }">
 
-                        <div class="text-2xl sm:text-3xl md:text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
-
-                        <p class="text-[9px] sm:text-[10px] md:text-[11px] font-extrabold uppercase tracking-widest text-center px-1"
-                           :class="getTableTextClass(table)"
-                           x-text="getTableStatusText(table)"></p>
-
-                        <template x-if="table.status === 'reserved-advance' || table.status === 'reserved-booking'">
-                            <div class="text-center pt-0.5 sm:pt-1 w-full">
-                                <p class="text-xs sm:text-sm font-bold text-[#1e293b]"><span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests</p>
-                            </div>
-                        </template>
+                    <!-- Table Icon -->
+                    <div class="w-14 h-14 rounded-full flex items-center justify-center"
+                         :class="{
+                           'bg-emerald-200 text-emerald-700': table.status === 'available',
+                           'bg-orange-200 text-orange-700': table.status === 'reserved-advance',
+                           'bg-amber-200 text-amber-700': table.status === 'reserved-booking',
+                           'bg-red-200 text-red-700': table.status === 'occupied'
+                         }">
+                        <img src="/img/tables.png" alt="table" class="w-16 h-16 object-contain">
                     </div>
-                </template>
-            </div>
+
+                    <!-- Table Number -->
+                    <div class="text-3xl font-black text-slate-800" x-text="table.id"></div>
+
+                    <!-- Status Label -->
+                    <p class="text-[10px] font-black uppercase tracking-widest text-center"
+                       :class="{
+                         'text-emerald-700': table.status === 'available',
+                         'text-orange-700': table.status === 'reserved-advance',
+                         'text-amber-700': table.status === 'reserved-booking',
+                         'text-red-700': table.status === 'occupied'
+                       }"
+                       x-text="table.status === 'available' ? 'AVAILABLE' : (table.status === 'reserved-advance' ? 'ADVANCE' : (table.status === 'reserved-booking' ? 'RESERVED' : 'OCCUPIED'))"></p>
+
+                    <!-- Guest Count (if reserved) -->
+                    <template x-if="table.status === 'reserved-advance' || table.status === 'reserved-booking'">
+                        <p class="text-xs font-bold text-slate-700 bg-white/50 px-3 py-1 rounded-full">
+                            <span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests
+                        </p>
+                    </template>
+                </div>
+            </template>
+        </div>
 
 
         <!-- Reservation Confirm Modal -->
