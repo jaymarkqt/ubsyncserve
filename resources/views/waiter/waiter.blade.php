@@ -923,8 +923,17 @@ startSession() {
 
         deleteReservation(resId) {
             this.reservations = this.reservations.filter(r => r.id !== resId);
-            this.updateReservationStorage(); 
+            this.updateReservationStorage();
             window.dispatchEvent(new Event('storage'));
+        },
+
+        cancelReservation(resId) {
+            let index = this.reservations.findIndex(r => r.id === resId);
+            if (index !== -1) {
+                this.reservations[index].status = 'cancelled';
+                this.updateReservationStorage();
+                window.dispatchEvent(new Event('storage'));
+            }
         },
 
         clearAllReservations() {

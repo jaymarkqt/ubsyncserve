@@ -20,10 +20,6 @@
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 text-left">
         <div class="flex items-center gap-3">
-            <button @click="clearAllReservations()" 
-                    class="bg-red-50 text-red-600 text-[10px] font-black uppercase px-4 py-3 rounded-xl border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-sm">
-                <i class="fas fa-trash-alt mr-2"></i> Clear All
-            </button>
             <div class="bg-slate-800 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider shadow-md">
                 Total: <span x-text="reservations.length"></span>
             </div>
@@ -91,12 +87,12 @@
                     </div>
 
                     <div class="p-4 pt-0">
-                        <div x-show="res.status !== 'confirmed'" class="flex gap-2">
-                            <button @click="deleteReservation(res.id)" 
+                        <div x-show="res.status !== 'confirmed' && res.status !== 'cancelled'" class="flex gap-2">
+                            <button @click="cancelReservation(res.id)"
                                     class="flex-1 py-3 bg-gray-50 text-slate-400 hover:text-red-600 font-black text-[10px] uppercase rounded-xl transition-all">
                                 Cancel
                             </button>
-                            <button @click="confirmReservation(res.id)" 
+                            <button @click="confirmReservation(res.id)"
                                     class="flex-[2] py-3 bg-green-600 text-white hover:bg-green-700 font-black text-[10px] uppercase rounded-xl shadow-md transition-all">
                                 Confirm
                             </button>
@@ -106,10 +102,14 @@
                             <div class="flex-1 py-3 bg-slate-100 text-slate-400 font-black text-[10px] uppercase rounded-xl flex items-center justify-center gap-2">
                                 <i class="fas fa-check-circle text-green-500"></i> Settled
                             </div>
-                            <button @click="deleteReservation(res.id)" 
+                            <button @click="cancelReservation(res.id)"
                                     class="px-4 py-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all">
                                 <i class="fas fa-trash-alt text-xs"></i>
                             </button>
+                        </div>
+
+                        <div x-show="res.status === 'cancelled'" class="py-3 bg-red-50 text-red-600 font-black text-[10px] uppercase rounded-xl flex items-center justify-center gap-2">
+                            <i class="fas fa-times-circle text-red-500"></i> Cancelled
                         </div>
                     </div>
                 </div>

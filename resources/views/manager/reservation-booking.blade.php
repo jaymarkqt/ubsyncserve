@@ -1,78 +1,101 @@
 <div class="space-y-8">
+    <!-- Header Section -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-4xl font-black text-slate-800 uppercase tracking-tighter leading-none">Reservation Management</h1>
+            <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-none">Reservation Hub</h1>
             <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                Real-time Booking & Schedule Status
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Active Bookings
             </p>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <template x-for="res in reservations" :key="res.id">
-            <div class="clay-card p-6 border border-slate-100 shadow-sm hover:shadow-lg transition-all">
-                <div class="flex flex-col sm:flex-row sm:justify-between gap-4">
-                    <div>
-                        <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight" x-text="res.name"></h2>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mt-2" x-text="res.type ? res.type.replace('-', ' ') : 'Reservation'"></p>
-                    </div>
-                    <div class="text-right">
-                        <span class="inline-flex items-center gap-2 px-3 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]"
-                              :class="res.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700'"
-                              x-text="res.status === 'confirmed' ? 'CONFIRMED' : 'PENDING'"></span>
-                    </div>
-                </div>
-
-                <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div class="bg-slate-50 rounded-3xl p-4 border border-slate-100">
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Contact</p>
-                        <p class="text-sm font-bold text-slate-800 mt-2" x-text="res.email"></p>
-                        <p class="text-sm font-bold text-slate-800 mt-1" x-text="res.phone"></p>
-                    </div>
-                    <div class="bg-slate-50 rounded-3xl p-4 border border-slate-100">
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Guests</p>
-                        <p class="text-2xl font-black text-[#800000] mt-2" x-text="res.guests + ' pax'"></p>
-                    </div>
-                </div>
-
-                <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-slate-50 rounded-3xl p-4 border border-slate-100">
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Date</p>
-                        <p class="text-sm font-bold text-slate-800 mt-2" x-text="res.date"></p>
-                    </div>
-                    <div class="bg-slate-50 rounded-3xl p-4 border border-slate-100">
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Time</p>
-                        <p class="text-sm font-bold text-[#800000] mt-2" x-text="formatTime(res.time)"></p>
-                    </div>
-                </div>
-
-                <template x-if="res.requests">
-                    <div class="mt-5 bg-orange-50 rounded-3xl p-4 border border-orange-100">
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-600">Customer Notes</p>
-                        <p class="text-xs text-orange-900 mt-2 leading-relaxed" x-text="res.requests"></p>
-                    </div>
-                </template>
-
-                <div class="mt-6 flex flex-wrap gap-3">
-                    <template x-if="!res.status || res.status === 'pending'">
-                        <button @click="updateReservationStatus(res.id, 'confirmed')"
-                                class="flex-1 min-w-[130px] py-3 bg-[#800000] text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-[#660000] transition-all">
-                            Confirm
-                        </button>
-                    </template>
-                    <button @click="deleteReservation(res.id)"
-                            class="flex-1 min-w-[130px] py-3 bg-red-50 text-red-600 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-red-600 hover:text-white transition-all">
-                        Delete
-                    </button>
-                </div>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 text-left">
+        <div class="flex items-center gap-3">
+            <button @click="clearAllReservations()"
+                    class="bg-red-50 text-red-600 text-[10px] font-black uppercase px-4 py-3 rounded-xl border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-sm">
+                <i class="fas fa-trash-alt mr-2"></i> Clear All
+            </button>
+            <div class="bg-slate-800 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider shadow-md">
+                Total: <span x-text="reservations.length"></span>
             </div>
-        </template>
+        </div>
+    </div>
 
-        <div x-show="reservations.length === 0" x-cloak class="col-span-full py-12 text-center bg-white border border-slate-200 rounded-3xl shadow-sm">
-            <i class="fas fa-calendar-check text-slate-200 text-5xl mb-4"></i>
-            <h3 class="text-lg font-black text-slate-700 uppercase">No reservations available</h3>
-            <p class="text-slate-400 text-xs mt-2">Bookings created by the waiter will appear here.</p>
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <template x-for="res in reservations" :key="res.id">
+                <div class="flex flex-col bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden"
+                     :class="res.status === 'confirmed' ? 'border-t-4 border-t-green-500' : res.status === 'cancelled' ? 'border-t-4 border-t-red-500' : 'border-t-4 border-t-yellow-500'">
+                    <div class="p-4 flex justify-between items-start gap-4">
+                        <div class="flex-1 text-left">
+                            <span class="text-lg font-black text-slate-800 leading-tight block break-words" x-text="res.name"></span>
+                            <div class="mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.3em] font-black text-slate-500">
+                                <span x-text="res.type ? res.type.replace('-', ' ') : 'Table Reservation'"></span>
+
+                            </div>
+                            <div class="mt-2 text-[11px] text-black font-medium">
+                                Booked: <span x-text="res.createdAt ? new Date(res.createdAt).toLocaleDateString() + ', ' + new Date(res.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A'"></span>
+                            </div>
+                        </div>
+                        <div class="shrink-0">
+                            <span class="text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter inline-block shadow-sm"
+                                  :class="res.status === 'confirmed' ? 'bg-green-100 text-green-800' : res.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'"
+                                  x-text="res.status === 'confirmed' ? 'CONFIRMED' : res.status === 'cancelled' ? 'CANCELLED' : 'PENDING'">
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="px-4 pb-4 flex-1 space-y-2 text-left">
+                        <div class="text-sm flex justify-between items-center bg-gray-50/70 p-2.5 rounded-xl overflow-hidden">
+                            <span class="text-slate-500 font-medium italic shrink-0">Email:</span>
+                            <span class="font-black text-slate-900 truncate ml-2 text-right" :title="res.email" x-text="res.email || 'N/A'"></span>
+                        </div>
+                        <div class="text-sm flex justify-between items-center bg-gray-50/70 p-2.5 rounded-xl overflow-hidden">
+                            <span class="text-slate-500 font-medium italic shrink-0">Phone:</span>
+                            <span class="font-black text-slate-900 truncate ml-2 text-right" :title="res.phone" x-text="res.phone || 'N/A'"></span>
+                        </div>
+                        <div class="text-sm flex justify-between items-center bg-gray-50/70 p-2.5 rounded-xl">
+                            <span class="text-slate-500 font-medium italic">Guests:</span>
+                            <span class="font-black text-slate-900" x-text="res.guests + ' Pax'"></span>
+                        </div>
+
+                        <div class="mt-3 pt-3 border-t border-slate-50">
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Appointment Schedule</p>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <i class="far fa-calendar-alt text-slate-400 text-xs"></i>
+                                    <span class="text-sm font-black text-slate-700" x-text="res.date"></span>
+                                </div>
+                                <div class="flex items-center gap-2 bg-red-50 px-2 py-1 rounded-lg">
+                                    <i class="far fa-clock text-red-400 text-xs"></i>
+                                    <span class="text-sm font-black text-red-700" x-text="formatTime(res.time)"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <template x-if="res.requests">
+                            <div class="mt-2 p-3 bg-orange-50/50 rounded-xl border border-orange-100/30">
+                                <p class="text-[9px] font-bold text-orange-600 uppercase mb-1">Customer Notes:</p>
+                                <p class="text-xs text-orange-900 break-words leading-relaxed font-medium" x-text="res.requests"></p>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="p-4 pt-0">
+                        <button @click="deleteReservation(res.id)"
+                                class="w-full py-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white font-black text-[10px] uppercase rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-trash-alt text-xs"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="reservations.length === 0" class="py-12 text-center">
+            <i class="fas fa-calendar-check text-slate-200 text-4xl mb-4"></i>
+            <h3 class="text-lg font-black text-slate-700 uppercase">No Active Reservations</h3>
+            <p class="text-slate-400 text-xs mt-1">Updates will appear here when customers book.</p>
         </div>
     </div>
 </div>

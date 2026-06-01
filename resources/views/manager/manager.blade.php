@@ -323,7 +323,18 @@ deleteReservation(id) {
     localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
     this.loadReservationsFromStorage();
 },
- 
+
+cancelReservation(id) {
+    let index = this.reservations.findIndex(r => r.id === id);
+    if (index === -1) {
+        return;
+    }
+
+    this.reservations[index].status = 'cancelled';
+    localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
+    this.loadReservationsFromStorage();
+},
+
 formatTime(time) {
     if (!time) return '';
     const [hours, minutes] = time.split(':');
