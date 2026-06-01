@@ -8,31 +8,46 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-        <div class="clay-card border-t-4 border-t-[#800000] p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
-                <i class="fas fa-wallet text-5xl text-[#800000]"></i>
+        <!-- Total Sales Card -->
+        <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
+            <div class="flex items-start gap-4">
+                <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-wallet text-2xl text-[#800000]"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Sales</p>
+                    <p class="text-3xl font-black text-[#800000]" x-text="formatCurrency(salesSummary.total)"></p>
+                    <p class="text-[10px] font-bold text-emerald-600 mt-1"><i class="fas fa-caret-up"></i> Incl. 5% VAT</p>
+                </div>
             </div>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Sales</p>
-            <p class="text-3xl font-black text-[#800000] mt-1" x-text="formatCurrency(salesSummary.total)"></p>
-            <p class="text-[10px] font-bold text-emerald-600 mt-2"><i class="fas fa-caret-up"></i> Incl. 5% VAT</p>
         </div>
 
-        <div class="clay-card border-t-4 border-t-emerald-500 p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
-                <i class="fas fa-shopping-bag text-5xl text-emerald-600"></i>
+        <!-- Orders Completed Card -->
+        <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
+            <div class="flex items-start gap-4">
+                <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-shopping-bag text-2xl text-emerald-600"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Orders Completed</p>
+                    <p class="text-3xl font-black text-emerald-600" x-text="metrics.totalOrders"></p>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Total processed today</p>
+                </div>
             </div>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Orders Completed</p>
-            <p class="text-3xl font-black text-emerald-600 mt-1" x-text="metrics.totalOrders"></p>
-            <p class="text-[10px] font-bold text-slate-400 mt-2">Total processed today</p>
         </div>
 
-        <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
-                <i class="fas fa-chart-line text-5xl text-blue-600"></i>
+        <!-- Average Order Value Card -->
+        <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
+            <div class="flex items-start gap-4">
+                <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-chart-line text-2xl text-blue-600"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Average Order Value</p>
+                    <p class="text-3xl font-black text-blue-600" x-text="formatCurrency(metrics.avgOrder)"></p>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Avg. spend per table</p>
+                </div>
             </div>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Average Order Value</p>
-            <p class="text-3xl font-black text-blue-600 mt-1" x-text="formatCurrency(metrics.avgOrder)"></p>
-            <p class="text-[10px] font-bold text-slate-400 mt-2">Avg. spend per table</p>
         </div>
     </div>
 

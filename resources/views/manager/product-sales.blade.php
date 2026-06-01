@@ -8,22 +8,32 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-        <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
-                <i class="fas fa-box text-5xl text-blue-600"></i>
+        <!-- Total Products Sold Card -->
+        <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
+            <div class="flex items-start gap-4">
+                <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-box text-2xl text-blue-600"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Products Sold</p>
+                    <p class="text-3xl font-black text-blue-600" x-text="productSalesMetrics.totalItemsSold"></p>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Total quantity</p>
+                </div>
             </div>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Products Sold</p>
-            <p class="text-3xl font-black text-blue-600 mt-1" x-text="productSalesMetrics.totalItemsSold"></p>
-            <p class="text-[10px] font-bold text-slate-400 mt-2">Total quantity</p>
         </div>
 
-        <div class="clay-card border-t-4 border-t-[#800000] p-6 shadow-sm relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
-                <i class="fas fa-coins text-5xl text-[#800000]"></i>
+        <!-- Total Revenue Card -->
+        <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
+            <div class="flex items-start gap-4">
+                <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-coins text-2xl text-[#800000]"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Revenue</p>
+                    <p class="text-3xl font-black text-[#800000]" x-text="formatCurrency(productSalesMetrics.totalRevenue + (productSalesMetrics.totalRevenue * 0.05))"></p>
+                    <p class="text-[10px] font-bold text-emerald-600 mt-1"><i class="fas fa-caret-up"></i> Incl. 5% VAT</p>
+                </div>
             </div>
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Revenue</p>
-            <p class="text-3xl font-black text-[#800000] mt-1" x-text="formatCurrency(productSalesMetrics.totalRevenue + (productSalesMetrics.totalRevenue * 0.05))"></p>
-            <p class="text-[10px] font-bold text-emerald-600 mt-2"><i class="fas fa-caret-up"></i> Incl. 5% VAT</p>
         </div>
     </div>
 
