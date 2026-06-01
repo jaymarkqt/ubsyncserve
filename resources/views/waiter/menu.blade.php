@@ -13,7 +13,7 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-image: url("{{ asset('img/backgroundpos.png') }}");
+            background-image: url("{{ asset('img/backgroundmenu.png') }}");
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -46,7 +46,7 @@
 
 <body class="antialiased text-slate-800">
 
-<div x-data="posSystem()" x-init="initStore()" class="w-full px-4 py-6 lg:px-8 lg:py-8 min-h-screen" x-cloak>
+<div x-data="posSystem()" x-init="initStore()" class="w-full mx-auto px-4 py-6 lg:px-8 lg:py-8 min-h-screen" style="max-width: calc(100% - 120px); margin-left: 60px; margin-right: 60px; margin-top: 69px;" x-cloak>
     
     <div class="glass-card rounded-[2rem] p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-6 shadow-sm">
         <div class="flex items-center gap-6">
