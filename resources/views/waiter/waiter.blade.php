@@ -14,9 +14,9 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; overflow-x: hidden; }
         .aws-header { background-color: #800000; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; color: white; position: fixed; top: 0; width: 100%; z-index: 1000; }
         .gold-accent { background-color: #D4AF37; height: 4px; position: fixed; top: 65px; width: 100%; z-index: 999; }
-        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 1000; }
+        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 1000; display: none; }
         .sidebar-collapsed { left: -260px; }
-        .main-content { margin-left: 260px; margin-top: 69px; padding: 30px; transition: all 0.3s ease; min-height: calc(100vh - 69px); }
+        .main-content { margin-left: 0; margin-top: 69px; padding: 30px; transition: all 0.3s ease; min-height: calc(100vh - 69px); width: 100%; }
         .content-wide { margin-left: 0; width: 100%; }
         
         @media (max-width: 768px) {
@@ -36,10 +36,6 @@
 
     <header class="aws-header">
         <div class="flex items-center gap-4">
-            <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded transition cursor-pointer">
-                <i class="fas fa-bars"></i> 
-            </button>
-           
         </div>
 
         <div class="flex items-center gap-6 text-sm font-bold">
@@ -74,81 +70,136 @@
     </header>
     <div class="gold-accent"></div>
 
-    <aside class="aws-sidebar shadow-sm" :class="!sidebarOpen ? 'sidebar-collapsed' : ''">
-        <div class="p-4 space-y-2">
-            
-            <button @click="switchTab('home')"
-                :class="tab === 'home' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 font-bold'"
-                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
-                <i class="fa-solid fa-table-cells-large w-5"></i> Floor Plan
-            </button>
-            <button @click="switchTab('reservations')"
-                :class="tab === 'reservations' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 font-bold'"
-                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
-                <i class="fas fa-calendar-check w-5"></i> Reservations
-            </button>
-        </div>
-    </aside>
-
     <main class="main-content" :class="!sidebarOpen ? 'content-wide' : ''">
         <div x-show="tab === 'home'" x-cloak class="space-y-8">
-            <div>
-                <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-none">Floor Plan</h1>
-                <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Live Table Status Monitor
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div class="clay-card border-t-4 border-t-emerald-500 p-6 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-20 transition-transform">
-                        <i class="fas fa-door-open text-5xl text-emerald-600"></i>
-                    </div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Available Tables</p>
-                    <p class="text-3xl font-black text-emerald-600 mt-1" x-text="tables.filter(t => t.status === 'available').length"></p>
-                    <p class="text-[10px] font-bold text-slate-400 mt-2">Ready for seating</p>
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                    <h1 class="text-4xl font-black text-slate-800 uppercase tracking-tighter leading-none">Floor Plan</h1>
+                    <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Live Table Status Monitor
+                    </p>
                 </div>
-
-                <div class="clay-card border-t-4 border-t-red-800 p-6 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-20 transition-transform">
-                        <i class="fas fa-utensils text-5xl text-red-800"></i>
-                    </div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Tables</p>
-                    <p class="text-3xl font-black text-red-800 mt-1" x-text="tables.filter(t => t.status === 'occupied').length"></p>
-                    <p class="text-[10px] font-bold text-slate-400 mt-2">Current active guests</p>
-                </div>
-
-                <div class="clay-card border-t-4 border-t-blue-500 p-6 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-20 transition-transform">
-                        <i class="fas fa-clock text-5xl text-blue-600"></i>
-                    </div>
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Reservations</p>
-                    <p class="text-3xl font-black text-slate-800 mt-1" x-text="reservations.filter(r => r.status === 'confirmed').length"></p>
-                    <p class="text-[10px] font-bold text-slate-400 mt-2">For today's schedule</p>
+                <div class="flex gap-3">
+                    <button @click="switchTab('home')" class="px-6 py-2.5 bg-[#800000] text-white rounded-full font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all">
+                        Floor plan
+                    </button>
+                    <button @click="switchTab('reservations')" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-full font-bold text-sm uppercase tracking-wider hover:bg-slate-300 transition-all">
+                        Reservations
+                    </button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-    <template x-for="table in tables" :key="table.id">
-        <div @click="selectTable(table)"
-             class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
-             :class="table.status === 'available' ? 'bg-[#ccfad8] border-[#4ade80]' : (table.isPaid === true ? 'bg-[#bfdbfe] border-[#3b82f6]' : (table.status === 'reserved-advance' ? 'bg-[#fed7aa] border-[#ea580c]' : (table.status === 'reserved-booking' ? 'bg-[#ffedd5] border-[#fb923c]' : 'bg-[#ffdada] border-[#f87171]')))">
-            <div class="text-4xl font-black text-[#1e293b] tracking-tight" x-text="table.id"></div>
-            
-            <p class="text-[11px] font-extrabold uppercase tracking-widest" 
-               :class="table.status === 'available' ? 'text-emerald-700' : (table.isPaid === true ? 'text-blue-700' : (table.status === 'reserved-advance' ? 'text-orange-700' : (table.status === 'reserved-booking' ? 'text-amber-700' : 'text-[#cc0000]')))"
-               x-text="table.status === 'available' ? 'available' : (table.isPaid === true && table.status === 'reserved-advance' ? 'advance order (paid)' : (table.status === 'reserved-advance' ? 'advance order' : (table.status === 'reserved-booking' ? 'table reservation' : (table.isPaid === true ? 'paid' : 'occupied'))))"></p>
-            
-            <template x-if="table.status !== 'available'">
-                <div class="text-center pt-1 w-full">
-                    <p class="text-sm font-bold text-[#1e293b]"><span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests</p>
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <!-- Available Tables Card -->
+                <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
+                    <div class="flex items-start gap-4">
+                        <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-chair text-2xl text-emerald-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Available Tables</p>
+                            <p class="text-3xl font-black text-emerald-600" x-text="tables.filter(t => t.status === 'available').length"></p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1">Ready for seating</p>
+                        </div>
+                    </div>
                 </div>
-            </template>
-        </div>
-    </template>
-</div>
-            
+
+                <!-- Active Tables Card -->
+                <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
+                    <div class="flex items-start gap-4">
+                        <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-utensils text-2xl text-red-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Active Tables</p>
+                            <p class="text-3xl font-black text-red-600" x-text="tables.filter(t => t.status === 'occupied').length"></p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1">Currently occupied</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reservations Card -->
+                <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
+                    <div class="flex items-start gap-4">
+                        <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clock text-2xl text-blue-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Reservations Today</p>
+                            <p class="text-3xl font-black text-blue-600" x-text="reservations.filter(r => r.status === 'confirmed').length"></p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1">Scheduled reservations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <template x-for="table in tables" :key="table.id">
+                    <div @click="selectTable(table)"
+                         class="clay-card p-6 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all hover:shadow-lg hover:scale-105 border-2"
+                         :class="table.status === 'available'
+                             ? 'bg-emerald-50 border-emerald-300 hover:border-emerald-500'
+                             : (table.isPaid === true
+                                 ? 'bg-blue-50 border-blue-300 hover:border-blue-500'
+                                 : (table.status === 'reserved-advance'
+                                     ? 'bg-orange-50 border-orange-300 hover:border-orange-500'
+                                     : (table.status === 'reserved-booking'
+                                         ? 'bg-amber-50 border-amber-300 hover:border-amber-500'
+                                         : 'bg-red-50 border-red-300 hover:border-red-500')))">
+
+                        <!-- Table Icon -->
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center"
+                             :class="table.status === 'available'
+                                 ? 'bg-emerald-200 text-emerald-700'
+                                 : (table.isPaid === true
+                                     ? 'bg-blue-200 text-blue-700'
+                                     : (table.status === 'reserved-advance'
+                                         ? 'bg-orange-200 text-orange-700'
+                                         : (table.status === 'reserved-booking'
+                                             ? 'bg-amber-200 text-amber-700'
+                                             : 'bg-red-200 text-red-700')))">
+                            <i class="fas fa-chair text-xl"></i>
+                        </div>
+
+                        <!-- Table Number -->
+                        <div class="text-3xl font-black text-slate-800" x-text="table.id"></div>
+
+                        <!-- Status Label -->
+                        <p class="text-[10px] font-black uppercase tracking-widest text-center"
+                           :class="table.status === 'available'
+                               ? 'text-emerald-700'
+                               : (table.isPaid === true
+                                   ? 'text-blue-700'
+                                   : (table.status === 'reserved-advance'
+                                       ? 'text-orange-700'
+                                       : (table.status === 'reserved-booking'
+                                           ? 'text-amber-700'
+                                           : 'text-red-700')))">
+                            <span x-text="table.status === 'available'
+                                ? 'AVAILABLE'
+                                : (table.isPaid === true && table.status === 'reserved-advance'
+                                    ? 'PAID'
+                                    : (table.status === 'reserved-advance'
+                                        ? 'ADVANCE'
+                                        : (table.status === 'reserved-booking'
+                                            ? 'RESERVED'
+                                            : (table.isPaid === true ? 'PAID' : 'OCCUPIED'))))"></span>
+                        </p>
+
+                        <!-- Guest Count (if occupied) -->
+                        <template x-if="table.status !== 'available'">
+                            <p class="text-xs font-bold text-slate-700 bg-white/50 px-3 py-1 rounded-full">
+                                <span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests
+                            </p>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
         </div>
 
         <div x-show="tab === 'reservations'" x-cloak class="animate__animated animate__fadeIn">

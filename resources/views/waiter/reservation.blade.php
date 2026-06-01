@@ -1,13 +1,24 @@
 <div class="space-y-8">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 text-left">
-       <div>
-                <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-none">Reservation Hub</h1>
-                <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Active Bookings
-                </p>
-            </div>
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-none">Reservation Hub</h1>
+            <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Active Bookings
+            </p>
+        </div>
+        <div class="flex gap-3">
+            <button @click="switchTab('home')" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-full font-bold text-sm uppercase tracking-wider hover:bg-slate-300 transition-all">
+                Floor plan
+            </button>
+            <button @click="switchTab('reservations')" class="px-6 py-2.5 bg-[#800000] text-white rounded-full font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all">
+                Reservations
+            </button>
+        </div>
+    </div>
 
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 text-left">
         <div class="flex items-center gap-3">
             <button @click="clearAllReservations()" 
                     class="bg-red-50 text-red-600 text-[10px] font-black uppercase px-4 py-3 rounded-xl border border-red-100 hover:bg-red-600 hover:text-white transition-all shadow-sm">

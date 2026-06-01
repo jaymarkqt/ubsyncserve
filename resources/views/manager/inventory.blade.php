@@ -40,7 +40,7 @@
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-lg bg-slate-200 overflow-hidden flex-shrink-0">
-                                        <img :src="product.img ? '/img/' + product.img : product.img" class="w-full h-full object-cover" x-on:error="$el.src='https://placehold.co/100x100/f8fafc/800000?text=No+Image'">
+                                        <img :src="product.img && (product.img.includes('data:') || product.img.includes('http')) ? product.img : (product.img ? '/img/' + product.img : 'https://placehold.co/100x100/f8fafc/800000?text=No+Image')" class="w-full h-full object-cover" x-on:error="$el.src='https://placehold.co/100x100/f8fafc/800000?text=No+Image'">
                                     </div>
                                     <span class="font-bold text-slate-800" x-text="product.name"></span>
                                 </div>
