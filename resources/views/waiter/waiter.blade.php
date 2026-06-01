@@ -92,93 +92,177 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
                 <!-- Available Tables Card -->
-                <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
-                    <div class="flex items-start gap-4">
-                        <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-chair text-2xl text-emerald-600"></i>
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-md transition-all">
+                    <div class="flex items-center gap-6">
+                        <div class="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-chair text-3xl text-emerald-600"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Available Tables</p>
-                            <p class="text-3xl font-black text-emerald-600" x-text="tables.filter(t => t.status === 'available').length"></p>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1">Ready for seating</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Available Tables</p>
+                            <p class="text-4xl font-black text-emerald-600" x-text="tables.filter(t => t.status === 'available').length"></p>
+                            <p class="text-xs text-slate-500 font-medium mt-2">Ready for seating</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Active Tables Card -->
-                <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
-                    <div class="flex items-start gap-4">
-                        <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-utensils text-2xl text-red-600"></i>
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-md transition-all">
+                    <div class="flex items-center gap-6">
+                        <div class="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-utensils text-3xl text-red-600"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Active Tables</p>
-                            <p class="text-3xl font-black text-red-600" x-text="tables.filter(t => t.status === 'occupied').length"></p>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1">Currently occupied</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Active Tables</p>
+                            <p class="text-4xl font-black text-red-600" x-text="tables.filter(t => t.status === 'occupied').length"></p>
+                            <p class="text-xs text-slate-500 font-medium mt-2">Currently occupied</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Reservations Card -->
-                <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
-                    <div class="flex items-start gap-4">
-                        <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-clock text-2xl text-blue-600"></i>
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 hover:shadow-md transition-all">
+                    <div class="flex items-center gap-6">
+                        <div class="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clock text-3xl text-blue-600"></i>
                         </div>
                         <div class="flex-1">
-                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Reservations Today</p>
-                            <p class="text-3xl font-black text-blue-600" x-text="reservations.filter(r => r.status === 'confirmed').length"></p>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1">Scheduled reservations</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Reservations Today</p>
+                            <p class="text-4xl font-black text-blue-600" x-text="reservations.filter(r => r.status === 'confirmed').length"></p>
+                            <p class="text-xs text-slate-500 font-medium mt-2">Scheduled reservations</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Table Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
                 <template x-for="table in tables" :key="table.id">
                     <div @click="selectTable(table)"
-                         class="clay-card p-6 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all hover:shadow-lg hover:scale-105 border-2"
+                         class="bg-white rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all hover:shadow-lg border-2"
                          :class="table.status === 'available'
-                             ? 'bg-emerald-50 border-emerald-300 hover:border-emerald-500'
+                             ? 'border-emerald-400 hover:bg-emerald-50'
                              : (table.isPaid === true
-                                 ? 'bg-blue-50 border-blue-300 hover:border-blue-500'
+                                 ? 'border-blue-300 hover:bg-blue-50'
                                  : (table.status === 'reserved-advance'
-                                     ? 'bg-orange-50 border-orange-300 hover:border-orange-500'
+                                     ? 'border-orange-300 hover:bg-orange-50'
                                      : (table.status === 'reserved-booking'
-                                         ? 'bg-amber-50 border-amber-300 hover:border-amber-500'
-                                         : 'bg-red-50 border-red-300 hover:border-red-500')))">
+                                         ? 'border-amber-300 hover:bg-amber-50'
+                                         : 'border-red-300 hover:bg-red-50')))">
 
-                        <!-- Table Icon -->
-                        <div class="w-14 h-14 rounded-full flex items-center justify-center"
-                             :class="table.status === 'available'
-                                 ? 'bg-emerald-200 text-emerald-700'
-                                 : (table.isPaid === true
-                                     ? 'bg-blue-200 text-blue-700'
-                                     : (table.status === 'reserved-advance'
-                                         ? 'bg-orange-200 text-orange-700'
-                                         : (table.status === 'reserved-booking'
-                                             ? 'bg-amber-200 text-amber-700'
-                                             : 'bg-red-200 text-red-700')))">
-                            <i class="fas fa-chair text-xl"></i>
+                        <!-- Table Icon with Plant -->
+                        <div class="relative w-20 h-20 flex items-center justify-center mb-4">
+                            <!-- Table Center -->
+                            <div class="absolute w-10 h-6 border-2 rounded"
+                                 :class="table.status === 'available'
+                                     ? 'bg-emerald-100 border-emerald-500'
+                                     : (table.isPaid === true
+                                         ? 'bg-blue-100 border-blue-500'
+                                         : (table.status === 'reserved-advance'
+                                             ? 'bg-orange-100 border-orange-500'
+                                             : (table.status === 'reserved-booking'
+                                                 ? 'bg-amber-100 border-amber-500'
+                                                 : 'bg-red-100 border-red-500')))"></div>
+
+                            <!-- Top Chair -->
+                            <div class="absolute -top-1 w-3 h-2 rounded-t-sm"
+                                 :class="table.status === 'available'
+                                     ? 'bg-emerald-600'
+                                     : (table.isPaid === true
+                                         ? 'bg-blue-600'
+                                         : (table.status === 'reserved-advance'
+                                             ? 'bg-orange-600'
+                                             : (table.status === 'reserved-booking'
+                                                 ? 'bg-amber-600'
+                                                 : 'bg-red-600')))"></div>
+
+                            <!-- Bottom Chair -->
+                            <div class="absolute -bottom-1 w-3 h-2 rounded-b-sm"
+                                 :class="table.status === 'available'
+                                     ? 'bg-emerald-600'
+                                     : (table.isPaid === true
+                                         ? 'bg-blue-600'
+                                         : (table.status === 'reserved-advance'
+                                             ? 'bg-orange-600'
+                                             : (table.status === 'reserved-booking'
+                                                 ? 'bg-amber-600'
+                                                 : 'bg-red-600')))"></div>
+
+                            <!-- Left Chair -->
+                            <div class="absolute -left-1 w-2 h-3 rounded-l-sm"
+                                 :class="table.status === 'available'
+                                     ? 'bg-emerald-600'
+                                     : (table.isPaid === true
+                                         ? 'bg-blue-600'
+                                         : (table.status === 'reserved-advance'
+                                             ? 'bg-orange-600'
+                                             : (table.status === 'reserved-booking'
+                                                 ? 'bg-amber-600'
+                                                 : 'bg-red-600')))"></div>
+
+                            <!-- Right Chair -->
+                            <div class="absolute -right-1 w-2 h-3 rounded-r-sm"
+                                 :class="table.status === 'available'
+                                     ? 'bg-emerald-600'
+                                     : (table.isPaid === true
+                                         ? 'bg-blue-600'
+                                         : (table.status === 'reserved-advance'
+                                             ? 'bg-orange-600'
+                                             : (table.status === 'reserved-booking'
+                                                 ? 'bg-amber-600'
+                                                 : 'bg-red-600')))"></div>
+
+                            <!-- Plant/Flower on top -->
+                            <div class="absolute -top-4 flex flex-col items-center">
+                                <div class="w-1 h-2"
+                                     :class="table.status === 'available'
+                                         ? 'bg-emerald-600'
+                                         : (table.isPaid === true
+                                             ? 'bg-blue-600'
+                                             : (table.status === 'reserved-advance'
+                                                 ? 'bg-orange-600'
+                                                 : (table.status === 'reserved-booking'
+                                                     ? 'bg-amber-600'
+                                                     : 'bg-red-600')))"></div>
+                                <div class="w-2.5 h-2.5 rounded-full flex items-center justify-center mt-0.5"
+                                     :class="table.status === 'available'
+                                         ? 'bg-emerald-500'
+                                         : (table.isPaid === true
+                                             ? 'bg-blue-500'
+                                             : (table.status === 'reserved-advance'
+                                                 ? 'bg-orange-500'
+                                                 : (table.status === 'reserved-booking'
+                                                     ? 'bg-amber-500'
+                                                     : 'bg-red-500')))">
+                                    <i class="fas fa-leaf text-[0.6rem]"
+                                       :class="table.status === 'available'
+                                           ? 'text-emerald-100'
+                                           : (table.isPaid === true
+                                               ? 'text-blue-100'
+                                               : (table.status === 'reserved-advance'
+                                                   ? 'text-orange-100'
+                                                   : (table.status === 'reserved-booking'
+                                                       ? 'text-amber-100'
+                                                       : 'text-red-100')))"></i>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Table Number -->
-                        <div class="text-3xl font-black text-slate-800" x-text="table.id"></div>
+                        <div class="text-3xl font-black text-slate-800 mb-2" x-text="table.id"></div>
 
                         <!-- Status Label -->
-                        <p class="text-[10px] font-black uppercase tracking-widest text-center"
+                        <p class="text-xs font-black uppercase tracking-widest"
                            :class="table.status === 'available'
-                               ? 'text-emerald-700'
+                               ? 'text-emerald-600'
                                : (table.isPaid === true
-                                   ? 'text-blue-700'
+                                   ? 'text-blue-600'
                                    : (table.status === 'reserved-advance'
-                                       ? 'text-orange-700'
+                                       ? 'text-orange-600'
                                        : (table.status === 'reserved-booking'
-                                           ? 'text-amber-700'
-                                           : 'text-red-700')))">
+                                           ? 'text-amber-600'
+                                           : 'text-red-600')))">
                             <span x-text="table.status === 'available'
                                 ? 'AVAILABLE'
                                 : (table.isPaid === true && table.status === 'reserved-advance'
@@ -190,11 +274,20 @@
                                             : (table.isPaid === true ? 'PAID' : 'OCCUPIED'))))"></span>
                         </p>
 
-                        <!-- Guest Count (if occupied) -->
+                        <!-- Guest Count Badge (if occupied) -->
                         <template x-if="table.status !== 'available'">
-                            <p class="text-xs font-bold text-slate-700 bg-white/50 px-3 py-1 rounded-full">
-                                <span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests
-                            </p>
+                            <div class="mt-2 px-2 py-1 rounded-full text-xs font-bold"
+                                 :class="table.status === 'available'
+                                     ? 'bg-emerald-100 text-emerald-700'
+                                     : (table.isPaid === true
+                                         ? 'bg-blue-100 text-blue-700'
+                                         : (table.status === 'reserved-advance'
+                                             ? 'bg-orange-100 text-orange-700'
+                                             : (table.status === 'reserved-booking'
+                                                 ? 'bg-amber-100 text-amber-700'
+                                                 : 'bg-red-100 text-red-700')))">
+                                <span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> pax
+                            </div>
                         </template>
                     </div>
                 </template>
