@@ -38,13 +38,13 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div class="clay-card overflow-hidden">
-            <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
+            <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
                 <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Top Selling Products</h3>
                 <i class="fas fa-crown text-amber-400"></i>
             </div>
             <div class="p-5 space-y-3">
                 <template x-for="(item, index) in metrics.topItems" :key="index">
-                    <div class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-md transition-all">
+                    <div class="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:bg-slate-50 hover:shadow-md transition-all">
                         <div class="flex items-center gap-4">
                             <span class="w-8 h-8 rounded-lg bg-slate-900 text-white text-xs flex items-center justify-center font-black" x-text="index + 1"></span>
                             <img :src="item.img" :alt="item.name" class="w-12 h-12 rounded-lg object-cover border border-slate-200">
@@ -57,19 +57,19 @@
         </div>
 
         <div class="clay-card overflow-hidden">
-            <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
+            <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
                 <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Recent Transactions</h3>
                 <div class="flex items-center gap-2">
                     <span class="text-[10px] font-bold text-emerald-600 animate-pulse">● Refreshing</span>
                     <i class="fas fa-receipt text-slate-400"></i>
                 </div>
             </div>
-            <div class="overflow-y-auto max-h-[420px] custom-scroll divide-y divide-slate-50">
+            <div class="overflow-y-auto max-h-[420px] custom-scroll divide-y divide-slate-100">
                 <template x-for="(history, index) in orderHistory.slice(0, 10)" :key="index">
                     <div class="flex justify-between items-center p-5 hover:bg-slate-50 transition-colors">
                         <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
-                                <i class="fas fa-check text-xs"></i>
+                            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                <i class="fas fa-check text-xs font-black"></i>
                             </div>
                             <div>
                                 <p class="text-xs font-black text-slate-800 uppercase" x-text="history.orderId"></p>

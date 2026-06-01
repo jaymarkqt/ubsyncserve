@@ -14,12 +14,14 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; overflow-x: hidden; }
         .aws-header { background-color: #800000; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; color: white; position: fixed; top: 0; width: 100%; z-index: 1000; }
         .gold-accent { background-color: #D4AF37; height: 4px; position: fixed; top: 65px; width: 100%; z-index: 999; }
-        .top-nav { background: white; border-bottom: 1px solid #eaeded; position: fixed; top: 69px; width: 100%; z-index: 998; display: flex; align-items: center; padding: 0 25px; height: auto; }
-        .main-content { margin-top: 130px; padding: 30px; transition: all 0.3s ease; min-height: calc(100vh - 130px); }
-
+        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 1000; }
+        .sidebar-collapsed { left: -260px; }
+        .main-content { margin-left: 260px; margin-top: 69px; padding: 30px; transition: all 0.3s ease; min-height: calc(100vh - 69px); }
+        .content-wide { margin-left: 0; width: 100%; }
+        
         @media (max-width: 768px) {
-            .main-content { padding: 15px; width: 100%; }
-            .top-nav { overflow-x: auto; }
+            .main-content { margin-left: 0 !important; padding: 15px; width: 100%; }
+            .aws-sidebar { box-shadow: 10px 0 15px rgba(0,0,0,0.1); z-index: 1001; }
         }
 
         .clay-card { background: white; border: 1px solid #f1f5f9; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: all 0.3s ease; }
@@ -36,7 +38,10 @@
 
     <header class="aws-header">
         <div class="flex items-center gap-4">
-            <h2 class="text-lg font-bold text-white">UB-SYNC Manager</h2>
+            <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
+                <i class="fas fa-bars"></i>
+            </button>
+
         </div>
 
         <div class="flex items-center gap-6 text-sm font-bold">
@@ -71,76 +76,44 @@
     </header>
     <div class="gold-accent"></div>
 
-    <!-- Horizontal Navigation Bar -->
-    <nav class="top-nav" x-data="{ mobileMenuOpen: false }">
-        <div class="hidden md:flex items-center gap-2 flex-1">
-            <button @click="tab = 'analytics'"
-                :class="tab === 'analytics' ? 'bg-red-50 text-[#800000] font-black border-b-2 border-[#800000]' : 'text-slate-500 font-bold hover:text-slate-700'"
-                class="px-6 py-4 rounded-t-lg transition-all text-sm flex items-center gap-3 whitespace-nowrap border-b-2 border-transparent">
+    <aside class="aws-sidebar shadow-sm" :class="!sidebarOpen ? 'sidebar-collapsed' : ''">
+        <div class="p-4 space-y-2">
+            <button @click="tab = 'analytics'" 
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+                :class="tab === 'analytics' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
                 <i class="fas fa-chart-pie w-5"></i> Sales Analytics
             </button>
 
-            <button @click="tab = 'tables'"
-                :class="tab === 'tables' ? 'bg-red-50 text-[#800000] font-black border-b-2 border-[#800000]' : 'text-slate-500 font-bold hover:text-slate-700'"
-                class="px-6 py-4 rounded-t-lg transition-all text-sm flex items-center gap-3 whitespace-nowrap border-b-2 border-transparent">
+            <button @click="tab = 'tables'" 
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+                :class="tab === 'tables' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
                 <i class="fas fa-door-open w-5"></i> Open Tables
             </button>
 
-            <button @click="tab = 'inventory'"
-                :class="tab === 'inventory' ? 'bg-red-50 text-[#800000] font-black border-b-2 border-[#800000]' : 'text-slate-500 font-bold hover:text-slate-700'"
-                class="px-6 py-4 rounded-t-lg transition-all text-sm flex items-center gap-3 whitespace-nowrap border-b-2 border-transparent">
+            <button @click="tab = 'inventory'" 
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+                :class="tab === 'inventory' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
                 <i class="fas fa-box-open w-5"></i> Inventory
             </button>
+
 
             <button @click="tab = 'reservations'"
-                :class="tab === 'reservations' ? 'bg-red-50 text-[#800000] font-black border-b-2 border-[#800000]' : 'text-slate-500 font-bold hover:text-slate-700'"
-                class="px-6 py-4 rounded-t-lg transition-all text-sm flex items-center gap-3 whitespace-nowrap border-b-2 border-transparent">
-                <i class="fas fa-calendar-check w-5"></i> Reservations
-            </button>
+    class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+    :class="tab === 'reservations' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
+    <i class="fas fa-calendar-check w-5"></i> Reservations
+</button>
 
             <button @click="tab = 'productsales'"
-                :class="tab === 'productsales' ? 'bg-red-50 text-[#800000] font-black border-b-2 border-[#800000]' : 'text-slate-500 font-bold hover:text-slate-700'"
-                class="px-6 py-4 rounded-t-lg transition-all text-sm flex items-center gap-3 whitespace-nowrap border-b-2 border-transparent">
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+                :class="tab === 'productsales' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
                 <i class="fas fa-bag-shopping w-5"></i> Product Sales
             </button>
+
         </div>
+    </aside>
 
-        <!-- Mobile Menu Button -->
-        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden flex items-center gap-2 px-4 py-4 text-slate-600 font-bold hover:text-slate-800">
-            <i class="fas fa-bars w-5"></i> Menu
-        </button>
-
-        <!-- Mobile Dropdown Menu -->
-        <div x-show="mobileMenuOpen" x-cloak class="absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-lg md:hidden">
-            <button @click="tab = 'analytics'; mobileMenuOpen = false"
-                :class="tab === 'analytics' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 font-bold'"
-                class="w-full text-left px-6 py-3 transition-all text-sm flex items-center gap-3">
-                <i class="fas fa-chart-pie w-5"></i> Sales Analytics
-            </button>
-            <button @click="tab = 'tables'; mobileMenuOpen = false"
-                :class="tab === 'tables' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 font-bold'"
-                class="w-full text-left px-6 py-3 transition-all text-sm flex items-center gap-3 border-t border-slate-100">
-                <i class="fas fa-door-open w-5"></i> Open Tables
-            </button>
-            <button @click="tab = 'inventory'; mobileMenuOpen = false"
-                :class="tab === 'inventory' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 font-bold'"
-                class="w-full text-left px-6 py-3 transition-all text-sm flex items-center gap-3 border-t border-slate-100">
-                <i class="fas fa-box-open w-5"></i> Inventory
-            </button>
-            <button @click="tab = 'reservations'; mobileMenuOpen = false"
-                :class="tab === 'reservations' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 font-bold'"
-                class="w-full text-left px-6 py-3 transition-all text-sm flex items-center gap-3 border-t border-slate-100">
-                <i class="fas fa-calendar-check w-5"></i> Reservations
-            </button>
-            <button @click="tab = 'productsales'; mobileMenuOpen = false"
-                :class="tab === 'productsales' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 font-bold'"
-                class="w-full text-left px-6 py-3 transition-all text-sm flex items-center gap-3 border-t border-slate-100">
-                <i class="fas fa-bag-shopping w-5"></i> Product Sales
-            </button>
-        </div>
-    </nav>
-
-    <main class="main-content">
+    <main class="main-content" :class="!sidebarOpen ? 'content-wide' : ''">
+        <div x-show="tab === 'analytics'" x-cloak>
             @include('manager.analytics')
         </div>
 
@@ -165,7 +138,8 @@
     <script>
         function managerDashboard() {
             return {
-                tab: 'analytics',
+                sidebarOpen: true,
+                tab: 'analytics', // Dito nag-uumpisa sa Analytics by default
                 selectedTable: null,
                 showAddModal: false,
                 showOrderModal: false,

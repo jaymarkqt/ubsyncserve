@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waiter Command Center | UB-SYNC</title>
+    <title>Manager Command Center | UB-SYNC</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -14,9 +14,9 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #334155; overflow-x: hidden; }
         .aws-header { background-color: #800000; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; color: white; position: fixed; top: 0; width: 100%; z-index: 1000; }
         .gold-accent { background-color: #D4AF37; height: 4px; position: fixed; top: 65px; width: 100%; z-index: 999; }
-        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 1000; display: none; }
+        .aws-sidebar { width: 260px; background: white; border-right: 1px solid #eaeded; height: calc(100vh - 69px); position: fixed; top: 69px; left: 0; transition: all 0.3s ease; z-index: 1000; }
         .sidebar-collapsed { left: -260px; }
-        .main-content { margin-left: 0; margin-top: 69px; padding: 30px; transition: all 0.3s ease; min-height: calc(100vh - 69px); width: 100%; }
+        .main-content { margin-left: 260px; margin-top: 69px; padding: 30px; transition: all 0.3s ease; min-height: calc(100vh - 69px); }
         .content-wide { margin-left: 0; width: 100%; }
         
         @media (max-width: 768px) {
@@ -25,41 +25,47 @@
         }
 
         .clay-card { background: white; border: 1px solid #f1f5f9; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: all 0.3s ease; }
-        .maroon-gradient { background: linear-gradient(135deg, #800000 0%, #a52a2a 100%); }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #800000; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #3e0101; border-radius: 10px; }
+        .table-card-occupied { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); }
+        .table-card-available { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 1050; }
         [x-cloak] { display: none !important; }
     </style>
 </head>
 
-<body x-data="waiterSystem()" x-init="init()">
+<body x-data="managerDashboard()" x-init="init()">
 
     <header class="aws-header">
         <div class="flex items-center gap-4">
+            <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-white/20 p-2 rounded transition cursor-pointer">
+                <i class="fas fa-bars"></i>
+            </button>
+
         </div>
 
         <div class="flex items-center gap-6 text-sm font-bold">
             <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                <button @click="open = !open" class="flex items-center gap-3 border-l border-white/20 pl-6 h-full p-2 rounded transition-all focus:outline-none">
+                <button @click="open = !open" class="flex items-center gap-3 border-l border-white/20 pl-6 h-full hover:bg-white/5 p-2 rounded transition-all focus:outline-none">
                     <div class="hidden md:block text-right">
-                        <span class="text-[10px] text-white/60 block leading-none uppercase tracking-widest font-black">Staff</span>
-                        <p class="font-bold text-white uppercase text-sm tracking-tight">{{ Auth::user()->name ?? 'Guest User' }}</p>
+                        <span class="text-[10px] text-white/60 block leading-none uppercase tracking-widest font-black">Admin</span>
+                        <p class="font-bold text-white uppercase text-sm tracking-tight">{{ Auth::user()->name ?? 'Manager Name' }}</p>
                     </div>
                     <div class="relative">
-                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs">W</div>
+                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs">M</div>
                         <div class="absolute -bottom-0.5 -right-0.5 bg-emerald-500 w-2.5 h-2.5 rounded-full border-2 border-[#800000]"></div>
                     </div>
                 </button>
 
                 <div x-show="open" x-cloak class="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl py-2 z-[1100] border border-slate-200 overflow-hidden text-slate-800">
                     <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 mb-1">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">Role: Waiter</p>
-                        <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->email ?? 'waiter@ub.edu.ph' }}</p>
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-0.5">Role: Manager</p>
+                        <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->email ?? 'manager@ub.edu.ph' }}</p>
                     </div>
                     <div class="px-2">
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button type="submit" class="w-full text-left px-3 py-2.5 text-[11px] font-black text-red-600 rounded-lg uppercase tracking-widest flex items-center gap-3">
+                            <button type="submit" class="w-full text-left px-3 py-2.5 text-[11px] font-black text-red-600 hover:bg-red-50 rounded-lg uppercase tracking-widest flex items-center gap-3">
                                 <i class="fa-solid fa-power-off text-sm"></i> Sign Out
                             </button>
                         </form>
@@ -70,1005 +76,660 @@
     </header>
     <div class="gold-accent"></div>
 
+    <aside class="aws-sidebar shadow-sm" :class="!sidebarOpen ? 'sidebar-collapsed' : ''">
+        <div class="p-4 space-y-2">
+            <button @click="tab = 'analytics'" 
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+                :class="tab === 'analytics' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
+                <i class="fas fa-chart-pie w-5"></i> Sales Analytics
+            </button>
+
+            <button @click="tab = 'tables'" 
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+                :class="tab === 'tables' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
+                <i class="fas fa-door-open w-5"></i> Open Tables
+            </button>
+
+            <button @click="tab = 'inventory'" 
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+                :class="tab === 'inventory' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
+                <i class="fas fa-box-open w-5"></i> Inventory
+            </button>
+
+
+            <button @click="tab = 'reservations'"
+    class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+    :class="tab === 'reservations' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
+    <i class="fas fa-calendar-check w-5"></i> Reservations
+</button>
+
+            <button @click="tab = 'productsales'"
+                class="w-full flex items-center gap-3 p-3 rounded-xl transition-all text-sm"
+                :class="tab === 'productsales' ? 'bg-red-50 text-[#800000] font-black' : 'text-slate-500 hover:bg-slate-50 font-bold'">
+                <i class="fas fa-bag-shopping w-5"></i> Product Sales
+            </button>
+
+        </div>
+    </aside>
+
     <main class="main-content" :class="!sidebarOpen ? 'content-wide' : ''">
-        <div x-show="tab === 'home'" x-cloak class="space-y-8">
-            <!-- Header Section -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <div>
-                    <h1 class="text-4xl font-black text-slate-800 uppercase tracking-tighter leading-none">Floor Plan</h1>
-                    <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        Live Table Status Monitor
-                    </p>
-                </div>
-                <div class="flex gap-3">
-                    <button @click="switchTab('home')" class="px-6 py-2.5 bg-[#800000] text-white rounded-full font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all">
-                        Floor plan
-                    </button>
-                    <button @click="switchTab('reservations')" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-full font-bold text-sm uppercase tracking-wider hover:bg-slate-300 transition-all">
-                        Reservations
-                    </button>
-                </div>
-            </div>
-
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <!-- Available Tables Card -->
-                <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
-                    <div class="flex items-start gap-4">
-                        <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-chair text-2xl text-emerald-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Available Tables</p>
-                            <p class="text-3xl font-black text-emerald-600" x-text="tables.filter(t => t.status === 'available').length"></p>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1">Ready for seating</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Tables Card -->
-                <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
-                    <div class="flex items-start gap-4">
-                        <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-utensils text-2xl text-red-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Active Tables</p>
-                            <p class="text-3xl font-black text-red-600" x-text="tables.filter(t => t.status === 'occupied').length"></p>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1">Currently occupied</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reservations Card -->
-                <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
-                    <div class="flex items-start gap-4">
-                        <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-clock text-2xl text-blue-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Reservations Today</p>
-                            <p class="text-3xl font-black text-blue-600" x-text="reservations.filter(r => r.status === 'confirmed').length"></p>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1">Scheduled reservations</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Table Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                <template x-for="table in tables" :key="table.id">
-                    <div @click="selectTable(table)"
-                         class="clay-card p-6 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all hover:shadow-lg hover:scale-105 border-2"
-                         :class="table.status === 'available'
-                             ? 'bg-emerald-50 border-emerald-300 hover:border-emerald-500'
-                             : (table.isPaid === true
-                                 ? 'bg-blue-50 border-blue-300 hover:border-blue-500'
-                                 : (table.status === 'reserved-advance'
-                                     ? 'bg-orange-50 border-orange-300 hover:border-orange-500'
-                                     : (table.status === 'reserved-booking'
-                                         ? 'bg-amber-50 border-amber-300 hover:border-amber-500'
-                                         : 'bg-red-50 border-red-300 hover:border-red-500')))">
-
-                        <!-- Table Icon -->
-                        <div class="w-14 h-14 rounded-full flex items-center justify-center"
-                             :class="table.status === 'available'
-                                 ? 'bg-emerald-200 text-emerald-700'
-                                 : (table.isPaid === true
-                                     ? 'bg-blue-200 text-blue-700'
-                                     : (table.status === 'reserved-advance'
-                                         ? 'bg-orange-200 text-orange-700'
-                                         : (table.status === 'reserved-booking'
-                                             ? 'bg-amber-200 text-amber-700'
-                                             : 'bg-red-200 text-red-700')))">
-                            <i class="fas fa-chair text-xl"></i>
-                        </div>
-
-                        <!-- Table Number -->
-                        <div class="text-3xl font-black text-slate-800" x-text="table.id"></div>
-
-                        <!-- Status Label -->
-                        <p class="text-[10px] font-black uppercase tracking-widest text-center"
-                           :class="table.status === 'available'
-                               ? 'text-emerald-700'
-                               : (table.isPaid === true
-                                   ? 'text-blue-700'
-                                   : (table.status === 'reserved-advance'
-                                       ? 'text-orange-700'
-                                       : (table.status === 'reserved-booking'
-                                           ? 'text-amber-700'
-                                           : 'text-red-700')))">
-                            <span x-text="table.status === 'available'
-                                ? 'AVAILABLE'
-                                : (table.isPaid === true && table.status === 'reserved-advance'
-                                    ? 'PAID'
-                                    : (table.status === 'reserved-advance'
-                                        ? 'ADVANCE'
-                                        : (table.status === 'reserved-booking'
-                                            ? 'RESERVED'
-                                            : (table.isPaid === true ? 'PAID' : 'OCCUPIED'))))"></span>
-                        </p>
-
-                        <!-- Guest Count (if occupied) -->
-                        <template x-if="table.status !== 'available'">
-                            <p class="text-xs font-bold text-slate-700 bg-white/50 px-3 py-1 rounded-full">
-                                <span x-text="table.guests ?? ((table.adults || 0) + (table.children || 0))"></span> guests
-                            </p>
-                        </template>
-                    </div>
-                </template>
-            </div>
-
+        <div x-show="tab === 'analytics'" x-cloak>
+            @include('manager.analytics')
         </div>
 
-        <div x-show="tab === 'reservations'" x-cloak class="animate__animated animate__fadeIn">
-            @include('waiter.reservation')
+        <div x-show="tab === 'tables'" x-cloak>
+            @include('manager.open-tables')
         </div>
+
+        <div x-show="tab === 'inventory'" x-cloak>
+            @include('manager.inventory')
+        </div>
+
+        <div x-show="tab === 'reservations'" x-cloak>
+    @include('manager.reservation-booking')
+</div>
+
+        <div x-show="tab === 'productsales'" x-cloak>
+            @include('manager.product-sales')
+        </div>
+
     </main>
 
- <div x-show="showSetupModal" x-cloak 
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4">
-    
-    <div x-show="showSetupModal"
-        x-transition:enter="transition ease-out duration-300 delay-75"
-        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-      
-        class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-[2rem] shadow-2xl border border-white/20">
-        
-        <div class="maroon-gradient bg-gradient-to-br from-[#800000] to-[#5a0000] p-8 text-white text-center relative overflow-hidden">
-            <div class="absolute inset-0 bg-white/5 pattern-dots"></div>
-            <h3 class="text-3xl font-black uppercase tracking-tight relative z-10 flex justify-center items-center gap-3">
-                <i class="fas fa-chair opacity-80 text-2xl"></i> Table <span x-text="selectedTable?.id"></span>
-            </h3>
-            <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-200 mt-2 relative z-10">Initialize Guest Session</p>
-        </div>
-        
-        <div class="p-8 space-y-6">
-            <div class="grid grid-cols-2 gap-5">
-                <div class="space-y-2">
-                    <label class="text-sm font-black uppercase text-slate-600 tracking-wider flex items-center justify-center">
-                        Adults
-                    </label>
-                    <input type="number" x-model.number="guestSetup.adults" min="0" 
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center font-black text-2xl text-slate-800 focus:border-[#800000] focus:ring-4 focus:ring-[#800000]/10 focus:bg-white outline-none transition-all shadow-inner">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-sm font-black uppercase text-slate-600 tracking-wider flex items-center justify-center">
-                        Children
-                    </label>
-                    <input type="number" x-model.number="guestSetup.children" min="0" 
-                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center font-black text-2xl text-slate-800 focus:border-[#800000] focus:ring-4 focus:ring-[#800000]/10 focus:bg-white outline-none transition-all shadow-inner">
-                </div>
-            </div>
+    <script>
+        function managerDashboard() {
+            return {
+                sidebarOpen: true,
+                tab: 'analytics', // Dito nag-uumpisa sa Analytics by default
+                selectedTable: null,
+                showAddModal: false,
+                showOrderModal: false,
+                showReservedModal: false,
+                showAdvanceOrderModal: false,
+                showCompleteOrderModal: false,
+                showSetupModal: false,
+                editingIndex: null,
+                reservations: [],
+               voidOrderIndex: null,
+               voidCodeInput: '',
+               managerCode: '1234',
+               salesDateFilter: 'today',
+               currentReceiptOrderId: '',
 
-            <div class="bg-gradient-to-r from-slate-50 to-slate-100 p-5 rounded-2xl flex justify-between items-center border border-slate-200 shadow-sm">
-                <span class="text-sm font-bold text-slate-600 uppercase tracking-widest flex items-center gap-2">
-                    <i class="fas fa-users text-slate-400 text-lg"></i> Total Pax
-                </span>
-                <span class="text-3xl font-black text-[#800000]" x-text="guestSetup.adults + guestSetup.children"></span>
-            </div>
-
-            <div class="flex flex-col gap-3 pt-4">
-                <button @click="startSession()"
-                    class="w-full py-4 bg-gradient-to-r from-[#800000] to-[#990000] text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg shadow-red-900/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-play text-xs"></i> Start
-                </button>
-                <button @click="showSetupModal = false"
-                    class="w-full py-4 bg-slate-100 text-slate-600 font-black text-sm uppercase tracking-wider rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2">
-                   Cancel
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div x-show="showOrderModal" x-cloak 
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4">
-    
-    <div x-show="showOrderModal"
-        x-transition:enter="transition ease-out duration-300 delay-75"
-        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-       
-        class="clay-card w-full max-w-md overflow-hidden bg-white rounded-[2rem] shadow-2xl border border-white/20">
-        
-   <div class="p-6 text-white flex justify-between items-center shadow-md relative z-10 bg-[#800000]">
-    <div>
-        <h3 class="text-2xl font-black uppercase tracking-tight">Table <span x-text="selectedTable?.id"></span> Bill</h3>
-        <p class="text-xs font-semibold uppercase tracking-widest text-red-200 mt-1">Current Active Session</p>
-    </div>
-    <button @click="showOrderModal = false" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-all backdrop-blur-sm">
-        <i class="fas fa-times text-lg"></i>
-    </button>
-</div>
-        
-        <div class="p-6 bg-white">
-            <div class="space-y-3 max-h-[50vh] overflow-y-auto custom-scroll mb-6 pr-2">
-                <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
-                    <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all group">
-                        <div class="flex items-center gap-4">
-                            <span class="w-10 h-10 flex items-center justify-center bg-red-50 text-[#800000] text-sm font-black rounded-xl border border-red-100" x-text="item.qty + 'x'"></span>
-                            <div>
-                                <p class="text-sm font-black text-slate-800 tracking-tight" x-text="item.name"></p>
-                                <template x-if="item.addonName && item.addonName.toLowerCase() !== 'default'">
-                                    <p class="text-[10px] text-orange-600 font-bold uppercase tracking-widest mt-0.5" x-text="item.addonName"></p>
-                                </template>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <p class="text-base font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
-                        </div>
-                    </div>
-                </template>
-
-                <template x-if="!selectedTable?.orders || selectedTable?.orders.length === 0">
-                    <div class="text-center py-12 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200">
-                        <div class="w-20 h-20 bg-white shadow-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                            <i class="fas fa-receipt text-slate-300 text-3xl"></i>
-                        </div>
-                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">No orders yet</p>
-                    </div>
-                </template>
-            </div>
-
-            <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 mb-6">
-                <div class="flex justify-between items-center pb-3 border-b border-dashed border-slate-300 mb-3">
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Subtotal</span>
-                    <span class="text-lg font-black text-slate-700 tracking-tight" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
-                </div>
-                <div class="flex justify-between items-center pb-3 border-b border-dashed border-slate-300 mb-3">
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">VAT (5%)</span>
-                    <span class="text-sm font-bold text-slate-600 tracking-tight" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
-                </div>
-                <div class="flex justify-between items-center pt-2">
-                    <span class="text-xl font-black text-slate-800 uppercase tracking-wider">Total</span>
-                    <span class="text-3xl font-black text-[#800000] tracking-tight" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <button x-show="selectedTable?.isPaid === true" class="col-span-2 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 cursor-default">
-                    <i class="fas fa-check-circle text-sm"></i>
-                    <span>PAID</span>
-                </button>
+                // Analytics Data
+                salesSummary: { total: 0 },
+               orderHistory: [],
                 
-                <button x-show="selectedTable?.isPaid !== true" @click="printOrder(selectedTable.id)" class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-print text-sm"></i> Print
-                </button>
+                // Open Tables Data
+             openTables: [],
                 
-                <button x-show="selectedTable?.isPaid !== true" @click="window.location.href = '{{ route('waiter.menu') }}?table=' + selectedTable.id + '&adults=' + (selectedTable.adults || 0) + '&children=' + (selectedTable.children || 0)"
-                    class="py-4 bg-[#800000] text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-red-900/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-plus text-sm"></i> Add Order
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+                // Inventory Data
+                formData: { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] },
+                products: [],
 
-<div x-show="showReservedModal" x-cloak 
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4">
+                normalizeProducts(products) {
+                    return products.map(product => ({
+                        ...product,
+                        price: product.price ?? product.sellingPrice ?? 0,
+                        addOns: product.addOns || []
+                    }));
+                },
+
+                loadProducts() {
+                    const savedProducts = localStorage.getItem('product_catalog');
+                    if (savedProducts) {
+                        try {
+                            this.products = JSON.parse(savedProducts);
+                        } catch (error) {
+                            this.products = [];
+                        }
+                    } else {
+                        this.products = [];
+                    }
+                },
+
+                saveProducts() {
+                    const normalized = this.normalizeProducts(this.products);
+                    this.products = normalized;
+                    localStorage.setItem('product_catalog', JSON.stringify(normalized));
+                    window.dispatchEvent(new Event('storage'));
+                },
+
+                resetForm() {
+                    this.formData = { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] };
+                },
+
+                formatCurrency(val) {
+                    return '₱' + parseFloat(val || 0).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+                },
+              
+     
+
+      loadAnalytics() {
+    const storedHistory = localStorage.getItem('ub_order_history');
+
+    this.orderHistory = storedHistory
+        ? JSON.parse(storedHistory)
+        : [];
+
+    this.salesSummary.total = this.orderHistory.reduce(
+        (sum, order) => sum + Number(order.totalAmount),
+        0
+    );
+},
+
+loadTablesFromStorage() {
+                    const stored = localStorage.getItem('ub_tables');
+                    const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
+                    let tables = [];
+
+                    if (!stored) {
+                        // Initialize default tables and persist them.
+                        tables = Array.from({ length: 15 }, (_, i) => ({
+                            id: i + 1,
+                            status: 'available',
+                            adults: 0,
+                            children: 0,
+                            bill: 0,
+                            orders: []
+                        }));
+                        localStorage.setItem('ub_tables', JSON.stringify(tables));
+                    } else {
+                        tables = JSON.parse(stored);
+                    }
+
+                    // Process each table
+                    this.openTables = tables.map(t => {
+                        const tableOrders = t.orders || [];
+                        let calculatedBill = tableOrders.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                        let status = t.status;
+                        if (!status || (status !== 'paid' && status !== 'reserved-advance' && status !== 'reserved-booking')) {
+                            status = tableOrders.length > 0 ? 'occupied' : 'available';
+                        }
+
+                        const matchedReservation = reservations.find(r => r.table == t.id)
+                            || reservations.find(r => r.status === 'pending' && ((status === 'reserved-advance' && r.type === 'advance-order') || (status === 'reserved-booking' && r.type === 'table-reservation')));
+
+                        const adults = t.adults ?? (matchedReservation ? matchedReservation.adults || 0 : 0);
+                        const children = t.children ?? (matchedReservation ? matchedReservation.children || 0 : 0);
+                        const guests = (t.guests || adults + children);
+
+                        return {
+                            id: t.id,
+                            tableNumber: t.id,
+                            status: status,
+                            isPaid: t.isPaid || false,
+                            adults: adults,
+                            children: children,
+                            guests: guests,
+                            duration: this.getDuration(t),
+                            orders: tableOrders,
+                            bill: calculatedBill
+                        };
+                    });
+                },
+
+                loadReservationsFromStorage() {
+                    const stored = localStorage.getItem('ub_reservations');
+                    this.reservations = stored ? JSON.parse(stored) : [];
+                },
+
+
+
+
+async updateReservationStatus(id, newStatus) {
+    if(!confirm(`Are you sure you want to mark this reservation as ${newStatus}?`)) return;
     
-    <div x-show="showReservedModal"
-        x-transition:enter="transition ease-out duration-300 delay-75"
-        x-transition:enter-start="opacity-0 scale-95"
-        x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
-       
-        class="clay-card w-full max-w-sm overflow-hidden bg-white rounded-[2rem] shadow-2xl border border-white/20">
-        
-        <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-8 text-white text-center shadow-inner relative">
-            <div class="absolute inset-0 bg-white/5 pattern-dots"></div>
-            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-white/30 shadow-lg relative z-10">
-                <i class="fas fa-calendar-check text-2xl"></i>
-            </div>
-            <h3 class="text-3xl font-black uppercase tracking-tight relative z-10">Table <span x-text="selectedTable?.id"></span></h3>
-            <p class="text-xs font-bold uppercase tracking-[0.2em] opacity-90 mt-2 relative z-10" x-text="selectedTable?.status === 'reserved-advance' ? 'Advance Order Reserved' : 'Table Reservation'"></p>
-        </div>
-        
-        <div class="p-8 space-y-6 bg-white">
-            <div class="text-center">
-                <div class="inline-block px-4 py-2 bg-amber-50 rounded-full border border-amber-100 mb-6">
-                    <p class="text-sm font-bold text-amber-800">
-                        <i class="fas fa-users mr-2 opacity-70"></i>
-                        <span x-text="selectedTable?.guests ?? ((selectedTable?.adults || 0) + (selectedTable?.children || 0))"></span> guests reserved
-                    </p>
-                </div>
-                
-                <template x-if="selectedTable?.status === 'reserved-advance' && selectedTable?.orders && selectedTable?.orders.length > 0">
-                    <div class="space-y-3 text-left">
-                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <i class="fas fa-utensils"></i> Advance Orders
-                        </p>
-                        <div class="max-h-40 overflow-y-auto custom-scroll pr-2 space-y-2">
-                            <template x-for="order in selectedTable.orders" :key="order.id">
-                                <div class="flex justify-between items-center bg-slate-50 border border-slate-100 p-4 rounded-xl transition-colors">
-                                    <span class="text-sm font-bold text-slate-700" x-text="order.name"></span>
-                                    <span class="text-sm text-[#800000] font-black" x-text="'₱' + order.price.toFixed(2)"></span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </template>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 pt-2">
-                <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)"
-                    class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-check-circle text-sm"></i> Finish
-                </button>
-                <button @click="showReservedModal = false"
-                    class="py-4 bg-slate-800 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
-                    Close
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+    let index = this.reservations.findIndex(r => r.id === id);
+    if (index === -1) {
+        return;
+    }
 
-<div x-show="showAdvanceOrderModal" x-cloak 
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4">
-    
-    <div x-show="showAdvanceOrderModal"
-        x-transition:enter="transition ease-out duration-300 delay-75"
-        x-transition:enter-start="opacity-0 scale-95"
-        x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95"
-       
-        class="clay-card w-full max-w-md overflow-hidden bg-white rounded-[2rem] shadow-2xl border border-white/20">
-        
-        <div class="bg-gradient-to-r from-orange-600 to-red-700 p-6 text-white flex justify-between items-center shadow-md">
-            <div>
-                <h3 class="text-2xl font-black uppercase tracking-tight">Table <span x-text="selectedTable?.id"></span> Bill</h3>
-                <p class="text-xs font-semibold uppercase tracking-widest text-orange-200 mt-1">Advance Pre-orders</p>
-            </div>
-            <button x-show="selectedTable?.isPaid === true" @click="showAdvanceOrderModal = false" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center active:scale-90 transition-all">
-                <i class="fas fa-times text-lg"></i>
-            </button>
-        </div>
+    this.reservations[index].status = newStatus;
+    localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
+    this.loadReservationsFromStorage();
 
-        <div class="p-6 bg-white">
-            <div class="space-y-3 max-h-[50vh] overflow-y-auto custom-scroll mb-6 pr-2">
-                <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
-                    <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all group">
-                        <div class="flex items-center gap-4">
-                            <span class="w-10 h-10 flex items-center justify-center bg-orange-50 text-orange-600 text-sm font-black rounded-xl border border-orange-100" x-text="item.qty + 'x'"></span>
-                            <div>
-                                <p class="text-sm font-black text-slate-800 tracking-tight" x-text="item.name"></p>
-                                <template x-if="item.addonName && item.addonName.toLowerCase() !== 'default'">
-                                    <p class="text-[10px] text-orange-500 font-bold uppercase tracking-widest mt-0.5" x-text="item.addonName"></p>
-                                </template>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <p class="text-base font-black text-slate-700" x-text="formatCurrency(item.price * item.qty)"></p>
-                        </div>
-                    </div>
-                </template>
+    const reservation = this.reservations[index];
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        await fetch('{{ route('reservation.confirm.email') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                id: reservation.id,
+                name: reservation.name,
+                email: reservation.email,
+                date: reservation.date,
+                time: reservation.time,
+                type: reservation.type,
+                table: reservation.table
+            })
+        });
+    } catch (error) {
+        console.warn('Email send failed:', error);
+    }
+},
 
-                <template x-if="!selectedTable?.orders || selectedTable?.orders.length === 0">
-                    <div class="text-center py-12 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200">
-                        <div class="w-20 h-20 bg-white shadow-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                            <i class="fas fa-receipt text-slate-300 text-3xl"></i>
-                        </div>
-                        <p class="text-xs font-black text-slate-400 uppercase tracking-widest">No advance orders</p>
-                    </div>
-                </template>
-            </div>
+deleteReservation(id) {
+    if(!confirm('Are you sure you want to delete this reservation record?')) return;
 
-            <div class="bg-orange-50/50 rounded-2xl p-5 border border-orange-100 mb-6">
-                <div class="flex justify-between items-center pb-3 border-b border-dashed border-orange-200 mb-3">
-                    <span class="text-xs font-bold text-orange-800 uppercase tracking-[0.2em]">Subtotal</span>
-                    <span class="text-lg font-black text-slate-700 tracking-tight" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
-                </div>
-                <div class="flex justify-between items-center pb-3 border-b border-dashed border-orange-200 mb-3">
-                    <span class="text-xs font-bold text-orange-800 uppercase tracking-[0.2em]">VAT (5%)</span>
-                    <span class="text-sm font-bold text-slate-600 tracking-tight" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
-                </div>
-                <div class="flex justify-between items-center pt-2">
-                    <span class="text-xl font-black text-orange-950 uppercase tracking-wider">Total</span>
-                    <span class="text-3xl font-black text-[#800000] tracking-tight" x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
-                </div>
-            </div>
+    this.reservations = this.reservations.filter(r => r.id !== id);
+    localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
+    this.loadReservationsFromStorage();
+},
+ 
+formatTime(time) {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':');
+    let h = parseInt(hours);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${h}:${minutes} ${ampm}`;
+},
 
-            <div class="grid grid-cols-2 gap-4">
-                <button x-show="selectedTable?.isPaid === true" class="col-span-2 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-default">
-                    <i class="fas fa-check-circle text-sm"></i>
-                    <span>PAID</span>
-                </button>
 
-                <button x-show="selectedTable?.isPaid !== true && !advanceOrderSentToKitchen" @click="showAdvanceOrderModal = false; showAdvanceOrderSummaryModal = true"
-                    class="py-4 bg-orange-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-orange-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-eye text-sm"></i> View Orders
-                </button>
 
-                <button x-show="selectedTable?.isPaid !== true && !advanceOrderSentToKitchen" @click="showAdvanceOrderModal = false; advanceOrderSentToKitchen = false"
-                    class="py-4 bg-slate-800 text-white rounded-2xl font-black text-[11px] uppercase tracking-wider shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2">
-                    Close
-                </button>
+getDuration(table) {
+    if (!table.startTime) return '';
 
-                <button x-show="selectedTable?.isPaid !== true && advanceOrderSentToKitchen" @click="printOrder(selectedTable.id)"
-                    class="col-span-2 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fas fa-print text-sm"></i> Print
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+    let start = new Date(table.startTime);
+    let now = new Date();
 
-    <div x-show="showCompleteOrderModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-            <div class="p-8 font-mono text-sm leading-relaxed border-b-2 border-black max-h-[70vh] overflow-y-auto">
-                <div class="text-center mb-6 pb-4 border-b-2 border-dashed border-black">
-                    <p class="text-sm font-black text-black">UNIVERSITY OF BATANGAS</p>
-                    <p class="text-xs text-black">Hilltop Rd. Batangas City, 4250 Batangas</p>
-                </div>
+    let diff = Math.floor((now - start) / 60000);
 
-                <div class="border-4 border-black rounded-lg p-4 mb-6 text-center">
-                    <p class="text-2xl font-black tracking-widest text-black" x-text="'TABLE ' + (selectedTable?.id || 'WALK-IN')"></p>
-                </div>
+    if (diff < 60) return diff + 'm';
 
-                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
-                    <div class="flex justify-between text-xs mb-2">
-                        <span class="text-black font-semibold">ORDER ID:</span>
-                        <span class="text-black font-semibold" x-text="currentReceiptOrderId"></span>
-                    </div>
-                    <div class="flex justify-between text-xs mb-2">
-                        <span class="text-black font-semibold">DATE:</span>
-                        <span class="text-black font-semibold" x-text="getCurrentDate()"></span>
-                    </div>
-                    <div class="flex justify-between text-xs">
-                        <span class="text-black font-semibold">TIME:</span>
-                        <span class="text-black font-semibold" x-text="getCurrentTime()"></span>
-                    </div>
-                </div>
+    return Math.floor(diff / 60) + 'h ' + (diff % 60) + 'm';
+},
 
-                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
-                    <p class="text-xs font-black mb-3 text-black">QTY ITEM/S</p>
-                    <template x-for="item in (selectedTable?.orders || [])" :key="item.name">
-                        <div class="mb-2 text-xs">
-                            <div class="flex justify-between text-black">
-                                <span><span x-text="item.qty"></span>x <span x-text="item.name.toUpperCase()"></span></span>
-                                <span x-text="formatCurrency(item.price * item.qty)"></span>
-                            </div>
-                            <p x-show="item.addonName && item.addonName.toLowerCase() !== 'default'" class="text-[10px] text-black ml-4" x-text="'+ ' + item.addonName"></p>
-                        </div>
-                    </template>
-                </div>
 
-                <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
-                    <div class="flex justify-between font-black text-sm text-black mb-2">
-                        <span>SUBTOTAL:</span>
-                        <span x-text="formatCurrency(selectedTable?.bill || 0)"></span>
-                    </div>
-                    <div class="flex justify-between font-bold text-xs text-black mb-2">
-                        <span>VAT (5%):</span>
-                        <span x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
-                    </div>
-                    <div class="flex justify-between font-black text-sm text-black pt-2 border-t-2 border-dashed border-black">
-                        <span>TOTAL:</span>
-                        <span x-text="formatCurrency((selectedTable?.bill || 0) * 1.05)"></span>
-                    </div>
-                </div>
+handleTableClick(table) {
+    if (table.status === 'available' && !table.isPaid) {
+        return;
+    }
 
-                <div class="text-center text-xs">
-                    <p class="font-bold mb-1 text-black">THANK YOU!</p>
-                    <p class="text-black">Please come again.</p>
-                </div>
-            </div>
+    this.selectedTable = table;
+    if (table.status === 'reserved-advance') {
+        this.showAdvanceOrderModal = true;
+        this.showOrderModal = false;
+        this.showReservedModal = false;
+    } else if (table.status === 'occupied' || table.status === 'paid' || table.isPaid || (table.orders && table.orders.length > 0)) {
+        this.showOrderModal = true;
+        this.showAdvanceOrderModal = false;
+        this.showReservedModal = false;
+    } else if (table.status === 'reserved-booking') {
+        this.showReservedModal = true;
+        this.showAdvanceOrderModal = false;
+        this.showOrderModal = false;
+    }
+},
 
-            <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
-                <button @click="confirmPrint(selectedTable?.id)" class="w-full py-3 maroon-gradient text-white font-semibold rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-check"></i> Confirm Print
-                </button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Advance Order Kitchen Ticket Modal -->
-    <div x-show="showAdvanceKitchenTicketModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
-            <!-- Simple Header -->
-            <div class="p-4 text-center border-b border-slate-200">
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Advance Order</p>
-                <p class="text-lg font-bold text-slate-900">ORDER #<span x-text="currentReceiptOrderId"></span></p>
-                <p class="text-xs text-slate-500 mt-1">TABLE <span x-text="selectedTable?.id || 'WALK-IN'"></span> • <span x-text="getCurrentTime()"></span></p>
-            </div>
+clearTable(tableId) {
+                    let stored = localStorage.getItem('ub_tables');
+                    if (stored) {
+                        let tables = JSON.parse(stored);
+                        let index = tables.findIndex(t => t.id == tableId);
 
-            <!-- Items -->
-            <div class="p-6 max-h-[60vh] overflow-y-auto">
-                <template x-for="(item, index) in (selectedTable?.orders || [])" :key="index">
-                    <div class="mb-5 pb-4 border-b border-slate-100 last:border-b-0 last:pb-0 last:mb-0">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="flex-1">
-                                <p class="text-sm font-bold text-slate-900 uppercase" x-text="item.name"></p>
-                                <p x-show="item.addonName && item.addonName.toLowerCase() !== 'default'" class="text-xs text-slate-600 mt-1" x-text="'+ ' + item.addonName"></p>
-                            </div>
-                            <p class="text-2xl font-black text-slate-900" x-text="item.qty"></p>
-                        </div>
-                    </div>
-                </template>
-            </div>
+                        if (index !== -1) {
+                            tables[index].status = 'available';
+                            tables[index].adults = 0;
+                            tables[index].children = 0;
+                            tables[index].bill = 0;
+                            tables[index].orders = [];
+                            tables[index].isPaid = false;
 
-            <!-- Action Buttons -->
-            <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
-                <button @click="showAdvanceKitchenTicketModal = false; showAdvanceOrderModal = true" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs transition-all">Cancel</button>
-                <button @click="finalizeAdvanceOrder(selectedTable?.id)" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md transition-all">
-                    Send to Kitchen
-                </button>
-            </div>
-        </div>
-    </div>
+                            localStorage.setItem('ub_tables', JSON.stringify(tables));
 
-    <!-- Advance Order Summary Modal -->
-    <div x-show="showAdvanceOrderSummaryModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
-            <div class="p-6 text-center border-b border-slate-200">
-                <p class="text-lg font-bold text-slate-900">Order Summary</p>
+                            // Clear kitchen orders same as waiter
+                            let kOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
+                            let filteredK = kOrders.filter(ko => ko.table != tableId);
+                            localStorage.setItem('ub_kitchen_orders', JSON.stringify(filteredK));
+
+                            this.loadTablesFromStorage();
+                            this.showOrderModal = false;
+                            this.showReservedModal = false;
+                            this.showAdvanceOrderModal = false;
+                            this.selectedTable = null;
+                        }
+                    }
+                },
+
                
-            </div>
 
-            <div class="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
-                <!-- Items List -->
-                <div class="space-y-3 pb-4 border-b border-slate-200">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Items</p>
-                    <template x-for="item in (selectedTable?.orders || [])" :key="item.id">
-                        <div class="flex justify-between items-start text-sm">
-                            <div class="flex-1">
-                                <p class="font-semibold text-slate-900" x-text="item.qty + 'x ' + item.name"></p>
-                                <p x-show="item.addonName && item.addonName.toLowerCase() !== 'default'" class="text-xs text-slate-600 mt-0.5" x-text="'+ ' + item.addonName"></p>
-                            </div>
-                            <p class="font-bold text-slate-900 ml-2" x-text="formatCurrency(item.price * item.qty)"></p>
-                        </div>
-                    </template>
-                </div>
+                openVoidModal(index) {
+                    this.voidOrderIndex = index;
+                    this.voidCodeInput = ''; // I-clear ang input field
+                    this.showVoidModal = true;
+                },
 
-                <!-- Subtotal -->
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-semibold text-slate-600">Subtotal:</span>
-                    <span class="text-lg font-bold text-slate-900" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
-                </div>
+                // 2. Kapag pinindot ang Cancel sa Security Check Modal
+                cancelVoid() {
+                    this.showVoidModal = false;
+                    this.voidOrderIndex = null;
+                    this.voidCodeInput = '';
+                },
 
-                <!-- VAT 5% -->
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-semibold text-slate-600">VAT (5%):</span>
-                    <span class="text-lg font-bold text-slate-900" x-text="formatCurrency((selectedTable?.bill || 0) * 0.05)"></span>
-                </div>
+                // 3. Iche-check ang PIN bago burahin
+                confirmVoidOrder() {
+                    if (this.voidCodeInput.trim() === '') {
+                        alert('Please enter manager PIN.');
+                        return;
+                    }
 
-                <!-- Total -->
-                <div class="border-t border-slate-200 pt-4 flex justify-between items-center">
-                    <span class="text-sm font-bold text-slate-900 uppercase">Total:</span>
-                    <span class="text-2xl font-black text-[#800000]" x-text="formatCurrency((selectedTable?.bill || 0) + ((selectedTable?.bill || 0) * 0.05))"></span>
-                </div>
-            </div>
+                    if (this.voidCodeInput.trim() !== this.managerCode) {
+                        alert('Invalid PIN. Void cancelled.');
+                        return;
+                    }
 
-            <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
-                <button @click="showAdvanceOrderSummaryModal = false; showAdvanceOrderModal = true" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs transition-all">Cancel</button>
-                <button @click="finalizeAdvanceOrder(selectedTable?.id)" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md transition-all">
-                    Send Order
-                </button>
-            </div>
-        </div>
-    </div>
+                    // Kung tama ang PIN, ituloy ang pagbura
+                    this.voidOrder(this.voidOrderIndex);
+                    this.cancelVoid(); // Isara ang Security Modal pagkatapos
+                },
 
-<script>
-function waiterSystem() {
-    return {
-        tab: 'home',
-        sidebarOpen: window.innerWidth >= 768,
-        showSetupModal: false,
-        selectedTable: null,
-        showOrderModal: false,
-        showReservedModal: false,
-        showAdvanceOrderModal: false,
-        showAdvanceKitchenTicketModal: false,
-        showAdvanceOrderSummaryModal: false,
-        showCompleteOrderModal: false,
-        advanceOrderSentToKitchen: false,
-        currentReceiptOrderId: '',
+                // 4. Ang mismong function na magbubura ng order sa database/localStorage
+                voidOrder(index) {
+                    if (!this.selectedTable) return;
 
-        // Data Arrays
-        tables: [],
-        reservations: [],
-        guestSetup: { adults: 0, children: 0 },
-        salesSummary: { total: 0 },
+                    let stored = localStorage.getItem('ub_tables');
+                    if (stored) {
+                        let tables = JSON.parse(stored);
+                        let tableIndex = tables.findIndex(t => t.id == this.selectedTable.tableNumber);
 
-        init() {
-            this.loadTables();
-            this.loadReservations();
+                        if (tableIndex !== -1) {
+                            // Burahin yung order base sa index
+                            tables[tableIndex].orders.splice(index, 1);
+                            
+                            // I-compute ulit ang Running Total Bill
+                            tables[tableIndex].bill = tables[tableIndex].orders.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-            // Makinig sa kahit anong pagbabago sa localStorage
-            window.addEventListener('storage', (event) => {
-                if (event.key === 'ub_reservations' || event.key === null) {
-                    this.loadReservations();
-                }
-                if (event.key === 'ub_tables' || event.key === null) {
-                    this.loadTables();
-                }
+                            // Kung naubos na ang order ng table, gawin ulit 'available' ang table at isara ang Order Modal
+                            if (tables[tableIndex].orders.length === 0) {
+                                tables[tableIndex].status = 'available';
+                                tables[tableIndex].adults = 0;
+                                tables[tableIndex].children = 0;
+                                this.showOrderModal = false;
+                            }
+
+                            // I-save pabalik sa storage at i-refresh ang tables
+                            localStorage.setItem('ub_tables', JSON.stringify(tables));
+                            this.loadTablesFromStorage();
+                        }
+                    }
+                },
+
+
+
+                calculateMargin(cost, price) {
+                    if(!cost || !price || cost == 0) return 0;
+                    return Math.round(((price - cost) / cost) * 100);
+                },
+
+                selectTable(table) {
+                    this.selectedTable = table;
+                    console.log('Selected table:', table);
+                },
+
+                editProduct(index) {
+                    this.editingIndex = index;
+                    this.formData = { ...this.products[index] };
+                },
+
+                saveProduct() {
+                    if (!this.formData.name) return alert('Name is required');
+
+                    if (this.editingIndex !== null) {
+                        this.products[this.editingIndex] = { ...this.formData };
+                    } else {
+                        const nextId = this.products.reduce((max, product) => Math.max(max, product.id), 0) + 1;
+                        this.products.push({ ...this.formData, id: nextId });
+                    }
+
+                    this.saveProducts();
+                    this.closeModal();
+                },
+
+                deleteProduct(index) {
+                    if (confirm('Delete this product?')) {
+                        this.products.splice(index, 1);
+                        this.saveProducts();
+                    }
+                },
+
+                handleImageUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => { this.formData.img = e.target.result; };
+                        reader.readAsDataURL(file);
+                    }
+                },
+
+                closeModal() {
+                    this.showAddModal = false;
+                    this.editingIndex = null;
+                    this.resetForm();
+                },
+
+                addAddOn() {
+                    this.formData.addOns = this.formData.addOns || [];
+                    this.formData.addOns.push({ name: '', price: 0 });
+                },
+
+                removeAddOn(index) {
+                    this.formData.addOns.splice(index, 1);
+                },
+
+                resetForm() {
+                    this.formData = { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] };
+                },
+
+init() {
+            localStorage.removeItem('ub_order_history');
+            localStorage.removeItem('ub_tables');
+
+            this.loadProducts();
+            this.loadAnalytics();
+            this.loadTablesFromStorage();
+            this.loadReservationsFromStorage();
+
+            window.addEventListener('storage', () => {
+                this.loadProducts();
+                this.loadAnalytics();
+                this.loadTablesFromStorage();
+                this.loadReservationsFromStorage();
             });
 
             setInterval(() => {
-                this.loadTables();
-                this.loadReservations();
+                this.loadAnalytics();
+                this.loadTablesFromStorage();
+                this.loadReservationsFromStorage();
             }, 2000);
-        },
-
-        // --- TABLE MANAGEMENT FUNCTIONS ---
-        loadTables() {
-            const stored = localStorage.getItem('ub_tables');
-            if (stored) {
-                let parsedTables = JSON.parse(stored);
-                const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
-
-                // AUTOMATIC STATUS CHECKER:
-                // Preserve reserved states and only set occupied when there are real orders.
-                parsedTables = parsedTables.map(t => {
-                    const status = (t.status === 'reserved-advance' || t.status === 'reserved-booking')
-                        ? t.status
-                        : ((t.orders && t.orders.length > 0) ? 'occupied' : 'available');
-
-                    const matchedReservation = reservations.find(r => r.table == t.id)
-                        || reservations.find(r => r.status === 'pending' && ((t.status === 'reserved-advance' && r.type === 'advance-order') || (t.status === 'reserved-booking' && r.type === 'table-reservation')));
-
-                    const adults = t.adults ?? (matchedReservation ? matchedReservation.adults || 0 : 0);
-                    const children = t.children ?? (matchedReservation ? matchedReservation.children || 0 : 0);
-                    const guests = (t.guests || adults + children);
-
-                    return {
-                        ...t,
-                        status: status,
-                        isPaid: t.isPaid || false,
-                        adults: adults,
-                        children: children,
-                        guests: guests,
-                        bill: t.bill || 0,
-                        orders: t.orders || []
-                    };
-                });
-
-                this.tables = parsedTables;
-                this.saveTables();
-            } else {
-                // Initial Load: 15 Tables, Lahat Available (Green)
-                this.tables = Array.from({ length: 15 }, (_, i) => ({
-                    id: i + 1,
-                    status: 'available',
-                    adults: 0,
-                    children: 0,
-                    bill: 0,
-                    orders: []
-                }));
-                this.saveTables();
-            }
-        },
-
-        selectTable(table) {
-            this.selectedTable = table;
-            this.advanceOrderSentToKitchen = false;
-
-            if (table.status === 'reserved-advance') {
-                this.showAdvanceOrderModal = true;
-            } else if (table.status === 'occupied' || table.status === 'paid' || table.isPaid || (table.orders && table.orders.length > 0)) {
-                this.showOrderModal = true;
-            } else if (table.status === 'reserved-booking') {
-                this.showReservedModal = true;
-            } else {
-                // GINAWANG 0 ANG DEFAULT DITO DIN
-                this.guestSetup = { adults: 0, children: 0 };
-                this.showSetupModal = true;
-            }
-        },
-
-        clearTable(tableId) {
-            const index = this.tables.findIndex(t => t.id === tableId);
-            if (index !== -1) {
-                this.tables[index].status = 'available';
-                this.tables[index].adults = 0;
-                this.tables[index].children = 0;
-                this.tables[index].bill = 0;
-                this.tables[index].orders = [];
-
-                this.saveTables();
-                this.showOrderModal = false;
-                this.showReservedModal = false;
-                this.showAdvanceOrderModal = false;
-                this.advanceOrderSentToKitchen = false;
-                this.selectedTable = null;
-
-                let kOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
-                let filteredK = kOrders.filter(ko => ko.table != tableId);
-                localStorage.setItem('ub_kitchen_orders', JSON.stringify(filteredK));
-            }
-        },
-startSession() {
-            // VALIDATION: Check if both Adults and Children are 0
-            if (this.guestSetup.adults <= 0 && this.guestSetup.children <= 0) {
-                alert('Please enter a valid guest count. At least 1 guest is required to open a table.');
-                return; // Stop the function from proceeding
-            }
-
-            if (this.selectedTable) {
-                this.showSetupModal = false;
-                
-                const url = "{{ route('waiter.menu') }}?table=" + this.selectedTable.id + 
-                            "&adults=" + this.guestSetup.adults + 
-                            "&children=" + this.guestSetup.children;
-                            
-                window.location.href = url;
-            }
         },
         
 
-        saveTables() {
-            localStorage.setItem('ub_tables', JSON.stringify(this.tables));
-        },
+                
+                // Analytics Metrics
+                get metrics() {
+                    let totalOrders = this.orderHistory ? this.orderHistory.length : 0;
+                    let avgOrder = totalOrders > 0 ? (this.salesSummary.total / totalOrders) : 0;
+                    
+                    let itemCounts = {};
+                    this.orderHistory.forEach(order => {
+                        if(order.items && Array.isArray(order.items)) {
+                            order.items.forEach(item => {
+                                itemCounts[item.name] = (itemCounts[item.name] || 0) + item.qty;
+                            });
+                        }
+                    });
+                    
+                    let topItems = Object.keys(itemCounts).map(name => {
+                        let product = this.products.find(p => p.name === name);
+                        let imgPath = product && product.img ? (product.img.includes('data:') || product.img.includes('http') ? product.img : '/img/' + product.img) : '/img/placeholder.png';
+                        return { name: name, qty: itemCounts[name], img: imgPath };
+                    }).sort((a, b) => b.qty - a.qty).slice(0, 5);
 
-        recalculateBill(table) {
-            table.bill = (table.orders || []).reduce((sum, item) => sum + (item.price * item.qty), 0);
-        },
+                    return {
+                        totalOrders,
+                        avgOrder,
+                        topItems
+                    };
+                },
 
-        // --- RESERVATION FUNCTIONS ---
-     loadReservations() {
-    const stored = localStorage.getItem('ub_reservations');
-    if (!stored) {
-        this.reservations = [];
-        return;
-    }
-    
-    let rawData = JSON.parse(stored);
+                // Open Tables Metrics
+                get occupiedTablesList() {
+                    return this.openTables.filter(t => t.status === 'occupied');
+                },
 
-    this.reservations = rawData.map(res => {
-        let s = res.status ? res.status.toLowerCase() : 'pending';
-        return {
-            ...res,
-            status: s,
-            createdAt: res.createdAt || res.created_at || null,
-            table: res.table || null,
-            type: res.type || 'table-reservation'
-        };
-    });
-},
+                get tablesMetrics() {
+                    let occupiedTables = this.openTables.filter(t => t.status === 'occupied').length;
+                    let availableTables = this.openTables.filter(t => t.status === 'available').length;
+                    let totalTables = this.openTables.length;
+                    let totalGuests = this.openTables.reduce((sum, t) => {
+                        const guests = t.guests ?? ((t.adults || 0) + (t.children || 0));
+                        return sum + guests;
+                    }, 0);
+                    let occupancyPercentage = totalTables > 0 ? Math.round((occupiedTables / totalTables) * 100) : 0;
 
-        async confirmReservation(resId) {
-            const index = this.reservations.findIndex(r => r.id === resId);
-            if (index === -1) {
-                return;
-            }
+                    return {
+                        occupiedTables,
+                        availableTables,
+                        totalGuests,
+                        occupancyPercentage
+                    };
+                },
 
-            this.reservations[index].status = 'confirmed';
-            this.updateReservationStorage();
+                // Inventory Metrics
+                get invMetrics() {
+                    let totalStock = this.products.reduce((sum, p) => sum + parseInt(p.stock), 0);
+                    let totalCostValue = this.products.reduce((sum, p) => sum + (p.stock * p.cost), 0);
+                    let avgMargin = this.products.length > 0
+                        ? Math.round(this.products.reduce((sum, p) => sum + this.calculateMargin(p.cost, p.sellingPrice), 0) / this.products.length)
+                        : 0;
+                    return { totalStock, totalCostValue, avgMargin };
+                },
 
-            const reservation = this.reservations[index];
-            
-            // For advance order, send link to select-tables for table selection
-            // For table reservation, send link to select-tables for reservation confirmation
-            const selectTablesUrl = '{{ route("order.select-tables") }}?type=' + reservation.type + '&resId=' + reservation.id;
-            
-            try {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                const response = await fetch('{{ route('reservation.confirm.email') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        id: reservation.id,
-                        name: reservation.name,
-                        email: reservation.email,
-                        date: reservation.date,
-                        time: reservation.time,
-                        type: reservation.type,
-                        table: reservation.table,
-                        selectTablesUrl: selectTablesUrl
-                    })
-                });
+                // Product Sales Metrics
+                get productSalesMetrics() {
+                    let filtered = this.filteredProductSales;
+                    let totalRevenue = filtered.reduce((sum, p) => sum + p.totalRevenue, 0);
+                    let totalItemsSold = filtered.reduce((sum, p) => sum + p.qtySold, 0);
 
-                const result = await response.json().catch(() => ({ success: false }));
+                    return { totalRevenue, totalItemsSold };
+                },
 
-                if (!response.ok || !result.success) {
-                    console.warn('Email API warning:', result);
-                    alert('Reservation confirmed, but email sending failed. Check server logs.');
-                    window.dispatchEvent(new Event('storage'));
-                    return;
-                }
-            } catch (error) {
-                console.warn('Email send failed:', error);
-                alert('Reservation confirmed, but email sending failed. Please try again later.');
-                window.dispatchEvent(new Event('storage'));
-                return;
-            }
+                get filteredProductSales() {
+                    let today = new Date();
+                    let startDate, endDate;
 
-            alert('Reservation confirmed! Email with the select-tables link has been sent to the customer.');
-            window.dispatchEvent(new Event('storage'));
-        },
-
-
-        deleteReservation(resId) {
-            this.reservations = this.reservations.filter(r => r.id !== resId);
-            this.updateReservationStorage(); 
-            window.dispatchEvent(new Event('storage'));
-        },
-
-        clearAllReservations() {
-            this.reservations = [];
-            this.updateReservationStorage();
-            window.dispatchEvent(new Event('storage'));
-        },
-
-        updateReservationStorage() {
-            localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
-            this.reservations = [...this.reservations]; 
-            window.dispatchEvent(new Event('storage'));
-        },
-
-        // --- UTILITIES ---
-        formatTime(time) {
-            if (!time) return '';
-            const [hours, minutes] = time.split(':');
-            let h = parseInt(hours);
-            const ampm = h >= 12 ? 'PM' : 'AM';
-            h = h % 12 || 12;   
-            return `${h}:${minutes} ${ampm}`;
-        },
-
-        formatCurrency(num) {
-            return '₱' + parseFloat(num || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        },
-
-        switchTab(target) {
-            this.tab = target;
-            if (window.innerWidth < 768) this.sidebarOpen = false;
-        },
-
-        getImageUrl(img) {
-            if (!img || img === 'Default.png') return 'https://placehold.co/150x150/eeeeee/800000?text=No+Image';
-            return img.startsWith('http') ? img : '/img/' + img;
-        },
-
-        getCurrentDate() {
-            const now = new Date();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const year = now.getFullYear();
-            return `${month}/${day}/${year}`;
-        },
-
-        getCurrentTime() {
-            const now = new Date();
-            let hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12;
-            const hoursStr = String(hours).padStart(2, '0');
-            return `${hoursStr}:${minutes} ${ampm}`;
-        },
-
-        printOrder(tableId) {
-            this.currentReceiptOrderId = 'ORD-' + Date.now();
-            this.showOrderModal = false;
-            this.showAdvanceOrderModal = false;
-            this.showCompleteOrderModal = true;
-        },
-
-        finalizeAdvanceOrder(tableId) {
-            // Only record transaction if NOT already paid (not paid during checkout)
-            if (this.selectedTable.isPaid !== true) {
-                let kitchenOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
-
-                const transaction = {
-                    orderId: 'ORD-' + Date.now(),
-                    timestamp: new Date().toLocaleTimeString(),
-                    totalAmount: (this.selectedTable.bill || 0) * 1.05,
-                    tableId: tableId,
-                    items: this.selectedTable.orders.map(item => ({
-                        name: item.name,
-                        qty: item.qty,
-                        price: item.price,
-                        addonName: item.addonName
-                    })),
-                    status: 'pending'
-                };
-
-                kitchenOrders.push(transaction);
-                localStorage.setItem('ub_kitchen_orders', JSON.stringify(kitchenOrders));
-            }
-
-            this.advanceOrderSentToKitchen = true;
-            this.showAdvanceOrderSummaryModal = false;
-            this.showAdvanceOrderModal = true;
-            alert('Order successfully sent to stations!');
-        },
-
-        confirmPrint(tableId) {
-            let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-            let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
-
-            if (this.selectedTable && this.selectedTable.orders && this.selectedTable.orders.length > 0) {
-                // Only record transaction for regular orders, NOT for advance orders
-                // Advance orders are already recorded during checkout
-                if (this.selectedTable.status !== 'reserved-advance' && this.selectedTable.isPaid !== true) {
-                    const transactionExists = analyticsHistory.some(t => t.orderId === this.currentReceiptOrderId);
-
-                    if (!transactionExists) {
-                        const transaction = {
-                            orderId: this.currentReceiptOrderId,
-                            timestamp: new Date().toLocaleTimeString(),
-                            totalAmount: (this.selectedTable.bill || 0) * 1.05,
-                            tableId: tableId,
-                            items: this.selectedTable.orders.map(item => ({
-                                name: item.name,
-                                qty: item.qty,
-                                price: item.price,
-                                addonName: item.addonName
-                            })),
-                            status: 'completed'
-                        };
-
-                        analyticsHistory.unshift(transaction);
-                        localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                    if (this.salesDateFilter === 'today') {
+                        startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                        endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+                    } else {
+                        let yesterday = new Date(today);
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+                        endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);
                     }
-                }
 
-                // Always set isPaid and update table status for ALL orders
-                let tableIndex = tables.findIndex(t => t.id === tableId);
-                if (tableIndex !== -1) {
-                    tables[tableIndex].isPaid = true;
-                    // For advance orders, keep status as reserved-advance; for others, change to paid
-                    if (tables[tableIndex].status !== 'reserved-advance') {
-                        tables[tableIndex].status = 'paid';
+                    let productSalesMap = {};
+                    let totalRevenue = 0;
+
+                    if (this.orderHistory && Array.isArray(this.orderHistory)) {
+                        this.orderHistory.forEach(transaction => {
+                            if (transaction.items && Array.isArray(transaction.items)) {
+                                transaction.items.forEach(item => {
+                                    if (!productSalesMap[item.name]) {
+                                        let product = this.products.find(p => p.name === item.name);
+                                        productSalesMap[item.name] = {
+                                            id: product ? product.id : 0,
+                                            name: item.name,
+                                            qtySold: 0,
+                                            unitCost: product ? product.cost : 0,
+                                            totalRevenue: 0,
+                                            imgPath: product && product.img ? (product.img.includes('data:') || product.img.includes('http') ? product.img : '/img/' + product.img) : '/img/placeholder.png'
+                                        };
+                                    }
+                                    let itemTotal = item.price * item.qty;
+                                    productSalesMap[item.name].qtySold += item.qty;
+                                    productSalesMap[item.name].totalRevenue += itemTotal;
+                                    totalRevenue += itemTotal;
+                                });
+                            }
+                        });
                     }
-                    localStorage.setItem('ub_tables', JSON.stringify(tables));
 
-                    // Update selectedTable immediately
-                    this.selectedTable.isPaid = true;
+                    return Object.values(productSalesMap).map(p => ({
+                        ...p,
+                        percentageOfSales: totalRevenue > 0 ? (p.totalRevenue / totalRevenue) * 100 : 0
+                    })).sort((a, b) => b.totalRevenue - a.totalRevenue);
+                },
+
+                getCurrentDate() {
+                    const now = new Date();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const year = now.getFullYear();
+                    return `${month}/${day}/${year}`;
+                },
+
+                getCurrentTime() {
+                    const now = new Date();
+                    let hours = now.getHours();
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    const hoursStr = String(hours).padStart(2, '0');
+                    return `${hoursStr}:${minutes} ${ampm}`;
+                },
+
+                printOrder(tableId) {
+                    this.currentReceiptOrderId = 'ORD-' + Date.now();
+                    this.showOrderModal = false;
+                    this.showAdvanceOrderModal = false;
+                    this.showCompleteOrderModal = true;
+                },
+
+                confirmPrint(tableId) {
+                    let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+
+                    if (this.selectedTable && this.selectedTable.orders && this.selectedTable.orders.length > 0) {
+                        // Check if this transaction already exists to prevent duplicates
+                        const transactionExists = analyticsHistory.some(t => t.orderId === this.currentReceiptOrderId);
+
+                        if (!transactionExists) {
+                            const transaction = {
+                                orderId: this.currentReceiptOrderId,
+                                timestamp: new Date().toLocaleTimeString(),
+                                totalAmount: (this.selectedTable.bill || 0) * 1.05,
+                                tableId: tableId,
+                                items: this.selectedTable.orders.map(item => ({
+                                    name: item.name,
+                                    qty: item.qty,
+                                    price: item.price,
+                                    addonName: item.addonName
+                                })),
+                                status: 'completed'
+                            };
+
+                            analyticsHistory.unshift(transaction);
+                            localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                        }
+                    }
+
+                    alert('✓ Order ' + this.currentReceiptOrderId + ' printed successfully!');
+                    this.showCompleteOrderModal = false;
+                    this.clearTable(tableId);
                 }
             }
-
-            alert('✓ Order ' + this.currentReceiptOrderId + ' printed successfully!');
-            this.showCompleteOrderModal = false;
-            this.loadTables();
         }
-    }
-}
-</script>
-
+    </script>
 </body>
 </html>

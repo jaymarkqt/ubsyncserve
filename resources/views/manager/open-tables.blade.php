@@ -41,14 +41,14 @@
    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
   <template x-for="(table, index) in openTables" :key="index">
     <div @click="table.status !== 'available' ? handleTableClick(table) : null"
-          class="w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all flex flex-col items-center justify-center space-y-2 rounded-[1.25rem] border-2 shadow-sm relative group"
+          class="clay-card w-full max-w-[220px] sm:max-w-[240px] min-h-[170px] sm:min-h-[190px] lg:min-h-[210px] transition-all flex flex-col items-center justify-center space-y-2 p-4 border-2 relative group"
           :class="{
-            'bg-[#ccfad8] border-[#4ade80] cursor-not-allowed opacity-80': table.status === 'available' && !table.isPaid,
-            'bg-[#bfdbfe] border-[#3b82f6] cursor-pointer': table.isPaid === true,
-            'bg-[#fed7aa] border-[#ea580c] cursor-pointer': table.status === 'reserved-advance' && table.isPaid !== true,
-            'bg-[#ffedd5] border-[#fb923c] cursor-pointer': table.status === 'reserved-booking' && table.isPaid !== true,
-            'bg-[#ffdada] border-[#f87171] cursor-pointer': table.status === 'occupied' && table.isPaid !== true
-          }">
+            'table-card-available cursor-not-allowed opacity-80': table.status === 'available' && !table.isPaid,
+            'bg-blue-50 border-blue-300 cursor-pointer': table.isPaid === true,
+            'bg-amber-50 border-amber-300 cursor-pointer': table.status === 'reserved-advance' && table.isPaid !== true,
+            'bg-orange-50 border-orange-300 cursor-pointer': table.status === 'reserved-booking' && table.isPaid !== true,
+            'table-card-occupied cursor-pointer': table.status === 'occupied' && table.isPaid !== true
+          }" :style="table.status === 'available' && !table.isPaid ? '' : 'box-shadow: 0 4px 12px rgba(0,0,0,0.08)'"
 
         <div class="text-4xl font-black text-[#1e293b] tracking-tight"
              x-text="table.tableNumber"></div>

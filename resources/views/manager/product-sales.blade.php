@@ -28,7 +28,7 @@
     </div>
 
     <div class="clay-card overflow-hidden">
-        <div class="p-5 border-b flex justify-between items-center bg-slate-50/50">
+        <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
             <h3 class="text-xs font-black text-slate-700 uppercase tracking-widest">Product Sales Breakdown</h3>
             <i class="fas fa-box text-slate-400"></i>
         </div>
@@ -46,7 +46,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     <template x-for="product in filteredProductSales" :key="product.id">
-                        <tr class="hover:bg-slate-50 transition-colors">
+                        <tr class="hover:bg-slate-50/50 transition-colors">
                             <td class="px-6 py-5">
                                 <div class="flex items-center gap-3">
                                     <img :src="product.imgPath" alt="" class="w-12 h-12 rounded-lg object-cover bg-slate-100 border border-slate-200">
