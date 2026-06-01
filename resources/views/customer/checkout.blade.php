@@ -299,6 +299,12 @@
                         const product = catalog.find(p => p.id === item.id);
                         if (product) {
                             product.stock = Math.max(0, (product.stock || 0) - item.qty);
+                            // Deduct ingredients
+                            if (product.ingredients) {
+                                product.ingredients.forEach(ing => {
+                                    ing.stock = Math.max(0, (ing.stock || 0) - item.qty);
+                                });
+                            }
                         }
                     });
                     localStorage.setItem('product_catalog', JSON.stringify(catalog));

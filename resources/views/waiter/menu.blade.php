@@ -109,9 +109,9 @@
                                 </div>
                             </div>
 
-                            <div x-show="p.stock > 0" class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm z-20">
+                            <div x-show="getWaiterProductStock(p) > 0" class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm z-20">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase">Stock: </span>
-                                <span class="text-[10px] font-black text-slate-700" x-text="p.stock"></span>
+                                <span class="text-[10px] font-black text-slate-700" x-text="getWaiterProductStock(p)"></span>
                             </div>
                         </div>
                         
@@ -132,30 +132,30 @@
                             <div class="space-y-3">
                                 <div class="flex items-center gap-2">
                                     <div class="flex items-center rounded-xl border-2 border-slate-100 bg-slate-50 h-11 w-28 overflow-hidden"
-                                         :class="p.stock <= 0 ? 'opacity-50 pointer-events-none' : ''">
+                                         :class="getWaiterProductStock(p) <= 0 ? 'opacity-50 pointer-events-none' : ''">
                                         <button @click="if(p.qty > 1) p.qty--" class="w-10 h-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
                                             <i class="fas fa-minus text-[10px]"></i>
                                         </button>
                                         <div class="flex-1 h-full flex items-center justify-center font-black text-slate-800 text-sm bg-white" x-text="p.qty"></div>
-                                        <button @click="if(p.qty < p.stock) p.qty++" class="w-10 h-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
+                                        <button @click="if(p.qty < getWaiterProductStock(p)) p.qty++" class="w-10 h-full flex items-center justify-center text-slate-500 hover:bg-slate-200 transition-colors">
                                             <i class="fas fa-plus text-[10px]"></i>
                                         </button>
                                     </div>
 
-                                    <button @click="openCustomizeModal(p)" 
-                                            :disabled="p.stock <= 0"
+                                    <button @click="openCustomizeModal(p)"
+                                            :disabled="getWaiterProductStock(p) <= 0"
                                             class="flex-1 rounded-xl border-2 border-slate-100 bg-white h-11 text-[10px] font-bold uppercase tracking-widest text-black-500 transition-all"
-                                            :class="p.stock <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:border-[#800000] hover:text-[#800000]'">
+                                            :class="getWaiterProductStock(p) <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:border-[#800000] hover:text-[#800000]'">
                                         Add-ons
                                     </button>
                                 </div>
-                                
-                                <button @click.prevent="addToCart(p)" 
-                                        :disabled="p.stock <= 0"
+
+                                <button @click.prevent="addToCart(p)"
+                                        :disabled="getWaiterProductStock(p) <= 0"
                                         class="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2"
-                                        :class="p.stock <= 0 ? 'bg-[#b8bcc6] text-white shadow-inner cursor-not-allowed' : 'bg-[#800000] text-white shadow-lg shadow-maroon/20 active:scale-95 hover:bg-[#600000]'">
-                                    <i x-show="p.stock <= 0" class="fa-solid fa-lock text-[11px]"></i>
-                                    <span x-text="p.stock <= 0 ? 'SOLD OUT' : 'Add to Order'"></span>
+                                        :class="getWaiterProductStock(p) <= 0 ? 'bg-[#b8bcc6] text-white shadow-inner cursor-not-allowed' : 'bg-[#800000] text-white shadow-lg shadow-maroon/20 active:scale-95 hover:bg-[#600000]'">
+                                    <i x-show="getWaiterProductStock(p) <= 0" class="fa-solid fa-lock text-[11px]"></i>
+                                    <span x-text="getWaiterProductStock(p) <= 0 ? 'SOLD OUT' : 'Add to Order'"></span>
                                 </button>
                             </div>
                         </div>
@@ -428,8 +428,15 @@
 
             closeCustomizeModal() { this.showModal = false; },
 
+            getWaiterProductStock(product) {
+                if (!product.ingredients || product.ingredients.length === 0) {
+                    return product.stock || 0;
+                }
+                return product.ingredients.reduce((total, ing) => total + (ing.stock || 0), 0);
+            },
+
             addToCart(product) {
-                if (product.stock <= 0) return;
+                if (this.getWaiterProductStock(product) <= 0) return;
 
                 const addOnPrice = (product.selectedAddOns || []).reduce((sum, a) => sum + a.price, 0);
                 const addonNameStr = (product.selectedAddOns || []).map(a => a.name).join(', ');
@@ -503,7 +510,15 @@
 
                 this.cart.forEach(item => {
                     let pIdx = products.findIndex(p => p.id === item.id);
-                    if (pIdx !== -1) products[pIdx].stock -= item.qty;
+                    if (pIdx !== -1) {
+                        products[pIdx].stock -= item.qty;
+                        // Deduct ingredients
+                        if (products[pIdx].ingredients) {
+                            products[pIdx].ingredients.forEach(ing => {
+                                ing.stock = Math.max(0, (ing.stock || 0) - item.qty);
+                            });
+                        }
+                    }
                 });
                 localStorage.setItem('product_catalog', JSON.stringify(products));
 

@@ -106,14 +106,14 @@
 
                     <div class="w-full h-28 sm:h-36 md:h-40 lg:h-48 mb-2 sm:mb-3 md:mb-4 lg:mb-5 overflow-hidden rounded-lg sm:rounded-xl md:rounded-[1.25rem] lg:rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-2 sm:p-3 md:p-4 relative">
 
-                      <img :src="'/img/' + product.img" 
-         :class="product.stock <= 0 ? 'opacity-90' : ''"
-         class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" 
+                      <img :src="'/img/' + product.img"
+         :class="getProductStock(product) <= 0 ? 'opacity-90' : ''"
+         class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500"
          x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
 
-                       
 
-                        <div x-show="product.stock <= 0" class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none overflow-hidden rounded-[inherit]">
+
+                        <div x-show="getProductStock(product) <= 0" class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none overflow-hidden rounded-[inherit]">
                             <div class="absolute w-[150%] py-1.5 sm:py-2.5 bg-gradient-to-r from-[#991b1b] via-[#dc2626] to-[#991b1b] transform -rotate-[12deg] shadow-xl border-y border-white/30 flex items-center justify-center">
                                 <div class="flex items-center gap-2 sm:gap-3">
                                     <span class="w-6 sm:w-10 h-[1px] sm:h-0.5 bg-white/90"></span>
@@ -142,38 +142,38 @@
                         <div class="mt-auto space-y-1 sm:space-y-1.5 md:space-y-2">
                             <div class="flex items-center gap-1 sm:gap-1.5 md:gap-2">
                                 <div class="flex items-center rounded-lg sm:rounded-xl border-2 border-slate-100 bg-slate-50 h-8 sm:h-9 md:h-10 lg:h-11 w-20 sm:w-24 md:w-28 overflow-hidden flex-shrink-0"
-                                     :class="product.stock <= 0 ? 'opacity-60 pointer-events-none' : ''">
+                                     :class="getProductStock(product) <= 0 ? 'opacity-60 pointer-events-none' : ''">
                                     <button
-                                        @click="if (product.stock > 0 && product.qty > 1) product.qty = product.qty - 1"
-                                        :disabled="product.stock <= 0"
+                                        @click="if (getProductStock(product) > 0 && product.qty > 1) product.qty = product.qty - 1"
+                                        :disabled="getProductStock(product) <= 0"
                                         class="w-6 sm:w-8 md:w-10 h-full flex items-center justify-center transition-colors text-[8px] sm:text-[9px] md:text-xs text-slate-500 hover:bg-slate-200">
                                         <i class="fas fa-minus"></i>
                                     </button>
                                     <div class="flex-1 h-full flex items-center justify-center font-black text-slate-800 text-xs sm:text-sm bg-white">
-                                        <span x-text="product.stock <= 0 ? 0 : product.qty"></span>
+                                        <span x-text="getProductStock(product) <= 0 ? 0 : product.qty"></span>
                                     </div>
                                     <button
-                                        @click="if (product.stock > product.qty) product.qty++"
-                                        :disabled="product.stock <= 0 || product.qty >= product.stock"
+                                        @click="if (getProductStock(product) > product.qty) product.qty++"
+                                        :disabled="getProductStock(product) <= 0 || product.qty >= getProductStock(product)"
                                         class="w-6 sm:w-8 md:w-10 h-full flex items-center justify-center transition-colors text-[8px] sm:text-[9px] md:text-xs text-slate-500 hover:bg-slate-200 disabled:opacity-50 disabled:hover:bg-transparent">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
 
                                 <button @click="openCustomizeModal(product)"
-                                        :disabled="product.stock <= 0"
-                                        :class="['flex-1 rounded-lg sm:rounded-xl border-2 border-slate-100 h-8 sm:h-9 md:h-10 lg:h-11 text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-center transition-all px-0.5 sm:px-1', product.stock <= 0 ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-white text-black-500 hover:border-[#800000] hover:text-[#800000]']">
+                                        :disabled="getProductStock(product) <= 0"
+                                        :class="['flex-1 rounded-lg sm:rounded-xl border-2 border-slate-100 h-8 sm:h-9 md:h-10 lg:h-11 text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-center transition-all px-0.5 sm:px-1', getProductStock(product) <= 0 ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-white text-black-500 hover:border-[#800000] hover:text-[#800000]']">
                                     <i class="fas fa-sliders-h mr-0.5 sm:mr-1"></i><span class="hidden sm:inline">Add-ons</span><span class="sm:hidden">+</span>
                                 </button>
                             </div>
 
                             <button @click.prevent="addToCart(product)"
-                                    :disabled="product.stock <= 0"
-                                    :class="['w-full rounded-lg sm:rounded-xl md:rounded-[1rem] h-8 sm:h-9 md:h-10 lg:h-11 text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-widest text-center transition-all flex items-center justify-center gap-1 sm:gap-2', product.stock <= 0 ? 'bg-[#b8bcc6] text-white shadow-inner cursor-not-allowed' : 'maroon-gradient text-white shadow-lg shadow-maroon/20 hover:shadow-xl active:scale-[0.98]']">
-                                
-                                <template x-if="product.stock > 0">
+                                    :disabled="getProductStock(product) <= 0"
+                                    :class="['w-full rounded-lg sm:rounded-xl md:rounded-[1rem] h-8 sm:h-9 md:h-10 lg:h-11 text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-widest text-center transition-all flex items-center justify-center gap-1 sm:gap-2', getProductStock(product) <= 0 ? 'bg-[#b8bcc6] text-white shadow-inner cursor-not-allowed' : 'maroon-gradient text-white shadow-lg shadow-maroon/20 hover:shadow-xl active:scale-[0.98]']">
+
+                                <template x-if="getProductStock(product) > 0">
                                     <span class="flex items-center gap-1 sm:gap-2">
-                                        <i class="fas fa-shopping-bag text-[7px] sm:text-[8px] md:text-xs"></i> 
+                                        <i class="fas fa-shopping-bag text-[7px] sm:text-[8px] md:text-xs"></i>
                                         <span class="hidden sm:inline">Add to Order</span>
                                         <span class="sm:hidden">Add</span>
                                     </span>
@@ -398,14 +398,21 @@
                 }
             },
 
+            getProductStock(product) {
+                if (!product.ingredients || product.ingredients.length === 0) {
+                    return product.stock || 0;
+                }
+                return product.ingredients.reduce((total, ing) => total + (ing.stock || 0), 0);
+            },
+
             addToCart(product) {
-                if (product.stock === 0 || !product.qty) return;
+                if (this.getProductStock(product) === 0 || !product.qty) return;
                 const clone = {
                     id: product.id,
                     name: product.name,
                     price: product.price,
                     img: product.img,
-                    qty: Math.min(Math.max(1, product.qty || 1), product.stock),
+                    qty: Math.min(Math.max(1, product.qty || 1), this.getProductStock(product)),
                     cat: product.cat,
                     addOns: product.selectedAddOns ? [...product.selectedAddOns] : []
                 };

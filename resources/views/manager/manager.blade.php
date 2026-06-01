@@ -163,14 +163,15 @@
              openTables: [],
                 
                 // Inventory Data
-                formData: { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] },
+                formData: { id: null, name: '', cost: 0, sellingPrice: 0, img: '', addOns: [], ingredients: [] },
                 products: [],
 
                 normalizeProducts(products) {
                     return products.map(product => ({
                         ...product,
                         price: product.price ?? product.sellingPrice ?? 0,
-                        addOns: product.addOns || []
+                        addOns: product.addOns || [],
+                        ingredients: product.ingredients || []
                     }));
                 },
 
@@ -195,7 +196,7 @@
                 },
 
                 resetForm() {
-                    this.formData = { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] };
+                    this.formData = { id: null, name: '', cost: 0, sellingPrice: 0, img: '', addOns: [], ingredients: [] };
                 },
 
                 formatCurrency(val) {
@@ -495,6 +496,9 @@ clearTable(tableId) {
                 saveProduct() {
                     if (!this.formData.name) return alert('Name is required');
 
+                    // Filter out empty ingredients
+                    this.formData.ingredients = (this.formData.ingredients || []).filter(ing => ing.name && ing.stock > 0);
+
                     if (this.editingIndex !== null) {
                         this.products[this.editingIndex] = { ...this.formData };
                     } else {
@@ -537,8 +541,30 @@ clearTable(tableId) {
                     this.formData.addOns.splice(index, 1);
                 },
 
+                addIngredient() {
+                    this.formData.ingredients = this.formData.ingredients || [];
+                    this.formData.ingredients.push({ name: '', stock: 0 });
+                },
+
+                removeIngredient(index) {
+                    this.formData.ingredients.splice(index, 1);
+                },
+
+                calculateStockFromIngredients(product) {
+                    if (!product.ingredients || product.ingredients.length === 0) {
+                        return 0;
+                    }
+                    // Simply add all ingredient stocks together
+                    return product.ingredients.reduce((total, ing) => total + (ing.stock || 0), 0);
+                },
+
+                getLowStockIngredients(product) {
+                    if (!product.ingredients) return [];
+                    return product.ingredients.filter(ing => ing.stock <= 10);
+                },
+
                 resetForm() {
-                    this.formData = { id: null, name: '', stock: 0, cost: 0, sellingPrice: 0, img: '', addOns: [] };
+                    this.formData = { id: null, name: '', cost: 0, sellingPrice: 0, img: '', addOns: [], ingredients: [] };
                 },
 
 init() {

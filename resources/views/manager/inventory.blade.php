@@ -46,9 +46,18 @@
                                 </div>
                             </td>
                             <td class="px-4 py-4 text-center">
-                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold"
-                                      :class="product.stock > 50 ? 'bg-emerald-100 text-emerald-700' : product.stock > 20 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'"
-                                      x-text="product.stock"></span>
+                                <div class="space-y-2">
+                                    <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold"
+                                          :class="calculateStockFromIngredients(product) >= 21 ? 'bg-emerald-100 text-emerald-700' : calculateStockFromIngredients(product) >= 11 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'"
+                                          x-text="calculateStockFromIngredients(product)"></span>
+                                    <template x-if="getLowStockIngredients(product).length > 0">
+                                        <div class="text-xs font-bold text-red-600">
+                                            <template x-for="ing in getLowStockIngredients(product)">
+                                                <div>⚠️ <span x-text="ing.name"></span>: <span x-text="ing.stock"></span></div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
                             </td>
                             <td class="px-4 py-4 text-center font-bold text-slate-700" x-text="formatCurrency(product.cost)"></td>
                             <td class="px-4 py-4 text-center font-bold text-[#800000]" x-text="formatCurrency(product.sellingPrice)"></td>
@@ -72,25 +81,24 @@
 
 <div x-show="showAddModal || editingIndex !== null" x-cloak class="modal-overlay" @click="closeModal()"></div>
 
-<div x-show="showAddModal || editingIndex !== null" x-cloak 
+<div x-show="showAddModal || editingIndex !== null" x-cloak
      class="fixed inset-0 flex items-center justify-center z-[1051] p-4 pointer-events-none">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl pointer-events-auto overflow-hidden">
-        <div class="p-6 border-b flex justify-between items-center bg-slate-50/50">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl pointer-events-auto overflow-hidden flex flex-col max-h-screen" @click.stop>
+        <div class="p-6 border-b flex justify-between items-center bg-slate-50/50 flex-shrink-0">
             <h2 class="text-xl font-black text-slate-800 uppercase" x-text="editingIndex !== null ? 'Edit Product' : 'Add New Product'"></h2>
-            <button @click="closeModal()" class="text-slate-500 hover:text-slate-800">
-                <i class="fas fa-times"></i>
-            </button>
         </div>
 
-        <div class="p-6 space-y-5">
+        <div class="p-6 space-y-5 overflow-y-auto flex-1">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                     <label class="block text-xs font-black text-slate-700 uppercase mb-2">Product Name</label>
                     <input type="text" x-model="formData.name" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#800000] outline-none">
                 </div>
-                <div>
-                    <label class="block text-xs font-black text-slate-700 uppercase mb-2">Stock Quantity</label>
-                    <input type="number" x-model="formData.stock" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#800000] outline-none">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center">
+                    <div class="text-xs text-blue-700">
+                        <i class="fas fa-info-circle"></i>
+                        <p class="font-bold">Stock is auto-calculated from ingredients</p>
+                    </div>
                 </div>
             </div>
 
@@ -123,6 +131,31 @@
                 </div>
 
                 <div>
+                    <label class="block text-xs font-black text-slate-700 uppercase mb-2">Ingredients</label>
+                    <div class="space-y-3">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-700">
+                            <i class="fas fa-lightbulb"></i> <strong>Example:</strong> Eggs: 20 + Patty: 15 = Total Stock: 35
+                        </div>
+                        <template x-for="(ingredient, idx) in formData.ingredients" :key="idx">
+                            <div class="grid grid-cols-12 gap-2 items-end bg-slate-50 p-3 rounded-lg">
+                                <div class="col-span-7">
+                                    <label class="text-xs font-bold text-slate-600 block mb-1">Ingredient Name</label>
+                                    <input type="text" x-model="ingredient.name" placeholder="e.g., Patty, Eggs, Cheese" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#800000] outline-none text-sm">
+                                </div>
+                                <div class="col-span-5">
+                                    <label class="text-xs font-bold text-slate-600 block mb-1">Current Stock</label>
+                                    <input type="number" x-model.number="ingredient.stock" placeholder="0" min="0" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#800000] outline-none text-sm">
+                                </div>
+                                <button type="button" @click="removeIngredient(idx)" class="col-span-12 px-3 py-2 bg-red-100 text-red-700 rounded-lg font-bold text-xs hover:bg-red-200 mt-2">Remove</button>
+                            </div>
+                        </template>
+                        <button type="button" @click="addIngredient()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-slate-200 text-slate-700 rounded-2xl font-black uppercase text-xs hover:bg-slate-300 transition-all">
+                            <i class="fas fa-plus"></i> Add Ingredient
+                        </button>
+                    </div>
+                </div>
+
+                <div>
                     <label class="block text-xs font-black text-slate-700 uppercase mb-2">Add-ons</label>
                     <div class="space-y-3">
                         <template x-for="(addon, index) in formData.addOns" :key="index">
@@ -144,7 +177,7 @@
             </div>
         </div>
 
-        <div class="p-6 border-t flex gap-3 justify-end bg-slate-50/50">
+        <div class="p-6 border-t flex gap-3 justify-end bg-slate-50/50 flex-shrink-0">
             <button @click="closeModal()" class="px-6 py-2 text-slate-600 font-bold">Cancel</button>
             <button @click="saveProduct()" class="px-6 py-2 bg-[#800000] text-white font-bold rounded-lg">Save Product</button>
         </div>
