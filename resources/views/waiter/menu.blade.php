@@ -13,9 +13,11 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
+            background-image: url("{{ asset('img/backgroundpos.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             background-color: #f4f5f7;
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-            background-size: 20px 20px;
         }
 
         [x-cloak] { display: none !important; }
