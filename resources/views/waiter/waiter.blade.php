@@ -97,7 +97,7 @@
                 <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
                     <div class="flex items-start gap-4">
                         <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-chair text-2xl text-emerald-600"></i>
+                            <img src="/img/tables.png" alt="table" class="w-20 h-20 object-contain">
                         </div>
                         <div class="flex-1">
                             <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Available Tables</p>
@@ -162,7 +162,7 @@
                                          : (table.status === 'reserved-booking'
                                              ? 'bg-amber-200 text-amber-700'
                                              : 'bg-red-200 text-red-700')))">
-                            <i class="fas fa-chair text-xl"></i>
+                            <img src="/img/tables.png" alt="table" class="w-16 h-16 object-contain">
                         </div>
 
                         <!-- Table Number -->
@@ -229,7 +229,8 @@
         <div class="maroon-gradient bg-gradient-to-br from-[#800000] to-[#5a0000] p-8 text-white text-center relative overflow-hidden">
             <div class="absolute inset-0 bg-white/5 pattern-dots"></div>
             <h3 class="text-3xl font-black uppercase tracking-tight relative z-10 flex justify-center items-center gap-3">
-                <i class="fas fa-chair opacity-80 text-2xl"></i> Table <span x-text="selectedTable?.id"></span>
+                <img src="/img/tables.png" alt="table" class="w-16 h-16 object-contain opacity-80">
+                Table <span x-text="selectedTable?.id"></span>
             </h3>
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-red-200 mt-2 relative z-10">Initialize Guest Session</p>
         </div>
