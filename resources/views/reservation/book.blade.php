@@ -9,135 +9,158 @@
     <style>
         .bg-maroon { background-color: #800000; }
         .text-maroon { color: #800000; }
-        .border-maroon { border-color: #800000; }
-        .focus-maroon:focus { border-color: #800000; box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1); }
+        .text-gold { color: #d4af37; }
+        .border-gold { border-color: #e5c158; }
+        .focus-maroon:focus { border-color: #800000; box-shadow: 0 0 0 2px rgba(128, 0, 0, 0.1); }
+        .header-curve {
+            border-bottom-left-radius: 50% 15%;
+            border-bottom-right-radius: 50% 15%;
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center px-3 py-6 sm:px-4 md:p-8 font-sans">
+<body class="bg-slate-100 min-h-screen flex items-center justify-center px-4 py-8 font-sans">
 
-    <div class="max-w-lg w-full bg-white rounded-2xl sm:rounded-[2rem] shadow-lg sm:shadow-2xl overflow-hidden border border-gray-100">
+    <div class="max-w-[420px] w-full bg-white rounded-3xl shadow-2xl relative">
         
-        <div class="bg-maroon p-6 sm:p-8 text-center relative overflow-hidden">
-            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-            <h1 class="text-2xl sm:text-3xl font-black text-white uppercase tracking-widest relative z-10" id="formTitle">Make a Reservation</h1>
-            <p class="text-white/80 text-xs sm:text-sm mt-2 relative z-10">Secure your dining experience with us.</p>
+        <div class="bg-gradient-to-b from-[#6b0000] to-[#990000] pt-10 pb-12 text-center relative header-curve rounded-t-3xl shadow-md z-10 border-b-[3px] border-[#d4af37]">
+            <div class="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] rounded-t-3xl header-curve"></div>
+            
+            <div class="flex items-center justify-center gap-3 mb-3 relative z-10">
+                <div class="w-12 h-[1px] bg-gradient-to-r from-transparent to-[#d4af37]"></div>
+                <div class="w-2 h-2 rotate-45 border border-[#d4af37]"></div>
+                <div class="w-12 h-[1px] bg-gradient-to-l from-transparent to-[#d4af37]"></div>
+            </div>
+            
+            <h1 class="text-2xl font-serif font-bold text-white uppercase tracking-widest relative z-10 shadow-sm" id="formTitle">Advance Order</h1>
+            
+            <p class="text-white/90 text-[11px] font-medium tracking-wide mt-2 relative z-10">Secure your dining experience with us.</p>
+            
+            <div class="absolute -bottom-7 left-1/2 transform -translate-x-1/2 w-14 h-14 bg-white rounded-full border shadow flex items-center justify-center z-20" style="border-color: #f0e6d2;">
+                <div class="w-11 h-11 rounded-full border border-yellow-600/30 flex items-center justify-center bg-[#fffdf8]">
+                    <i class="fa-solid fa-bell-concierge text-[#d4af37] text-lg"></i>
+                </div>
+            </div>
         </div>
 
-        <form class="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5" action="#" method="POST">
+        <form class="px-6 pt-12 pb-6 space-y-4" action="#" method="POST">
             <input type="hidden" name="type" value="table-reservation" id="bookingTypeInput">
 
-            <!-- Booking Type Display -->
-            <div class="rounded-2xl bg-slate-50 border-2 border-slate-100 p-4">
-                <p class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2">Booking Type</p>
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-bookmark text-maroon text-lg"></i>
-                    <span class="text-lg font-black text-slate-800" id="bookingTypeLabel">Reservation</span>
+            <div class="rounded-xl bg-[#fafafa] border border-gray-100 p-3.5 shadow-sm">
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-[#800000] mb-1">Booking Type</p>
+                <div class="flex items-center gap-2.5">
+                    <i class="fas fa-bookmark text-[#800000] text-sm"></i>
+                    <span class="text-[15px] font-bold text-gray-800" id="bookingTypeLabel">Advance Order</span>
                 </div>
             </div>
 
-            <!-- Full Name -->
             <div>
-                <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Full Name</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                        <i class="fa-regular fa-user text-gray-400 text-sm"></i>
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fa-regular fa-user text-[#800000]/60 text-sm"></i>
                     </div>
-                    <input type="text" name="name" required class="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white text-sm" placeholder="Your name">
+                    <input type="text" name="name" required class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-sm" placeholder="Your name">
                 </div>
             </div>
 
-            <!-- Email Address -->
             <div>
-                <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Email Address</label>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Email Address</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                        <i class="fa-regular fa-envelope text-gray-400 text-sm"></i>
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fa-regular fa-envelope text-[#800000]/60 text-sm"></i>
                     </div>
-                    <input type="email" name="email" required class="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white text-sm" placeholder="your@email.com">
+                    <input type="email" name="email" required class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-sm" placeholder="your@email.com">
                 </div>
             </div>
 
-            <!-- Phone Number -->
             <div>
-                <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Phone Number</label>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Phone Number</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-phone text-gray-400 text-sm"></i>
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-phone text-[#800000]/60 text-sm"></i>
                     </div>
-                    <input type="tel" name="phone" required class="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white text-sm" placeholder="+63 123 456 7890">
+                    <input type="tel" name="phone" required class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-sm" placeholder="+63 123 456 7890">
                 </div>
             </div>
 
-            <!-- Date and Time -->
-            <div class="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
+            <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Date</label>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Date</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                            <i class="fa-regular fa-calendar text-gray-400 text-sm"></i>
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="fa-regular fa-calendar text-[#800000]/60 text-sm"></i>
                         </div>
-                        <input type="date" name="date" required class="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white text-gray-700 text-sm">
+                        <input type="date" name="date" required class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-gray-600 text-sm">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Time</label>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Time</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                            <i class="fa-regular fa-clock text-gray-400 text-sm"></i>
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="fa-regular fa-clock text-[#800000]/60 text-sm"></i>
                         </div>
-                        <input type="text" placeholder="--:-- --" onfocus="(this.type='time')" onblur="(this.value == '' ? this.type='text' : this.type='time')" name="time" required class="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white text-gray-700 text-sm">
+                        <input type="text" placeholder="--:-- --" onfocus="(this.type='time')" onblur="(this.value == '' ? this.type='text' : this.type='time')" name="time" required class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-gray-600 text-sm">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-chevron-down text-gray-400 text-[10px]"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Adults and Children -->
-            <div class="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
+            <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Adults</label>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Adults</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-user-group text-gray-400 text-sm"></i>
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-user-group text-[#800000]/60 text-sm"></i>
                         </div>
-                        <input type="number" name="adults" min="0" value="0" id="adultsInput" required class="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white text-sm">
+                        <input type="number" name="adults" min="0" value="0" id="adultsInput" required class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-sm appearance-none">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-chevron-down text-gray-400 text-[10px]"></i>
+                        </div>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Children</label>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Children</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-child text-gray-400 text-sm"></i>
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-child text-[#800000]/60 text-sm"></i>
                         </div>
-                        <input type="number" name="children" min="0" value="0" id="childrenInput" required class="w-full pl-10 sm:pl-11 pr-3 sm:pr-4 py-3 sm:py-3.5 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white text-sm">
+                        <input type="number" name="children" min="0" value="0" id="childrenInput" required class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-sm appearance-none">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-chevron-down text-gray-400 text-[10px]"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Total Pax -->
             <div>
-                <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Total Pax</label>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Total Pax</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-users text-gray-400"></i>
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-users text-[#800000]/60 text-sm"></i>
                     </div>
-                    <input type="number" name="pax" id="paxInput" readonly class="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 outline-none bg-gray-100 text-gray-600 font-bold">
+                    <input type="number" name="pax" id="paxInput" readonly class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 outline-none bg-gray-50 text-gray-700 font-bold text-sm">
                 </div>
             </div>
 
-            <!-- Special Requests -->
             <div>
-                <label class="block text-[11px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1">Special Requests (Optional)</label>
-                <textarea name="requests" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus-maroon transition-all bg-gray-50 focus:bg-white resize-none" placeholder="Any special requirements or preferences?"></textarea>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 ml-1">Special Requests (Optional)</label>
+                <div class="relative">
+                    <div class="absolute top-3 left-0 pl-3.5 flex items-start pointer-events-none">
+                        <i class="fa-solid fa-pen-to-square text-[#800000]/60 text-sm"></i>
+                    </div>
+                    <textarea name="requests" rows="2" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white resize-none text-sm" placeholder="Any special requirements or preferences?"></textarea>
+                </div>
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" id="submitBtn" disabled class="w-full mt-4 sm:mt-6 bg-maroon hover:bg-red-900 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-black py-3.5 sm:py-4 rounded-xl uppercase tracking-[0.2em] text-sm sm:text-base shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex justify-center items-center gap-2 min-h-[44px] sm:min-h-[48px]">
-                <i class="fas fa-check-circle"></i> Complete Reservation
+            <button type="submit" id="submitBtn" disabled class="w-full mt-2 bg-[#6b0000] hover:bg-[#4d0000] disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-black py-3 rounded-xl uppercase tracking-widest text-[11px] sm:text-xs transition-all shadow-md flex justify-center items-center gap-2">
+                <i class="fas fa-check-circle text-[#d4af37] text-sm disabled:text-gray-500"></i> COMPLETE RESERVATION
             </button>
 
-            <!-- Cancel Link -->
-            <a href="{{ route('order.booking-choice') }}" class="block text-center text-slate-500 hover:text-slate-700 font-bold text-xs sm:text-sm uppercase tracking-wider transition-colors py-2">
-                Go Back
+            <a href="{{ route('order.booking-choice') }}" class="block text-center text-[#800000] hover:text-[#4d0000] font-bold text-[11px] uppercase tracking-widest transition-colors pt-3">
+                <i class="fa-solid fa-chevron-left mr-1"></i> GO BACK
             </a>
         </form>
     </div>
