@@ -99,10 +99,6 @@
                             <div class="flex-1 py-3 bg-slate-100 text-slate-400 font-black text-[10px] uppercase rounded-xl flex items-center justify-center gap-2">
                                 <i class="fas fa-check-circle text-green-500"></i> Settled
                             </div>
-                            <button @click="cancelReservation(res.id)"
-                                    class="px-4 py-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all">
-                                <i class="fas fa-trash-alt text-xs"></i>
-                            </button>
                         </div>
 
                         <div x-show="res.status === 'cancelled'" class="py-3 bg-red-50 text-red-600 font-black text-[10px] uppercase rounded-xl flex items-center justify-center gap-2">
