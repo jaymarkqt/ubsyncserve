@@ -18,15 +18,12 @@
         </div>
     </div>
 
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 text-left">
-        <div class="flex items-center gap-3">
-            <div class="bg-slate-800 text-white px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider shadow-md">
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+        <div class="flex justify-between items-center mb-5">
+            <div class="bg-slate-800 text-white px-3 py-2 rounded-lg font-black text-[9px] uppercase tracking-wider shadow-md hover:bg-slate-700 transition-all">
                 Total: <span x-text="reservations.length"></span>
             </div>
         </div>
-    </div>
-
-    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <template x-for="res in reservations" :key="res.id">
                 <div class="flex flex-col bg-white border border-slate-100 rounded-2xl shadow-sm transition-all overflow-hidden" 
@@ -34,7 +31,7 @@
                     <div class="p-4 flex justify-between items-start gap-4">
                         <div class="flex-1 text-left">
                             <span class="text-lg font-black text-slate-800 leading-tight block break-words" x-text="res.name"></span>
-                            <div class="mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.3em] font-black text-slate-500">
+                            <div class="mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.3em] font-black text-black">
                                 <span x-text="res.type ? res.type.replace('-', ' ') : 'Table Reservation'"></span>
                                 
                             </div>
@@ -52,23 +49,23 @@
 
                     <div class="px-4 pb-4 flex-1 space-y-2 text-left">
                         <div class="text-sm flex justify-between items-center bg-gray-50/70 p-2.5 rounded-xl overflow-hidden">
-                            <span class="text-slate-500 font-medium italic shrink-0">Email:</span>
+                            <span class="text-black font-medium italic shrink-0">Email:</span>
                             <span class="font-black text-slate-900 truncate ml-2 text-right" :title="res.email" x-text="res.email || 'N/A'"></span>
                         </div>
                         <div class="text-sm flex justify-between items-center bg-gray-50/70 p-2.5 rounded-xl overflow-hidden">
-                            <span class="text-slate-500 font-medium italic shrink-0">Phone:</span>
+                            <span class="text-black font-medium italic shrink-0">Phone:</span>
                             <span class="font-black text-slate-900 truncate ml-2 text-right" :title="res.phone" x-text="res.phone || 'N/A'"></span>
                         </div>
                         <div class="text-sm flex justify-between items-center bg-gray-50/70 p-2.5 rounded-xl">
-                            <span class="text-slate-500 font-medium italic">Guests:</span>
+                            <span class="text-black font-medium italic">Guests:</span>
                             <span class="font-black text-slate-900" x-text="res.guests + ' Pax'"></span>
                         </div>
 
                         <div class="mt-3 pt-3 border-t border-slate-50">
-                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Appointment Schedule</p>
+                            <p class="text-[9px] font-bold text-black uppercase tracking-widest mb-1">Appointment Schedule</p>
                             <div class="flex justify-between items-center">
                                 <div class="flex items-center gap-2">
-                                    <i class="far fa-calendar-alt text-slate-400 text-xs"></i>
+                                    <i class="far fa-calendar-alt text-black text-xs"></i>
                                     <span class="text-sm font-black text-slate-700" x-text="res.date"></span>
                                 </div>
                                 <div class="flex items-center gap-2 bg-red-50 px-2 py-1 rounded-lg">

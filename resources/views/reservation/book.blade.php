@@ -100,10 +100,7 @@
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <i class="fa-regular fa-clock text-[#800000]/60 text-sm"></i>
                         </div>
-                        <input type="text" placeholder="--:-- --" onfocus="(this.type='time')" onblur="(this.value == '' ? this.type='text' : this.type='time')" name="time" required class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-gray-600 text-sm">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-chevron-down text-gray-400 text-[10px]"></i>
-                        </div>
+                        <input type="time" name="time" required class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-gray-600 text-sm">
                     </div>
                 </div>
             </div>
@@ -116,9 +113,6 @@
                             <i class="fa-solid fa-user-group text-[#800000]/60 text-sm"></i>
                         </div>
                         <input type="number" name="adults" min="0" value="0" id="adultsInput" required class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-sm appearance-none">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-chevron-down text-gray-400 text-[10px]"></i>
-                        </div>
                     </div>
                 </div>
                 <div>
@@ -128,9 +122,6 @@
                             <i class="fa-solid fa-child text-[#800000]/60 text-sm"></i>
                         </div>
                         <input type="number" name="children" min="0" value="0" id="childrenInput" required class="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 outline-none focus-maroon transition-all bg-white text-sm appearance-none">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <i class="fa-solid fa-chevron-down text-gray-400 text-[10px]"></i>
-                        </div>
                     </div>
                 </div>
             </div>
