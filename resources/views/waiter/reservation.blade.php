@@ -10,7 +10,7 @@
         </div>
         <div class="flex gap-3">
             <button @click="switchTab('home')" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-full font-bold text-sm uppercase tracking-wider hover:bg-slate-300 transition-all">
-                Floor plan
+                Overview
             </button>
             <button @click="switchTab('reservations')" class="px-6 py-2.5 bg-[#800000] text-white rounded-full font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all">
                 Reservations
