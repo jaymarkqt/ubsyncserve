@@ -1,7 +1,7 @@
 <div class="space-y-8" x-effect="() => $watch('orderHistory', () => {}, { deep: true })">
     <div class="mb-8">
         <h1 class="text-3xl font-black text-slate-800 uppercase tracking-tighter leading-none">Product Sales</h1>
-        <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+        <p class="text-xs text-slate-700 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
             Detailed Sales Performance
         </p>

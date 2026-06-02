@@ -76,7 +76,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
                     <h1 class="text-4xl font-black text-slate-800 uppercase tracking-tighter leading-none">Floor Plan</h1>
-                    <p class="text-xs text-slate-500 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+                    <p class="text-xs text-slate-700 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         Live Table Status Monitor
                     </p>
