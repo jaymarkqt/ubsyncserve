@@ -31,7 +31,7 @@
             </div>
 
             <!-- Enhanced Button (Nanatili ang interactive feel dito para sa UX) -->
-            <a href="{{ route('order.booking-choice') }}" class="group inline-flex items-center justify-center w-full gap-3 rounded-3xl bg-[#800000] px-6 py-4 text-sm font-black uppercase tracking-wide text-white shadow-[0_8px_20px_-6px_rgba(128,0,0,0.4)] hover:bg-[#9a0000] hover:shadow-[0_12px_25px_-6px_rgba(128,0,0,0.5)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300">
+            <a href="{{ route('order.select-booking') }}" class="group inline-flex items-center justify-center w-full gap-3 rounded-3xl bg-[#800000] px-6 py-4 text-sm font-black uppercase tracking-wide text-white shadow-[0_8px_20px_-6px_rgba(128,0,0,0.4)] hover:bg-[#9a0000] hover:shadow-[0_12px_25px_-6px_rgba(128,0,0,0.5)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300">
                 <i class="fas fa-sign-in-alt text-base group-hover:translate-x-1 transition-transform duration-300"></i>
                 Continue to Booking
             </a>

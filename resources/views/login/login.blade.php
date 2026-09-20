@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="view-transition" content="same-origin">
     <title>Login | UB Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -143,6 +144,13 @@
                         <span x-show="isLoading">Logging in...</span>
                     </button>
                 </form>
+
+                <div class="text-center mt-6">
+                    <p class="text-[12px] font-semibold text-gray-500 mb-3">Don't have an account?</p>
+                    <a href="{{ route('create-account') }}" class="block w-full border border-[#800000] text-[#800000] hover:bg-[#800000] hover:text-white font-bold py-3 rounded-xl uppercase tracking-widest text-[11px] transition-colors duration-300">
+                        Create Account
+                    </a>
+                </div>
             </div>
         </template>
 
@@ -324,7 +332,7 @@
                     this.errorMessage = '';
                 },
 
-                handleLogin() {
+                async handleLogin() {
                     this.errorMessage = '';
 
                     if (!this.email || !this.password) {
@@ -332,27 +340,33 @@
                         return;
                     }
 
-                    const user = this.users[this.email];
-
-                    if (!user) {
-                        this.showError('Email not found');
-                        return;
-                    }
-
-                    if (user.password !== this.password) {
-                        this.showError('Incorrect password');
-                        return;
-                    }
-
                     this.isLoading = true;
 
-                    setTimeout(() => {
-                        if (user.role === 'waiter') {
-                            window.location.href = '/waiter';
-                        } else if (user.role === 'manager') {
-                            window.location.href = '/manager';
+                    try {
+                        const response = await fetch("{{ route('login.post') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                email: this.email,
+                                password: this.password
+                            })
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.message || Object.values(data.errors || {}).flat()[0] || 'Invalid credentials.');
                         }
-                    }, 500);
+
+                        window.location.href = data.redirect;
+                    } catch (error) {
+                        this.showError(error.message);
+                    } finally {
+                        this.isLoading = false;
+                    }
                 },
 
                 verifyEmail() {

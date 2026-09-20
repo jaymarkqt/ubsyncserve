@@ -1,0 +1,44 @@
+Project UBSYNCSERVE {
+  database_type: 'MySQL'
+  Note: 'Initial ERD: manager/staff login and customer reservations'
+}
+
+Table users {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  email varchar(255) [not null, unique]
+  password varchar(255) [not null]
+  role varchar(20) [not null, note: 'manager or staff']
+  email_verified_at timestamp
+  remember_token varchar(100)
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table customers {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  email varchar(255) [not null]
+  phone varchar(30) [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table reservations {
+  id bigint [pk, increment]
+  customer_id bigint [not null]
+  handled_by bigint [note: 'User who confirms or manages the reservation']
+  reservation_type varchar(30) [not null, note: 'table-reservation or advance-order']
+  reservation_date date [not null]
+  reservation_time time [not null]
+  adults int [not null, default: 0]
+  children int [not null, default: 0]
+  total_pax int [not null]
+  special_requests text
+  status varchar(20) [not null, default: 'pending', note: 'pending, confirmed, cancelled, completed']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Ref: reservations.customer_id > customers.id
+Ref: reservations.handled_by > users.id

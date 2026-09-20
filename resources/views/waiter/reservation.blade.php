@@ -6,6 +6,9 @@
             <p class="text-xs text-slate-700 mt-2 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Active Bookings
+                <span x-show="reservations.some(res => res.status === 'pending')" x-cloak class="bg-red-600 text-white px-2 py-0.5 rounded-full text-[9px] tracking-normal">
+                    NEW
+                </span>
             </p>
         </div>
         <div class="flex gap-3">

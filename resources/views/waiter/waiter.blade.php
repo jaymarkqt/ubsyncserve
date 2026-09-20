@@ -706,6 +706,7 @@ function waiterSystem() {
         // Data Arrays
         tables: [],
         reservations: [],
+        processingReservations: {},
         guestSetup: { adults: 0, children: 0 },
         salesSummary: { total: 0 },
 
@@ -844,25 +845,29 @@ startSession() {
         },
 
         // --- RESERVATION FUNCTIONS ---
-     loadReservations() {
-    const stored = localStorage.getItem('ub_reservations');
-    if (!stored) {
-        this.reservations = [];
-        return;
-    }
-    
-    let rawData = JSON.parse(stored);
+     async loadReservations() {
+    try {
+        const response = await fetch('/bookings', {
+            headers: { 'Accept': 'application/json' }
+        });
 
-    this.reservations = rawData.map(res => {
-        let s = res.status ? res.status.toLowerCase() : 'pending';
-        return {
-            ...res,
-            status: s,
-            createdAt: res.createdAt || res.created_at || null,
-            table: res.table || null,
-            type: res.type || 'table-reservation'
-        };
-    });
+        if (response.ok) {
+            this.reservations = await response.json();
+            return;
+        }
+    } catch (error) {
+        console.warn('Unable to load database bookings:', error);
+    }
+
+    const stored = localStorage.getItem('ub_reservations');
+    const rawData = stored ? JSON.parse(stored) : [];
+    this.reservations = rawData.map(res => ({
+        ...res,
+        status: res.status ? res.status.toLowerCase() : 'pending',
+        createdAt: res.createdAt || res.created_at || null,
+        table: res.table || null,
+        type: res.type || 'table-reservation'
+    }));
 },
 
         async confirmReservation(resId) {
@@ -871,18 +876,36 @@ startSession() {
                 return;
             }
 
-            this.reservations[index].status = 'confirmed';
-            this.updateReservationStorage();
-
             const reservation = this.reservations[index];
-            
-            // For advance order, send link to select-tables for table selection
-            // For table reservation, send link to select-tables for reservation confirmation
-            const selectTablesUrl = '{{ route("order.select-tables") }}?type=' + reservation.type + '&resId=' + reservation.id;
+            if (reservation.status !== 'pending' || this.processingReservations[resId]) {
+                return;
+            }
+
+            this.processingReservations[resId] = true;
             
             try {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                const response = await fetch('{{ route('reservation.confirm.email') }}', {
+                const statusResponse = await fetch(`/bookings/${encodeURIComponent(resId)}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ status: 'confirmed' })
+                });
+                const statusResult = await statusResponse.json().catch(() => ({}));
+
+                if (!statusResponse.ok) {
+                    await this.loadReservations();
+                    alert(statusResult.message || 'This reservation has already been processed.');
+                    return;
+                }
+
+                reservation.status = 'confirmed';
+                this.updateReservationStorage();
+
+                const emailResponse = await fetch('/reservation/confirm-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -896,47 +919,92 @@ startSession() {
                         date: reservation.date,
                         time: reservation.time,
                         type: reservation.type,
-                        table: reservation.table,
-                        selectTablesUrl: selectTablesUrl
+                        table: reservation.table
                     })
                 });
 
-                const result = await response.json().catch(() => ({ success: false }));
+                const result = await emailResponse.json().catch(() => ({ success: false }));
 
-                if (!response.ok || !result.success) {
+                if (!emailResponse.ok || !result.success) {
                     console.warn('Email API warning:', result);
-                    alert('Reservation confirmed, but email sending failed. Check server logs.');
+                    alert(result.message || 'Reservation confirmed, but the confirmation email could not be sent.');
                     window.dispatchEvent(new Event('storage'));
                     return;
                 }
             } catch (error) {
                 console.warn('Email send failed:', error);
-                alert('Reservation confirmed, but email sending failed. Please try again later.');
+                alert('Reservation confirmed, but the confirmation email could not be sent. Please try again later.');
                 window.dispatchEvent(new Event('storage'));
-                return;
+            } finally {
+                delete this.processingReservations[resId];
             }
 
-            alert('Reservation confirmed! Email with the select-tables link has been sent to the customer.');
-            window.dispatchEvent(new Event('storage'));
+            if (reservation.status === 'confirmed') {
+                alert('Reservation confirmed! Email with the select-tables link has been sent to the customer.');
+                window.dispatchEvent(new Event('storage'));
+            }
         },
 
 
-        deleteReservation(resId) {
+        async deleteReservation(resId) {
+            if (!confirm('Are you sure you want to remove this reservation from the active list?')) {
+                return;
+            }
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch(`/bookings/${encodeURIComponent(resId)}`, {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                alert('Unable to remove the reservation from the active list.');
+                return;
+            }
+
             this.reservations = this.reservations.filter(r => r.id !== resId);
             this.updateReservationStorage();
             window.dispatchEvent(new Event('storage'));
         },
 
-        cancelReservation(resId) {
-            let index = this.reservations.findIndex(r => r.id === resId);
-            if (index !== -1) {
-                this.reservations[index].status = 'cancelled';
-                this.updateReservationStorage();
-                window.dispatchEvent(new Event('storage'));
+        async cancelReservation(resId) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch(`/bookings/${encodeURIComponent(resId)}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status: 'cancelled' })
+            });
+
+            if (!response.ok) {
+                alert('Unable to cancel this reservation.');
+                return;
             }
+
+            this.reservations = this.reservations.filter(r => r.id !== resId);
+            this.updateReservationStorage();
+            window.dispatchEvent(new Event('storage'));
         },
 
-        clearAllReservations() {
+        async clearAllReservations() {
+            if (!confirm('Remove all reservations from the active list? The database records will be kept.')) {
+                return;
+            }
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch('/bookings', {
+                method: 'DELETE',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) {
+                alert('Unable to clear the active reservations.');
+                return;
+            }
+
             this.reservations = [];
             this.updateReservationStorage();
             window.dispatchEvent(new Event('storage'));

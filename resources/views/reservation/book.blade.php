@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Make a Reservation | UB Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -150,7 +151,7 @@
                 <i class="fas fa-check-circle text-[#d4af37] text-sm disabled:text-gray-500"></i> COMPLETE RESERVATION
             </button>
 
-            <a href="{{ route('order.booking-choice') }}" class="block text-center text-[#800000] hover:text-[#4d0000] font-bold text-[11px] uppercase tracking-widest transition-colors pt-3">
+            <a href="{{ route('order.select-booking') }}" class="block text-center text-[#800000] hover:text-[#4d0000] font-bold text-[11px] uppercase tracking-widest transition-colors pt-3">
                 <i class="fa-solid fa-chevron-left mr-1"></i> GO BACK
             </a>
         </form>
@@ -215,7 +216,7 @@
     document.querySelector('input[name="date"]').addEventListener('input', validateForm);
     document.querySelector('input[name="time"]').addEventListener('input', validateForm);
 
-    document.querySelector('form').addEventListener('submit', function(e) {
+    document.querySelector('form').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const formData = new FormData(this);
@@ -224,49 +225,34 @@
         const guests = adults + children;
         const type = formData.get('type') || 'table-reservation';
 
-        const newReservation = {
-            id: 'RES-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'),
-            name: formData.get('name'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            type: type,
-            adults: adults,
-            children: children,
-            guests: guests,
-            date: formData.get('date'),
-            time: formData.get('time'),
-            requests: formData.get('requests'),
-            status: 'pending',
-            createdAt: new Date().toISOString(),
-            scheduledAt: formData.get('date') + ' ' + formData.get('time')
-        };
+        const submitButton = document.getElementById('submitBtn');
+        submitButton.disabled = true;
 
-        let existingReservations = JSON.parse(localStorage.getItem('ub_reservations')) || [];
-        existingReservations.unshift(newReservation);
-        localStorage.setItem('ub_reservations', JSON.stringify(existingReservations));
+        try {
+            const response = await fetch('/book', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: formData
+            });
+            const data = await response.json();
 
-        if (type === 'advance-order') {
-            let storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-            if (!Array.isArray(storedTables) || storedTables.length !== 15) {
-                storedTables = Array.from({ length: 15 }, (_, idx) => ({
-                    id: idx + 1,
-                    status: 'available',
-                    type: null,
-                    adults: 0,
-                    children: 0,
-                    bill: 0,
-                    orders: []
-                }));
+            if (!response.ok) {
+                throw new Error(data.message || Object.values(data.errors || {}).flat()[0] || 'Unable to submit your reservation.');
             }
-            localStorage.setItem('ub_tables', JSON.stringify(storedTables));
+
+            localStorage.setItem('customer_booking_type', type);
+            window.dispatchEvent(new Event('storage'));
+            this.reset();
+            updatePaxCount();
+            alert(data.message);
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            submitButton.disabled = false;
         }
-
-        localStorage.setItem('customer_booking_type', type);
-
-        window.dispatchEvent(new Event('storage'));
-        this.reset();
-        updatePaxCount();
-        alert('Reservation request submitted! Please wait for confirmation. Check your email for updates.');
     });
 </script>
 </body>

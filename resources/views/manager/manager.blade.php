@@ -272,7 +272,20 @@ loadTablesFromStorage() {
                     });
                 },
 
-                loadReservationsFromStorage() {
+                async loadReservationsFromStorage() {
+                    try {
+                        const response = await fetch('/bookings', {
+                            headers: { 'Accept': 'application/json' }
+                        });
+
+                        if (response.ok) {
+                            this.reservations = await response.json();
+                            return;
+                        }
+                    } catch (error) {
+                        console.warn('Unable to load database bookings:', error);
+                    }
+
                     const stored = localStorage.getItem('ub_reservations');
                     this.reservations = stored ? JSON.parse(stored) : [];
                 },
@@ -288,14 +301,35 @@ async updateReservationStatus(id, newStatus) {
         return;
     }
 
-    this.reservations[index].status = newStatus;
-    localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
-    this.loadReservationsFromStorage();
-
     const reservation = this.reservations[index];
     try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        await fetch('{{ route('reservation.confirm.email') }}', {
+        const statusResponse = await fetch(`/bookings/${encodeURIComponent(id)}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        const result = await statusResponse.json().catch(() => ({}));
+        if (!statusResponse.ok) {
+            await this.loadReservationsFromStorage();
+            alert(result.message || 'This reservation has already been processed.');
+            return;
+        }
+
+        reservation.status = newStatus;
+        localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
+        await this.loadReservationsFromStorage();
+
+        if (newStatus !== 'confirmed') {
+            return;
+        }
+
+        const emailResponse = await fetch('/reservation/confirm-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -312,28 +346,77 @@ async updateReservationStatus(id, newStatus) {
                 table: reservation.table
             })
         });
+
+        const emailResult = await emailResponse.json().catch(() => ({ success: false }));
+        if (!emailResponse.ok || !emailResult.success) {
+            alert(emailResult.message || 'Reservation confirmed, but the confirmation email could not be sent.');
+            return;
+        }
+
+        alert('Reservation confirmed! The table-selection link was sent to the customer.');
     } catch (error) {
         console.warn('Email send failed:', error);
     }
 },
 
-deleteReservation(id) {
+async deleteReservation(id) {
     if(!confirm('Are you sure you want to delete this reservation record?')) return;
 
-    this.reservations = this.reservations.filter(r => r.id !== id);
-    localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
-    this.loadReservationsFromStorage();
-},
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const response = await fetch(`/bookings/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+    });
 
-cancelReservation(id) {
-    let index = this.reservations.findIndex(r => r.id === id);
-    if (index === -1) {
+    if (!response.ok) {
+        alert('Unable to remove the reservation from the active list.');
         return;
     }
 
-    this.reservations[index].status = 'cancelled';
+    this.reservations = this.reservations.filter(r => r.id !== id);
     localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
-    this.loadReservationsFromStorage();
+    await this.loadReservationsFromStorage();
+},
+
+async clearAllReservations() {
+    if (!confirm('Remove all reservations from the active list? The database records will be kept.')) return;
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const response = await fetch('/bookings', {
+        method: 'DELETE',
+        headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+    });
+
+    if (!response.ok) {
+        alert('Unable to clear the active reservations.');
+        return;
+    }
+
+    this.reservations = [];
+    localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
+    await this.loadReservationsFromStorage();
+},
+
+async cancelReservation(id) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const response = await fetch(`/bookings/${encodeURIComponent(id)}/status`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ status: 'cancelled' })
+    });
+
+    if (!response.ok) {
+        alert('Unable to cancel this reservation.');
+        return;
+    }
+
+    this.reservations = this.reservations.filter(r => r.id !== id);
+    localStorage.setItem('ub_reservations', JSON.stringify(this.reservations));
+    await this.loadReservationsFromStorage();
 },
 
 formatTime(time) {
