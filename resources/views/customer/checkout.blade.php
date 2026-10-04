@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Checkout | Digital Ordering</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/table-state.js') }}"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -111,39 +113,24 @@
 
                     <div class="rounded-[2rem] bg-white p-6 shadow-sm border border-gray-200">
                         <h2 class="text-xl font-black uppercase tracking-tight text-gray-900">Payment Method</h2>
-                        <div class="mt-5 space-y-3">
-                            <label class="cursor-pointer block rounded-[1.5rem] border-2 transition-all" :class="paymentMethod === 'credit' ? 'border-[#800000] bg-[#fff4f4]' : 'border-gray-100 bg-white hover:border-gray-200'">
-                                <input type="radio" name="payment" value="credit" class="hidden" x-model="paymentMethod" />
-                                <div class="flex items-center gap-4 p-4">
-                                    <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#800000] text-white shadow-sm"><i class="fas fa-credit-card"></i></span>
-                                    <div>
-                                        <p class="font-black uppercase text-gray-900">Credit Card</p>
-                                        <p class="text-xs text-gray-500">Pay via credit/debit card</p>
-                                    </div>
-                                    <div class="ml-auto text-[#800000]" x-show="paymentMethod === 'credit'">
-                                        <i class="fas fa-check-circle text-xl"></i>
-                                    </div>
+                        <div class="mt-5 rounded-[1.5rem] border-2 border-[#800000] bg-[#fff4f4]">
+                            <div class="flex items-center gap-4 p-4">
+                                <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-sm"><i class="fas fa-mobile-screen-button"></i></span>
+                                <div>
+                                    <p class="font-black uppercase text-gray-900">GCash</p>
+                                    <p class="text-xs text-gray-500">GCash payment will be confirmed by staff.</p>
                                 </div>
-                            </label>
-
-                            <label class="cursor-pointer block rounded-[1.5rem] border-2 transition-all" :class="paymentMethod === 'gcash' ? 'border-[#800000] bg-[#fff4f4]' : 'border-gray-100 bg-white hover:border-gray-200'">
-                                <input type="radio" name="payment" value="gcash" class="hidden" x-model="paymentMethod" />
-                                <div class="flex items-center gap-4 p-4">
-                                    <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-sm"><i class="fas fa-mobile-screen-button"></i></span>
-                                    <div>
-                                        <p class="font-black uppercase text-gray-900">GCash</p>
-                                        <p class="text-xs text-gray-500">Pay using e-wallet</p>
-                                    </div>
-                                    <div class="ml-auto text-[#800000]" x-show="paymentMethod === 'gcash'">
-                                        <i class="fas fa-check-circle text-xl"></i>
-                                    </div>
+                                <div class="ml-auto text-[#800000]">
+                                    <i class="fas fa-check-circle text-xl"></i>
                                 </div>
-                            </label>
+                            </div>
                         </div>
+                        <p class="mt-3 text-xs text-gray-500">Online GCash processing is not configured yet. Do not send payment until staff provides instructions.</p>
                     </div>
 
-                    <button @click="placeOrder()" class="w-full rounded-full bg-[#800000] py-4 text-base font-black uppercase tracking-wide text-white shadow-lg hover:bg-[#a00000] transition active:scale-[0.98]">
-                        Place Order
+                    <p x-show="orderError" x-text="orderError" class="rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700" role="alert"></p>
+                    <button @click="placeOrder()" :disabled="isSubmittingOrder || cart.length === 0" class="w-full rounded-full bg-[#800000] py-4 text-base font-black uppercase tracking-wide text-white shadow-lg hover:bg-[#a00000] transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
+                        <span x-text="isSubmittingOrder ? 'Submitting...' : 'Place Order'"></span>
                     </button>
                 </div>
             </div>
@@ -155,16 +142,16 @@
                     <i class="fas fa-check text-4xl"></i>
                 </div>
                 <h2 class="text-2xl font-black uppercase text-gray-900">Order Confirmed!</h2>
-                <p class="mt-2 text-sm text-gray-500">Your payment has been received. The kitchen will begin preparing your order.</p>
+                <p class="mt-2 text-sm text-gray-500">Your order has been submitted. GCash payment is pending staff confirmation; online payment processing is not configured yet.</p>
                 
                 <div class="mt-6 rounded-[1.5rem] bg-gray-50 p-5 text-left border border-gray-100">
                    <p class="text-[11px] font-black uppercase tracking-widest text-gray-900 mb-4 border-b border-gray-200 pb-3">Receipt Summary</p>
                     <div class="space-y-2">
                         <div class="flex justify-between"><span class="text-sm text-gray-500">Table:</span> <span class="text-sm font-black text-gray-900" x-text="tableNumber ? 'TABLE ' + tableNumber : 'UNASSIGNED'"></span></div>
-                        <div class="flex justify-between"><span class="text-sm text-gray-500">Method:</span> <span class="text-sm font-black text-gray-900" x-text="paymentMethod === 'credit' ? 'Credit Card' : 'GCash'"></span></div>
+                        <div class="flex justify-between"><span class="text-sm text-gray-500">Method:</span> <span class="text-sm font-black text-gray-900">GCash (pending confirmation)</span></div>
                         <div class="flex justify-between pb-2 border-b border-gray-200"><span class="text-sm text-gray-500">Subtotal:</span> <span class="text-sm font-black text-gray-900" x-text="formatCurrency(cartTotal)"></span></div>
                         <div class="flex justify-between pb-2"><span class="text-sm text-gray-500">VAT (5%):</span> <span class="text-sm font-black text-gray-900" x-text="formatCurrency(cartTotal * 0.05)"></span></div>
-                        <div class="flex justify-between pt-2 border-t border-gray-200 mt-2"><span class="text-base font-bold text-gray-900">Total Paid:</span> <span class="text-base font-black text-[#800000]" x-text="formatCurrency(cartTotal * 1.05)"></span></div>
+                        <div class="flex justify-between pt-2 border-t border-gray-200 mt-2"><span class="text-base font-bold text-gray-900">Order Total:</span> <span class="text-base font-black text-[#800000]" x-text="formatCurrency(cartTotal * 1.05)"></span></div>
                     </div>
                 </div>
                 
@@ -181,11 +168,14 @@
                 cart: [],
                 tableNumber: null,
                 guestCount: 0,
-                paymentMethod: 'credit',
+                paymentMethod: 'gcash',
                 bookingType: 'dine-in',
                 orderComplete: false,
+                isSubmittingOrder: false,
+                orderError: '',
+                serverSubtotal: null,
 
-                loadOrder() {
+                async loadOrder() {
                     const savedCart = localStorage.getItem('customer_order_cart');
                     const savedTable = localStorage.getItem('customer_order_table');
                     const savedBookingType = localStorage.getItem('customer_booking_type') || 'dine-in';
@@ -207,7 +197,7 @@
                     let children = Number.isInteger(savedChildren) ? savedChildren : 0;
 
                     if (adults === 0 && children === 0 && this.tableNumber) {
-                        const storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+                        const storedTables = await window.tableStateApi.load();
                         const tableData = storedTables.find(t => t.id === Number(this.tableNumber));
                         if (tableData) {
                             adults = Number.isInteger(tableData.adults) ? tableData.adults : adults;
@@ -219,6 +209,10 @@
                 },
 
                 get cartTotal() {
+                    if (this.serverSubtotal !== null) {
+                        return this.serverSubtotal;
+                    }
+
                     return this.cart.reduce((sum, item) => {
                         const addOnsTotal = (item.addOns || []).reduce((a, addon) => a + addon.price, 0);
                         return sum + ((item.price + addOnsTotal) * item.qty);
@@ -229,7 +223,10 @@
                     return '₱' + parseFloat(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 },
 
-                placeOrder() {
+                async placeOrder() {
+                    if (this.isSubmittingOrder) {
+                        return;
+                    }
                     if (this.cart.length === 0 || !this.tableNumber) {
                         alert("Please make sure you have items in your cart and a table is assigned.");
                         return;
@@ -240,101 +237,86 @@
                         return;
                     }
 
-                    let adults = parseInt(localStorage.getItem('customer_guests_adults'), 10);
-                    let children = parseInt(localStorage.getItem('customer_guests_children'), 10);
+                    this.isSubmittingOrder = true;
+                    this.orderError = '';
+                    try {
+                        let adults = parseInt(localStorage.getItem('customer_guests_adults'), 10);
+                        let children = parseInt(localStorage.getItem('customer_guests_children'), 10);
 
-                    adults = Number.isInteger(adults) ? adults : 0;
-                    children = Number.isInteger(children) ? children : 0;
+                        adults = Number.isInteger(adults) ? adults : 0;
+                        children = Number.isInteger(children) ? children : 0;
 
-                    if (adults === 0 && children === 0) {
-                        const storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-                        const tableData = storedTables.find(t => t.id === tableId);
-                        if (tableData) {
-                            adults = Number.isInteger(tableData.adults) ? tableData.adults : adults;
-                            children = Number.isInteger(tableData.children) ? tableData.children : children;
-                        }
-                    }
-
-                    const orderItems = this.cart.map(item => {
-                        const addOnTotal = (item.addOns || []).reduce((sum, addon) => sum + addon.price, 0);
-                        const addonName = (item.addOns || []).map(addon => addon.name).join(', ');
-                        return {
-                            name: item.name,
-                            qty: item.qty,
-                            price: item.price + addOnTotal,
-                            addonName: addonName || 'default'
-                        };
-                    });
-
-                    let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-                    let tableIndex = tables.findIndex(t => t.id === tableId);
-                    const incomingBill = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-
-                    if (tableIndex === -1) {
-                        tables.push({
-                            id: tableId,
-                            status: 'occupied',
-                            adults: adults,
-                            children: children,
-                            bill: incomingBill,
-                            orders: orderItems,
-                            startTime: new Date().toISOString()
-                        });
-                    } else {
-                        const table = tables[tableIndex];
-                        const isReserved = table.status === 'reserved-advance' || table.status === 'reserved-booking';
-
-                        table.status = isReserved ? table.status : 'occupied';
-                        table.adults = adults;
-                        table.children = children;
-                        table.startTime = table.startTime || new Date().toISOString();
-                        table.orders = Array.isArray(table.orders) ? table.orders.concat(orderItems) : orderItems;
-                        table.bill = (table.orders || []).reduce((sum, item) => sum + item.price * item.qty, 0);
-                    }
-
-                    localStorage.setItem('ub_tables', JSON.stringify(tables));
-
-                    const catalog = JSON.parse(localStorage.getItem('product_catalog') || '[]');
-                    this.cart.forEach(item => {
-                        const product = catalog.find(p => p.id === item.id);
-                        if (product) {
-                            product.stock = Math.max(0, (product.stock || 0) - item.qty);
-                            // Deduct ingredients
-                            if (product.ingredients) {
-                                product.ingredients.forEach(ing => {
-                                    ing.stock = Math.max(0, (ing.stock || 0) - item.qty);
-                                });
+                        if (adults === 0 && children === 0) {
+                            const storedTables = await window.tableStateApi.load();
+                            const tableData = storedTables.find(t => t.id === tableId);
+                            if (tableData) {
+                                adults = Number.isInteger(tableData.adults) ? tableData.adults : adults;
+                                children = Number.isInteger(tableData.children) ? tableData.children : children;
                             }
                         }
-                    });
-                    localStorage.setItem('product_catalog', JSON.stringify(catalog));
-                    window.dispatchEvent(new Event('storage'));
 
-                    const analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
-                    const subtotal = this.cartTotal;
-                    const vat = this.cartTotal * 0.05;
-                    const totalAmount = this.cartTotal * 1.05;
-                    const transaction = {
-                        orderId: 'ORD-' + Date.now(),
-                        timestamp: new Date().toISOString(),
-                        subtotal,
-                        vat,
-                        totalAmount,
-                        tableId,
-                        paymentMethod: this.paymentMethod,
-                        bookingType: this.bookingType,
-                        items: orderItems
-                    };
-                    analyticsHistory.unshift(transaction);
-                    try {
-                        localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
-                        console.log('✅ Checkout transaction saved:', transaction);
-                        window.dispatchEvent(new Event('storage'));
+                        const orderItems = this.cart.map(item => {
+                            const addonName = (item.addOns || []).map(addon => addon.name).join(', ');
+                            return {
+                                name: item.name,
+                                qty: item.qty,
+                                price: item.price + (item.addOns || []).reduce((sum, addon) => sum + addon.price, 0),
+                                addonName: addonName || 'default'
+                            };
+                        });
+
+                        const response = await fetch('{{ route('orders.complete') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                table_number: tableId,
+                                adults,
+                                children,
+                                items: this.cart.map(item => ({
+                                    product_id: item.id,
+                                    quantity: item.qty,
+                                    add_ons: (item.addOns || []).map(addon => ({ name: addon.name }))
+                                }))
+                            })
+                        });
+                        const result = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            const validationMessage = Object.values(result.errors || {}).flat()[0];
+                            throw new Error(validationMessage || result.message || 'Unable to submit your order.');
+                        }
+
+                        this.serverSubtotal = Number(result.total_amount);
+                        const subtotal = this.cartTotal;
+                        this.orderComplete = true;
+
+                        try {
+                            const analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+                            analyticsHistory.unshift({
+                                orderId: result.order_number,
+                                timestamp: new Date().toISOString(),
+                                subtotal,
+                                vat: subtotal * 0.05,
+                                totalAmount: subtotal * 1.05,
+                                tableId,
+                                paymentMethod: 'gcash',
+                                bookingType: this.bookingType,
+                                items: orderItems,
+                                status: 'pending'
+                            });
+                            localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
+                            window.dispatchEvent(new Event('storage'));
+                        } catch (error) {
+                            console.error('Unable to save the local checkout analytics entry:', error);
+                        }
                     } catch (error) {
-                        console.error('❌ Failed to save checkout transaction:', error);
+                        this.orderError = error.message || 'Unable to submit your order. Please try again.';
+                    } finally {
+                        this.isSubmittingOrder = false;
                     }
-
-                    this.orderComplete = true;
                 },
 
                 clearOrder() {

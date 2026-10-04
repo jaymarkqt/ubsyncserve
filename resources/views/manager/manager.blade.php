@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manager Command Center | UB-SYNC</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="{{ asset('js/table-state.js') }}"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -139,7 +140,7 @@
         function managerDashboard() {
             return {
                 sidebarOpen: true,
-                tab: 'analytics', // Dito nag-uumpisa sa Analytics by default
+                tab: @json($activeTab ?? 'analytics'),
                 selectedTable: null,
                 showAddModal: false,
                 showOrderModal: false,
@@ -147,7 +148,10 @@
                 showAdvanceOrderModal: false,
                 showCompleteOrderModal: false,
                 showSetupModal: false,
-                editingIndex: null,
+                editingProductId: null,
+                isSavingProduct: false,
+                deletingProductId: null,
+                productFormError: '',
                 reservations: [],
                voidOrderIndex: null,
                voidCodeInput: '',
@@ -161,9 +165,12 @@
                 
                 // Open Tables Data
              openTables: [],
+                tableSyncError: '',
+                isRefreshingDashboard: false,
+                isClearingTable: false,
                 
                 // Inventory Data
-                formData: { id: null, name: '', cost: 0, sellingPrice: 0, img: '', addOns: [], ingredients: [] },
+                formData: { id: null, name: '', cost: 0, sellingPrice: 0, stock: 0, img: '', addOns: [], ingredients: [] },
                 products: [],
 
                 normalizeProducts(products) {
@@ -175,28 +182,44 @@
                     }));
                 },
 
-                loadProducts() {
-                    const savedProducts = localStorage.getItem('product_catalog');
-                    if (savedProducts) {
-                        try {
-                            this.products = JSON.parse(savedProducts);
-                        } catch (error) {
-                            this.products = [];
-                        }
-                    } else {
-                        this.products = [];
+                async loadProducts() {
+                    const response = await fetch('{{ route('products.index') }}', {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Unable to load products.');
                     }
+
+                    this.products = this.normalizeProducts(await response.json());
                 },
 
-                saveProducts() {
-                    const normalized = this.normalizeProducts(this.products);
-                    this.products = normalized;
-                    localStorage.setItem('product_catalog', JSON.stringify(normalized));
-                    window.dispatchEvent(new Event('storage'));
+                async saveProductToDatabase(product) {
+                    const isEditing = product.id !== null && product.id !== undefined;
+                    const url = isEditing
+                        ? `{{ url('/api/products') }}/${product.id}`
+                        : '{{ route('products.store') }}';
+                    const response = await fetch(url, {
+                        method: isEditing ? 'PUT' : 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(product)
+                    });
+
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        const validationMessage = Object.values(result.errors || {}).flat()[0];
+                        throw new Error(validationMessage || result.message || 'Unable to save product.');
+                    }
+
+                    return result;
                 },
 
                 resetForm() {
-                    this.formData = { id: null, name: '', cost: 0, sellingPrice: 0, img: '', addOns: [], ingredients: [] };
+                    this.formData = { id: null, name: '', cost: 0, sellingPrice: 0, stock: 0, img: '', addOns: [], ingredients: [] };
                 },
 
                 formatCurrency(val) {
@@ -221,34 +244,22 @@
     );
 },
 
-loadTablesFromStorage() {
-                    const stored = localStorage.getItem('ub_tables');
-                    const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
-                    let tables = [];
-
-                    if (!stored) {
-                        // Initialize default tables and persist them.
-                        tables = Array.from({ length: 15 }, (_, i) => ({
-                            id: i + 1,
-                            status: 'available',
-                            adults: 0,
-                            children: 0,
-                            bill: 0,
-                            orders: []
-                        }));
-                        localStorage.setItem('ub_tables', JSON.stringify(tables));
-                    } else {
-                        tables = JSON.parse(stored);
+async loadTablesFromStorage() {
+                try {
+                    const tables = await window.tableStateApi.load();
+                    if (this.isClearingTable) {
+                        return;
                     }
 
+                    const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
+
                     // Process each table
-                    this.openTables = tables.map(t => {
+                    const updatedTables = tables.map(t => {
                         const tableOrders = t.orders || [];
                         let calculatedBill = tableOrders.reduce((sum, item) => sum + (item.price * item.qty), 0);
-                        let status = t.status;
-                        if (!status || (status !== 'paid' && status !== 'reserved-advance' && status !== 'reserved-booking')) {
-                            status = tableOrders.length > 0 ? 'occupied' : 'available';
-                        }
+                        const status = ['occupied', 'paid', 'reserved-advance', 'reserved-booking'].includes(t.status)
+                            ? t.status
+                            : (tableOrders.length > 0 ? 'occupied' : 'available');
 
                         const matchedReservation = reservations.find(r => r.table == t.id)
                             || reservations.find(r => r.status === 'pending' && ((status === 'reserved-advance' && r.type === 'advance-order') || (status === 'reserved-booking' && r.type === 'table-reservation')));
@@ -270,6 +281,14 @@ loadTablesFromStorage() {
                             bill: calculatedBill
                         };
                     });
+                    if (JSON.stringify(updatedTables) !== JSON.stringify(this.openTables)) {
+                        this.openTables = updatedTables;
+                    }
+                    this.tableSyncError = '';
+                } catch (error) {
+                    this.tableSyncError = error.message;
+                    console.error('Unable to synchronize the manager floorplan:', error);
+                }
                 },
 
                 async loadReservationsFromStorage() {
@@ -466,35 +485,59 @@ handleTableClick(table) {
 },
 
 
-clearTable(tableId) {
-                    let stored = localStorage.getItem('ub_tables');
-                    if (stored) {
-                        let tables = JSON.parse(stored);
-                        let index = tables.findIndex(t => t.id == tableId);
+async clearTable(tableId) {
+    if (this.isClearingTable) {
+        return;
+    }
 
-                        if (index !== -1) {
-                            tables[index].status = 'available';
-                            tables[index].adults = 0;
-                            tables[index].children = 0;
-                            tables[index].bill = 0;
-                            tables[index].orders = [];
-                            tables[index].isPaid = false;
+    const tableIndex = this.openTables.findIndex(table => Number(table.id) === Number(tableId));
+    if (tableIndex === -1) {
+        alert('Unable to clear this table because it could not be found.');
+        return;
+    }
 
-                            localStorage.setItem('ub_tables', JSON.stringify(tables));
+    const table = this.openTables[tableIndex];
+    const clearedTable = {
+        id: Number(table.id),
+        status: 'available',
+        isPaid: false,
+        adults: 0,
+        children: 0,
+        guests: 0,
+        bill: 0,
+        startTime: null,
+        orders: []
+    };
 
-                            // Clear kitchen orders same as waiter
-                            let kOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
-                            let filteredK = kOrders.filter(ko => ko.table != tableId);
-                            localStorage.setItem('ub_kitchen_orders', JSON.stringify(filteredK));
+    this.isClearingTable = true;
+    this.openTables.splice(tableIndex, 1, {
+        ...table,
+        ...clearedTable,
+        tableNumber: table.id,
+        duration: ''
+    });
+    this.showOrderModal = false;
+    this.showReservedModal = false;
+    this.showAdvanceOrderModal = false;
+    this.selectedTable = null;
 
-                            this.loadTablesFromStorage();
-                            this.showOrderModal = false;
-                            this.showReservedModal = false;
-                            this.showAdvanceOrderModal = false;
-                            this.selectedTable = null;
-                        }
-                    }
-                },
+    try {
+        await window.tableStateApi.clear(clearedTable.id);
+
+        const kitchenOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
+        localStorage.setItem(
+            'ub_kitchen_orders',
+            JSON.stringify(kitchenOrders.filter(order => order.table != tableId))
+        );
+    } catch (error) {
+        console.error('Unable to clear the paid table:', error);
+        this.isClearingTable = false;
+        alert(error.message || 'Unable to clear the paid table.');
+        await this.loadTablesFromStorage();
+    } finally {
+        this.isClearingTable = false;
+    }
+},
 
                
 
@@ -512,7 +555,7 @@ clearTable(tableId) {
                 },
 
                 // 3. Iche-check ang PIN bago burahin
-                confirmVoidOrder() {
+                async confirmVoidOrder() {
                     if (this.voidCodeInput.trim() === '') {
                         alert('Please enter manager PIN.');
                         return;
@@ -524,17 +567,15 @@ clearTable(tableId) {
                     }
 
                     // Kung tama ang PIN, ituloy ang pagbura
-                    this.voidOrder(this.voidOrderIndex);
+                    await this.voidOrder(this.voidOrderIndex);
                     this.cancelVoid(); // Isara ang Security Modal pagkatapos
                 },
 
                 // 4. Ang mismong function na magbubura ng order sa database/localStorage
-                voidOrder(index) {
+                async voidOrder(index) {
                     if (!this.selectedTable) return;
 
-                    let stored = localStorage.getItem('ub_tables');
-                    if (stored) {
-                        let tables = JSON.parse(stored);
+                        let tables = await window.tableStateApi.load();
                         let tableIndex = tables.findIndex(t => t.id == this.selectedTable.tableNumber);
 
                         if (tableIndex !== -1) {
@@ -549,14 +590,16 @@ clearTable(tableId) {
                                 tables[tableIndex].status = 'available';
                                 tables[tableIndex].adults = 0;
                                 tables[tableIndex].children = 0;
+                                tables[tableIndex].guests = 0;
+                                tables[tableIndex].isPaid = false;
+                                tables[tableIndex].startTime = null;
                                 this.showOrderModal = false;
                             }
 
                             // I-save pabalik sa storage at i-refresh ang tables
-                            localStorage.setItem('ub_tables', JSON.stringify(tables));
-                            this.loadTablesFromStorage();
+                            await window.tableStateApi.save([tables[tableIndex]]);
+                            await this.loadTablesFromStorage();
                         }
-                    }
                 },
 
 
@@ -571,32 +614,90 @@ clearTable(tableId) {
                     console.log('Selected table:', table);
                 },
 
-                editProduct(index) {
-                    this.editingIndex = index;
-                    this.formData = { ...this.products[index] };
+                openAddProduct() {
+                    this.productFormError = '';
+                    this.editingProductId = null;
+                    this.resetForm();
+                    this.showAddModal = true;
                 },
 
-                saveProduct() {
-                    if (!this.formData.name) return alert('Name is required');
-
-                    // Filter out empty ingredients
-                    this.formData.ingredients = (this.formData.ingredients || []).filter(ing => ing.name && ing.stock > 0);
-
-                    if (this.editingIndex !== null) {
-                        this.products[this.editingIndex] = { ...this.formData };
-                    } else {
-                        const nextId = this.products.reduce((max, product) => Math.max(max, product.id), 0) + 1;
-                        this.products.push({ ...this.formData, id: nextId });
+                editProduct(productId) {
+                    const product = this.products.find(item => item.id === productId);
+                    if (!product) {
+                        this.productFormError = 'This product is no longer available. Refresh the inventory and try again.';
+                        return;
                     }
 
-                    this.saveProducts();
-                    this.closeModal();
+                    this.productFormError = '';
+                    this.showAddModal = false;
+                    this.editingProductId = product.id;
+                    this.formData = {
+                        ...product,
+                        addOns: (product.addOns || []).map(addOn => ({ ...addOn })),
+                        ingredients: (product.ingredients || []).map(ingredient => ({ ...ingredient }))
+                    };
                 },
 
-                deleteProduct(index) {
-                    if (confirm('Delete this product?')) {
-                        this.products.splice(index, 1);
-                        this.saveProducts();
+                async saveProduct() {
+                    if (this.isSavingProduct) {
+                        return;
+                    }
+
+                    this.productFormError = '';
+                    const productToSave = {
+                        ...this.formData,
+                        name: this.formData.name.trim(),
+                        ingredients: (this.formData.ingredients || []).filter(ingredient => ingredient.name?.trim()),
+                        addOns: (this.formData.addOns || []).filter(addOn => addOn.name?.trim())
+                    };
+
+                    if (!productToSave.name) {
+                        this.productFormError = 'Product name is required.';
+                        return;
+                    }
+
+                    this.isSavingProduct = true;
+
+                    try {
+                        await this.saveProductToDatabase(productToSave);
+                        await this.loadProducts();
+                        this.closeModal();
+                    } catch (error) {
+                        this.productFormError = error.message || 'Unable to save product.';
+                    } finally {
+                        this.isSavingProduct = false;
+                    }
+                },
+
+                async deleteProduct(productId) {
+                    const product = this.products.find(item => item.id === productId);
+                    if (!product || this.deletingProductId !== null) {
+                        return;
+                    }
+
+                    if (confirm(`Delete ${product.name}?`)) {
+                        this.deletingProductId = productId;
+
+                        try {
+                            const response = await fetch(`{{ url('/api/products') }}/${productId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            const result = await response.json().catch(() => ({}));
+                            if (!response.ok) {
+                                throw new Error(result.message || 'Unable to delete product.');
+                            }
+
+                            await this.loadProducts();
+                        } catch (error) {
+                            alert(error.message || 'Unable to delete product.');
+                        } finally {
+                            this.deletingProductId = null;
+                        }
                     }
                 },
 
@@ -611,7 +712,8 @@ clearTable(tableId) {
 
                 closeModal() {
                     this.showAddModal = false;
-                    this.editingIndex = null;
+                    this.editingProductId = null;
+                    this.productFormError = '';
                     this.resetForm();
                 },
 
@@ -634,11 +736,7 @@ clearTable(tableId) {
                 },
 
                 calculateStockFromIngredients(product) {
-                    if (!product.ingredients || product.ingredients.length === 0) {
-                        return 0;
-                    }
-                    // Simply add all ingredient stocks together
-                    return product.ingredients.reduce((total, ing) => total + (ing.stock || 0), 0);
+                    return Number(product.stock || 0);
                 },
 
                 getLowStockIngredients(product) {
@@ -647,30 +745,44 @@ clearTable(tableId) {
                 },
 
                 resetForm() {
-                    this.formData = { id: null, name: '', cost: 0, sellingPrice: 0, img: '', addOns: [], ingredients: [] };
+                    this.formData = { id: null, name: '', cost: 0, sellingPrice: 0, stock: 0, img: '', addOns: [], ingredients: [] };
                 },
 
-init() {
-            localStorage.removeItem('ub_order_history');
-            localStorage.removeItem('ub_tables');
-
-            this.loadProducts();
+async init() {
+            try {
+await this.loadProducts();
+            } catch (error) {
+                alert(error.message);
+            }
             this.loadAnalytics();
-            this.loadTablesFromStorage();
+            await this.loadTablesFromStorage();
             this.loadReservationsFromStorage();
 
             window.addEventListener('storage', () => {
-                this.loadProducts();
                 this.loadAnalytics();
                 this.loadTablesFromStorage();
                 this.loadReservationsFromStorage();
             });
 
-            setInterval(() => {
-                this.loadAnalytics();
-                this.loadTablesFromStorage();
-                this.loadReservationsFromStorage();
+            setInterval(async () => {
+                if (this.isRefreshingDashboard || this.isClearingTable || document.hidden) {
+                    return;
+                }
+
+                this.isRefreshingDashboard = true;
+                try {
+                    this.loadAnalytics();
+                    await this.loadTablesFromStorage();
+                } finally {
+                    this.isRefreshingDashboard = false;
+                }
             }, 2000);
+
+            setInterval(() => {
+                if (!document.hidden) {
+                    this.loadReservationsFromStorage();
+                }
+            }, 8000);
         },
         
 

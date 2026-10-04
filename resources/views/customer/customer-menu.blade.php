@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Customer Menu | Digital Ordering</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/table-state.js') }}"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -57,6 +59,7 @@
                     <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
                         Our <span class="text-[#800000]">Menu</span>
                     </h1>
+                    <p x-show="productError" x-text="productError" class="mt-2 text-sm font-bold text-red-700" role="alert"></p>
                 </div>
 
                 <div class="inline-flex items-center gap-3 bg-white rounded-2xl px-4 sm:px-5 py-3 shadow-sm border border-slate-100 self-start md:self-auto">
@@ -106,7 +109,7 @@
 
                     <div class="w-full h-28 sm:h-36 md:h-40 lg:h-48 mb-2 sm:mb-3 md:mb-4 lg:mb-5 overflow-hidden rounded-lg sm:rounded-xl md:rounded-[1.25rem] lg:rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-2 sm:p-3 md:p-4 relative">
 
-                      <img :src="'/img/' + product.img"
+                      <img :src="product.img && (product.img.includes('data:') || product.img.includes('http')) ? product.img : (product.img ? '{{ asset('img') }}/' + product.img : 'https://placehold.co/400x400/f8fafc/800000?text=No+Image')"
          :class="getProductStock(product) <= 0 ? 'opacity-90' : ''"
          class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500"
          x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
@@ -297,7 +300,7 @@
         return {
             searchQuery: '',
             selectedCategory: 'All',
-            categories: ['All', 'Breakfast', 'Lunch', 'Snacks', 'Dinner', 'Drinks'],
+            categories: ['All'],
             tableNumber: null,
             cart: [],
             showCustomize: false,
@@ -307,28 +310,37 @@
             guestSetup: { adults: 0, children: 0 },
             guestCount: 0,
             products: [],
+            productError: '',
 
-            loadProducts() {
-                const saved = localStorage.getItem('product_catalog');
-                if (saved) {
-                    try {
-                        const parsed = JSON.parse(saved);
-                        this.products = parsed.map(product => ({
-                            ...product,
-                            price: product.price ?? product.sellingPrice ?? 0,
-                            qty: product.qty || 1,
-                            selectedAddOns: product.selectedAddOns || []
-                        }));
-                    } catch (error) {
-                        this.products = [];
+            async loadProducts() {
+                try {
+                    const response = await fetch('{{ route('products.index') }}', {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Unable to load products from inventory.');
                     }
-                } else {
+
+                    this.products = (await response.json()).map(product => ({
+                        ...product,
+                        price: Number(product.sellingPrice ?? product.price ?? 0),
+                        stock_quantity: Number(product.stock_quantity ?? product.stock ?? 0),
+                        stock: Number(product.stock_quantity ?? product.stock ?? 0),
+                        qty: 1,
+                        selectedAddOns: []
+                    }));
+                    this.categories = ['All', ...new Set(this.products.map(product => product.cat).filter(Boolean))];
+                    this.productError = '';
+                } catch (error) {
                     this.products = [];
+                    this.categories = ['All'];
+                    this.productError = error.message || 'Unable to load products from inventory.';
                 }
             },
 
-            initOrder() {
-                this.loadProducts();
+            async initOrder() {
+                await this.loadProducts();
                 const params = new URLSearchParams(window.location.search);
                 const tableParam = params.get('table');
                 
@@ -346,7 +358,7 @@
                 let children = Number.isInteger(savedChildren) ? savedChildren : 0;
 
                 if (adults === 0 && children === 0 && this.tableNumber) {
-                    const storedTables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
+                    const storedTables = await window.tableStateApi.load();
                     const tableData = storedTables.find(t => t.id === Number(this.tableNumber));
                     if (tableData) {
                         adults = Number.isInteger(tableData.adults) ? tableData.adults : adults;
@@ -399,14 +411,11 @@
             },
 
             getProductStock(product) {
-                if (!product.ingredients || product.ingredients.length === 0) {
-                    return product.stock || 0;
-                }
-                return product.ingredients.reduce((total, ing) => total + (ing.stock || 0), 0);
+                return Number(product.stock_quantity ?? product.stock ?? 0);
             },
 
             addToCart(product) {
-                if (this.getProductStock(product) === 0 || !product.qty) return;
+                if (this.getProductStock(product) <= 0 || !product.qty) return;
                 const clone = {
                     id: product.id,
                     name: product.name,
@@ -420,7 +429,12 @@
                 const existingIndex = this.cart.findIndex(item => item.id === clone.id && JSON.stringify(item.addOns) === JSON.stringify(clone.addOns));
                 
                 if (existingIndex !== -1) {
-                    this.cart[existingIndex].qty += clone.qty;
+                    const remainingStock = this.getProductStock(product) - this.cart[existingIndex].qty;
+                    if (remainingStock <= 0) {
+                        this.toast(`${clone.name} has reached its available stock`);
+                        return;
+                    }
+                    this.cart[existingIndex].qty += Math.min(clone.qty, remainingStock);
                 } else {
                     this.cart.push(clone);
                 }

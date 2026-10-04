@@ -11,7 +11,7 @@
             </p>
         </div>
 
-        <button @click="showAddModal = true; editingIndex = null; resetForm();"
+        <button type="button" @click="openAddProduct()"
             class="flex items-center gap-2 px-6 py-3 bg-[#800000] text-white font-black rounded-xl hover:shadow-lg transition-all">
             <i class="fas fa-plus"></i> Add Product
         </button>
@@ -35,12 +35,12 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    <template x-for="(product, index) in products" :key="index">
+                    <template x-for="(product, index) in products" :key="product.id">
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-4 py-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-lg bg-slate-200 overflow-hidden flex-shrink-0">
-                                        <img :src="product.img && (product.img.includes('data:') || product.img.includes('http')) ? product.img : (product.img ? '/img/' + product.img : 'https://placehold.co/100x100/f8fafc/800000?text=No+Image')" class="w-full h-full object-cover" x-on:error="$el.src='https://placehold.co/100x100/f8fafc/800000?text=No+Image'">
+                                                <img :src="product.img && (product.img.includes('data:') || product.img.includes('http')) ? product.img : (product.img ? '{{ asset('img') }}/' + product.img : 'https://placehold.co/100x100/f8fafc/800000?text=No+Image')" class="w-full h-full object-cover" x-on:error="$el.src='https://placehold.co/100x100/f8fafc/800000?text=No+Image'">
                                     </div>
                                     <span class="font-bold text-slate-800" x-text="product.name"></span>
                                 </div>
@@ -63,10 +63,10 @@
                             <td class="px-4 py-4 text-center font-bold text-[#800000]" x-text="formatCurrency(product.sellingPrice)"></td>
                             <td class="px-4 py-4 text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <button @click="editProduct(index)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <button type="button" @click="editProduct(product.id)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button @click="deleteProduct(index)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                    <button type="button" @click="deleteProduct(product.id)" :disabled="deletingProductId === product.id" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -79,16 +79,20 @@
     </div>
 </div>
 
-<div x-show="showAddModal || editingIndex !== null" x-cloak class="modal-overlay" @click="closeModal()"></div>
+<div x-show="showAddModal || editingProductId !== null" x-cloak class="modal-overlay" @click="closeModal()"></div>
 
-<div x-show="showAddModal || editingIndex !== null" x-cloak
+<div x-show="showAddModal || editingProductId !== null" x-cloak
      class="fixed inset-0 flex items-center justify-center z-[1051] p-4 pointer-events-none">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl pointer-events-auto overflow-hidden flex flex-col max-h-screen" @click.stop>
         <div class="p-6 border-b flex justify-between items-center bg-slate-50/50 flex-shrink-0">
-            <h2 class="text-xl font-black text-slate-800 uppercase" x-text="editingIndex !== null ? 'Edit Product' : 'Add New Product'"></h2>
+            <h2 class="text-xl font-black text-slate-800 uppercase" x-text="editingProductId !== null ? 'Edit Product' : 'Add New Product'"></h2>
         </div>
 
         <div class="p-6 space-y-5 overflow-y-auto flex-1">
+            <div x-show="productFormError" x-transition
+                 class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"
+                 x-text="productFormError"></div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                     <label class="block text-xs font-black text-slate-700 uppercase mb-2">Product Name</label>
@@ -97,9 +101,14 @@
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center">
                     <div class="text-xs text-blue-700">
                         <i class="fas fa-info-circle"></i>
-                        <p class="font-bold">Stock is auto-calculated from ingredients</p>
+                        <p class="font-bold">Sellable stock decreases automatically after each waiter order</p>
                     </div>
                 </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-black text-slate-700 uppercase mb-2">Available Stock</label>
+                <input type="number" min="0" step="1" x-model.number="formData.stock" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#800000] outline-none">
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -119,7 +128,7 @@
                     <div @click="$refs.imageInput.click()" class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:border-[#800000]">
                         <input type="file" x-ref="imageInput" @change="handleImageUpload" accept="image/*" class="hidden">
                         <template x-if="formData.img">
-                            <img :src="formData.img" class="w-24 h-24 object-cover rounded-lg mx-auto">
+                            <img :src="formData.img && (formData.img.includes('data:') || formData.img.includes('http')) ? formData.img : '{{ asset('img') }}/' + formData.img" class="w-24 h-24 object-cover rounded-lg mx-auto">
                         </template>
                         <template x-if="!formData.img">
                             <div class="text-slate-400">
@@ -178,8 +187,10 @@
         </div>
 
         <div class="p-6 border-t flex gap-3 justify-end bg-slate-50/50 flex-shrink-0">
-            <button @click="closeModal()" class="px-6 py-2 text-slate-600 font-bold">Cancel</button>
-            <button @click="saveProduct()" class="px-6 py-2 bg-[#800000] text-white font-bold rounded-lg">Save Product</button>
+            <button type="button" @click="closeModal()" :disabled="isSavingProduct" class="px-6 py-2 text-slate-600 font-bold disabled:opacity-50">Cancel</button>
+            <button type="button" @click="saveProduct()" :disabled="isSavingProduct" class="px-6 py-2 bg-[#800000] text-white font-bold rounded-lg disabled:opacity-50">
+                <span x-text="isSavingProduct ? 'Saving...' : 'Save Product'"></span>
+            </button>
         </div>
     </div>
 </div>

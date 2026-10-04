@@ -9,6 +9,8 @@
         </div>
     </div>
 
+    <div x-show="tableSyncError" x-cloak class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700" x-text="tableSyncError"></div>
+
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <!-- Available Tables Card -->
         <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
@@ -24,16 +26,16 @@
             </div>
         </div>
 
-        <!-- Active Tables Card -->
+        <!-- Occupied Tables Card -->
         <div class="clay-card p-6 shadow-md hover:shadow-lg transition-all border border-slate-100">
             <div class="flex items-start gap-4">
                 <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-utensils text-2xl text-red-600"></i>
                 </div>
                 <div class="flex-1">
-                    <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Active Tables</p>
+                    <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">Occupied Tables</p>
                     <p class="text-3xl font-black text-red-600" x-text="tablesMetrics.occupiedTables"></p>
-                    <p class="text-[10px] font-bold text-slate-400 mt-1">Currently in use</p>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">Currently occupied</p>
                 </div>
             </div>
         </div>
@@ -89,7 +91,7 @@
              'text-amber-700': table.status === 'reserved-booking' && table.isPaid !== true,
              'text-red-700': table.status === 'occupied' && table.isPaid !== true
            }"
-           x-text="table.status === 'available' ? 'AVAILABLE' : (table.isPaid === true && table.status === 'reserved-advance' ? 'PAID' : (table.status === 'reserved-advance' ? 'ADVANCE' : (table.status === 'reserved-booking' ? 'RESERVED' : (table.isPaid === true ? 'PAID' : 'ACTIVE'))))"></p>
+           x-text="table.status === 'available' ? 'AVAILABLE' : (table.isPaid === true && table.status === 'reserved-advance' ? 'PAID' : (table.status === 'reserved-advance' ? 'ADVANCE' : (table.status === 'reserved-booking' ? 'RESERVED' : (table.isPaid === true ? 'PAID' : 'OCCUPIED'))))"></p>
 
         <!-- Guest Count (if occupied) -->
         <template x-if="table.status !== 'available'">
@@ -180,9 +182,11 @@
                 <!-- Actions -->
                 <div class="grid grid-cols-2 gap-4">
                     <template x-if="selectedTable?.status === 'paid' || selectedTable?.isPaid">
-                        <button @click="clearTable(selectedTable?.tableNumber || selectedTable?.id)"
+                        <button type="button" @click.prevent.stop="clearTable(selectedTable?.tableNumber || selectedTable?.id)"
+                            :disabled="isClearingTable"
                             class="py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                            <i class="fas fa-check-circle text-sm"></i> PAID
+                            <i :class="isClearingTable ? 'fas fa-spinner fa-spin' : 'fas fa-check-circle'" class="text-sm"></i>
+                            <span x-text="isClearingTable ? 'CLEARING...' : 'PAID'"></span>
                         </button>
                     </template>
                     <template x-if="selectedTable?.status !== 'paid' && !selectedTable?.isPaid">

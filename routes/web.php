@@ -2,28 +2,42 @@
 
 use App\Http\Controllers\AccountRegistrationController;
 use App\Http\Controllers\CustomerBookingController;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReservationEmailController;
+use App\Http\Controllers\TableStateController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('manager')->group(function () {
     Route::get('/', function () {
-        return view('manager.manager');
+        return view('manager.manager', ['activeTab' => 'analytics']);
     })->name('manager.home');
 
     Route::get('/dashboard', function () {
-        return view('manager.manager');
+        return view('manager.manager', ['activeTab' => 'analytics']);
     })->name('manager.dashboard');
 
     Route::get('/open-tables', function () {
-        return view('manager.manager');
+        return view('manager.manager', ['activeTab' => 'tables']);
     })->name('manager.open-tables');
 
     Route::get('/inventory', function () {
-        return view('manager.manager');
+        return view('manager.manager', ['activeTab' => 'inventory']);
     })->name('manager.inventory');
 });
+
+Route::get('/api/products', [ProductController::class, 'index'])->name('products.index');
+Route::post('/api/products', [ProductController::class, 'store'])->name('products.store');
+Route::put('/api/products/{product}', [ProductController::class, 'update'])->name('products.update');
+Route::delete('/api/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+Route::post('/api/orders/complete', [ProductController::class, 'completeOrder'])->name('orders.complete');
+Route::get('/api/tables', [TableStateController::class, 'index'])->name('tables.index');
+Route::put('/api/tables', [TableStateController::class, 'update'])->name('tables.update');
+Route::post('/api/tables/{tableNumber}/clear', [TableStateController::class, 'clear'])
+    ->whereNumber('tableNumber')
+    ->name('tables.clear');
 
 Route::prefix('waiter')->group(function () {
 
@@ -111,7 +125,7 @@ Route::delete('/bookings', [CustomerBookingController::class, 'archiveAll'])
     ->name('customer.bookings.archive-all');
 
 Route::get('/book', function () {
-    return view('reservation.book');
+    return view('customer.book');
 })->name('customer.book');
 
 Route::post('/reservation/confirm-email', [ReservationEmailController::class, 'confirmEmail'])
@@ -134,6 +148,15 @@ Route::middleware(['guest'])->group(function () {
     Route::get('/forgot-password', function () {
         return view('login.login');
     })->name('forgot-password');
+    Route::post('/forgot-password/send-code', [PasswordResetController::class, 'sendCode'])
+        ->middleware('throttle:3,1')
+        ->name('password-reset.send-code');
+    Route::post('/forgot-password/verify-code', [PasswordResetController::class, 'verifyCode'])
+        ->middleware('throttle:10,1')
+        ->name('password-reset.verify-code');
+    Route::post('/forgot-password/reset', [PasswordResetController::class, 'resetPassword'])
+        ->middleware('throttle:10,1')
+        ->name('password-reset.reset');
     Route::post('/login', function (Request $request) {
         $credentials = $request->validate([
             'email' => ['required', 'email'],

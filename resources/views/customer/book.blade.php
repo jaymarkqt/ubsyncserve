@@ -43,7 +43,8 @@
             </div>
         </div>
 
-        <form class="px-6 pt-12 pb-6 space-y-4" action="#" method="POST">
+        <form class="px-6 pt-12 pb-6 space-y-4" action="{{ route('customer.book.post') }}" method="POST">
+            @csrf
             <input type="hidden" name="type" value="table-reservation" id="bookingTypeInput">
 
             <div class="rounded-xl bg-[#fafafa] border border-gray-100 p-3.5 shadow-sm">
@@ -229,7 +230,7 @@
         submitButton.disabled = true;
 
         try {
-            const response = await fetch('/book', {
+            const response = await fetch("{{ route('customer.book.post') }}", {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

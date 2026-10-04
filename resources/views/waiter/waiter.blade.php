@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Waiter Command Center | UB-SYNC</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="{{ asset('js/table-state.js') }}"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -135,6 +136,8 @@
                     </div>
                 </div>
             </div>
+
+            <div x-show="tableSyncError" x-cloak class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700" x-text="tableSyncError"></div>
 
             <!-- Table Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -532,7 +535,8 @@
     </div>
 </div>
 
-    <div x-show="showCompleteOrderModal" x-cloak class="fixed inset-0 z-[1400] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <template x-teleport="body">
+    <div x-show="showCompleteOrderModal" x-cloak class="fixed inset-0 z-[1500] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 pointer-events-auto" @click.self="showCompleteOrderModal = false">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
             <div class="p-8 font-mono text-sm leading-relaxed border-b-2 border-black max-h-[70vh] overflow-y-auto">
                 <div class="text-center mb-6 pb-4 border-b-2 border-dashed border-black">
@@ -594,10 +598,12 @@
             </div>
 
             <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
-                <button @click="confirmPrint(selectedTable?.id)" class="w-full py-3 maroon-gradient text-white font-semibold rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-check"></i> Confirm Print
+                <button type="button" @click.stop="confirmPrint(selectedTable?.id)" :disabled="isConfirmingPrint || !selectedTable" class="w-full py-3 maroon-gradient text-white font-semibold rounded-lg text-sm shadow-md transition-all flex items-center justify-center gap-2 disabled:cursor-wait disabled:opacity-60">
+                    <i class="fa-solid fa-check"></i>
+                    <span x-text="isConfirmingPrint ? 'Processing…' : 'Confirm Print'"></span>
                 </button>
             </div>
+            </template>
         </div>
     </div>
 
@@ -702,80 +708,110 @@ function waiterSystem() {
         showCompleteOrderModal: false,
         advanceOrderSentToKitchen: false,
         currentReceiptOrderId: '',
+        isConfirmingPrint: false,
 
         // Data Arrays
         tables: [],
+        tableSyncError: '',
+        isRefreshingFloorplan: false,
         reservations: [],
         processingReservations: {},
         guestSetup: { adults: 0, children: 0 },
         salesSummary: { total: 0 },
 
-        init() {
-            this.loadTables();
-            this.loadReservations();
+        async init() {
+            await this.loadReservations();
+            await this.loadTables();
 
             // Makinig sa kahit anong pagbabago sa localStorage
             window.addEventListener('storage', (event) => {
                 if (event.key === 'ub_reservations' || event.key === null) {
                     this.loadReservations();
                 }
-                if (event.key === 'ub_tables' || event.key === null) {
-                    this.loadTables();
-                }
             });
 
+            setInterval(() => this.refreshFloorplan(), 2000);
             setInterval(() => {
-                this.loadTables();
-                this.loadReservations();
-            }, 2000);
+                if (!document.hidden) {
+                    this.loadReservations();
+                }
+            }, 8000);
+        },
+
+        async refreshFloorplan() {
+            if (this.isRefreshingFloorplan || document.hidden) {
+                return;
+            }
+
+            this.isRefreshingFloorplan = true;
+            try {
+                await this.loadTables();
+            } finally {
+                this.isRefreshingFloorplan = false;
+            }
         },
 
         // --- TABLE MANAGEMENT FUNCTIONS ---
-        loadTables() {
-            const stored = localStorage.getItem('ub_tables');
-            if (stored) {
-                let parsedTables = JSON.parse(stored);
-                const reservations = JSON.parse(localStorage.getItem('ub_reservations') || '[]');
+        async loadTables() {
+            try {
+                let parsedTables = await window.tableStateApi.load();
+                const legacyTables = localStorage.getItem('ub_tables');
+                if (legacyTables) {
+                    const legacy = JSON.parse(legacyTables);
+                    const hasServerState = parsedTables.some(table =>
+                        table.status !== 'available' || table.orders.length > 0
+                    );
+                    const legacyActiveTables = legacy.filter(table =>
+                        table.status !== 'available' || (table.orders && table.orders.length > 0)
+                    ).map(table => ({
+                        ...table,
+                        status: ['occupied', 'paid', 'reserved-advance', 'reserved-booking'].includes(table.status)
+                            ? table.status
+                            : (table.orders && table.orders.length > 0 ? 'occupied' : 'available')
+                    }));
 
-                // AUTOMATIC STATUS CHECKER:
-                // Preserve reserved states and only set occupied when there are real orders.
-                parsedTables = parsedTables.map(t => {
-                    const status = (t.status === 'reserved-advance' || t.status === 'reserved-booking')
+                    if (!hasServerState && legacyActiveTables.length > 0) {
+                        await window.tableStateApi.save(legacyActiveTables);
+                        parsedTables = await window.tableStateApi.load();
+                    }
+                    localStorage.removeItem('ub_tables');
+                }
+
+                const reservations = this.reservations;
+                const updatedTables = parsedTables.map(t => {
+                    const status = ['occupied', 'paid', 'reserved-advance', 'reserved-booking'].includes(t.status)
                         ? t.status
                         : ((t.orders && t.orders.length > 0) ? 'occupied' : 'available');
-
                     const matchedReservation = reservations.find(r => r.table == t.id)
                         || reservations.find(r => r.status === 'pending' && ((t.status === 'reserved-advance' && r.type === 'advance-order') || (t.status === 'reserved-booking' && r.type === 'table-reservation')));
-
                     const adults = t.adults ?? (matchedReservation ? matchedReservation.adults || 0 : 0);
                     const children = t.children ?? (matchedReservation ? matchedReservation.children || 0 : 0);
-                    const guests = (t.guests || adults + children);
+                    const guests = t.guests || adults + children;
 
                     return {
                         ...t,
-                        status: status,
+                        status,
                         isPaid: t.isPaid || false,
-                        adults: adults,
-                        children: children,
-                        guests: guests,
+                        adults,
+                        children,
+                        guests,
                         bill: t.bill || 0,
                         orders: t.orders || []
                     };
                 });
-
-                this.tables = parsedTables;
-                this.saveTables();
-            } else {
-                // Initial Load: 15 Tables, Lahat Available (Green)
-                this.tables = Array.from({ length: 15 }, (_, i) => ({
-                    id: i + 1,
-                    status: 'available',
-                    adults: 0,
-                    children: 0,
-                    bill: 0,
-                    orders: []
-                }));
-                this.saveTables();
+                if (JSON.stringify(updatedTables) !== JSON.stringify(this.tables)) {
+                    this.tables = updatedTables;
+                }
+                if (this.selectedTable) {
+                    const refreshedSelection = this.tables.find(table => table.id === this.selectedTable.id);
+                    if (refreshedSelection && JSON.stringify(refreshedSelection) !== JSON.stringify(this.selectedTable)) {
+                        this.selectedTable = refreshedSelection;
+                    }
+                }
+                this.tableSyncError = '';
+            } catch (error) {
+                this.tableSyncError = error.message;
+                console.error('Unable to synchronize the waiter floorplan:', error);
             }
         },
 
@@ -796,16 +832,19 @@ function waiterSystem() {
             }
         },
 
-        clearTable(tableId) {
+        async clearTable(tableId) {
             const index = this.tables.findIndex(t => t.id === tableId);
             if (index !== -1) {
                 this.tables[index].status = 'available';
                 this.tables[index].adults = 0;
                 this.tables[index].children = 0;
+                this.tables[index].guests = 0;
                 this.tables[index].bill = 0;
+                this.tables[index].isPaid = false;
+                this.tables[index].startTime = null;
                 this.tables[index].orders = [];
 
-                this.saveTables();
+                await window.tableStateApi.save([this.tables[index]]);
                 this.showOrderModal = false;
                 this.showReservedModal = false;
                 this.showAdvanceOrderModal = false;
@@ -817,7 +856,7 @@ function waiterSystem() {
                 localStorage.setItem('ub_kitchen_orders', JSON.stringify(filteredK));
             }
         },
-startSession() {
+async startSession() {
             // VALIDATION: Check if both Adults and Children are 0
             if (this.guestSetup.adults <= 0 && this.guestSetup.children <= 0) {
                 alert('Please enter a valid guest count. At least 1 guest is required to open a table.');
@@ -826,6 +865,12 @@ startSession() {
 
             if (this.selectedTable) {
                 this.showSetupModal = false;
+                this.selectedTable.status = 'occupied';
+                this.selectedTable.adults = this.guestSetup.adults;
+                this.selectedTable.children = this.guestSetup.children;
+                this.selectedTable.guests = this.guestSetup.adults + this.guestSetup.children;
+                this.selectedTable.startTime = this.selectedTable.startTime || new Date().toISOString();
+                await window.tableStateApi.save([this.selectedTable]);
                 
                 const url = "{{ route('waiter.menu') }}?table=" + this.selectedTable.id + 
                             "&adults=" + this.guestSetup.adults + 
@@ -835,10 +880,6 @@ startSession() {
             }
         },
         
-
-        saveTables() {
-            localStorage.setItem('ub_tables', JSON.stringify(this.tables));
-        },
 
         recalculateBill(table) {
             table.bill = (table.orders || []).reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -1067,12 +1108,12 @@ startSession() {
         },
 
         finalizeAdvanceOrder(tableId) {
-            // Only record transaction if NOT already paid (not paid during checkout)
-            if (this.selectedTable.isPaid !== true) {
+            if (this.selectedTable?.isPaid !== true && !this.advanceOrderSentToKitchen) {
                 let kitchenOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
+                const orderId = 'ORD-' + Date.now();
 
                 const transaction = {
-                    orderId: 'ORD-' + Date.now(),
+                    orderId,
                     timestamp: new Date().toLocaleTimeString(),
                     totalAmount: (this.selectedTable.bill || 0) * 1.05,
                     tableId: tableId,
@@ -1087,62 +1128,73 @@ startSession() {
 
                 kitchenOrders.push(transaction);
                 localStorage.setItem('ub_kitchen_orders', JSON.stringify(kitchenOrders));
+                this.currentReceiptOrderId = orderId;
             }
 
             this.advanceOrderSentToKitchen = true;
             this.showAdvanceOrderSummaryModal = false;
             this.showAdvanceOrderModal = true;
-            alert('Order successfully sent to stations!');
+            this.toastNotification('Order successfully sent to stations!');
         },
 
-        confirmPrint(tableId) {
-            let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-            let analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+        async confirmPrint(tableId) {
+            if (this.isConfirmingPrint || tableId === null || tableId === undefined) {
+                return;
+            }
 
-            if (this.selectedTable && this.selectedTable.orders && this.selectedTable.orders.length > 0) {
-                // Only record transaction for regular orders, NOT for advance orders
-                // Advance orders are already recorded during checkout
-                if (this.selectedTable.status !== 'reserved-advance' && this.selectedTable.isPaid !== true) {
+            this.isConfirmingPrint = true;
+            try {
+                const table = this.tables.find(item => Number(item.id) === Number(tableId));
+                if (!table) {
+                    throw new Error('Unable to mark this table as paid because it could not be found.');
+                }
+                const analyticsHistory = JSON.parse(localStorage.getItem('ub_order_history') || '[]');
+
+                const orderItems = table.orders || [];
+                if (orderItems.length > 0 && table.status !== 'reserved-advance' && table.isPaid !== true) {
                     const transactionExists = analyticsHistory.some(t => t.orderId === this.currentReceiptOrderId);
-
                     if (!transactionExists) {
-                        const transaction = {
+                        analyticsHistory.unshift({
                             orderId: this.currentReceiptOrderId,
                             timestamp: new Date().toLocaleTimeString(),
-                            totalAmount: (this.selectedTable.bill || 0) * 1.05,
-                            tableId: tableId,
-                            items: this.selectedTable.orders.map(item => ({
+                            totalAmount: (table.bill || 0) * 1.05,
+                            tableId,
+                            items: orderItems.map(item => ({
                                 name: item.name,
                                 qty: item.qty,
                                 price: item.price,
                                 addonName: item.addonName
                             })),
                             status: 'completed'
-                        };
-
-                        analyticsHistory.unshift(transaction);
+                        });
                         localStorage.setItem('ub_order_history', JSON.stringify(analyticsHistory));
                     }
                 }
 
-                // Always set isPaid and update table status for ALL orders
-                let tableIndex = tables.findIndex(t => t.id === tableId);
+                table.status = 'paid';
+                table.isPaid = true;
+                await window.tableStateApi.save([table]);
+                this.selectedTable = { ...this.selectedTable, ...table };
+                const tableIndex = this.tables.findIndex(item => item.id === table.id);
                 if (tableIndex !== -1) {
-                    tables[tableIndex].isPaid = true;
-                    // For advance orders, keep status as reserved-advance; for others, change to paid
-                    if (tables[tableIndex].status !== 'reserved-advance') {
-                        tables[tableIndex].status = 'paid';
-                    }
-                    localStorage.setItem('ub_tables', JSON.stringify(tables));
-
-                    // Update selectedTable immediately
-                    this.selectedTable.isPaid = true;
+                    this.tables[tableIndex] = this.selectedTable;
                 }
-            }
 
-            alert('✓ Order ' + this.currentReceiptOrderId + ' printed successfully!');
-            this.showCompleteOrderModal = false;
-            this.loadTables();
+                this.showCompleteOrderModal = false;
+                this.toastNotification('✓ Order ' + this.currentReceiptOrderId + ' printed successfully!');
+            } catch (error) {
+                alert(error.message || 'Unable to confirm print and update the table payment status.');
+            } finally {
+                this.isConfirmingPrint = false;
+            }
+        },
+
+        toastNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.className = 'fixed top-20 right-5 z-[2000] rounded-xl bg-emerald-600 px-5 py-3 font-bold text-white shadow-xl';
+            document.body.appendChild(notification);
+            window.setTimeout(() => notification.remove(), 2500);
         }
     }
 }

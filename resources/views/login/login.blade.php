@@ -179,8 +179,8 @@
                     </div>
 
                     <button type="submit" :disabled="isLoading" class="w-full ub-maroon-btn font-bold py-4 rounded-xl uppercase tracking-widest text-[12px] disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span x-show="!isLoading">Continue</span>
-                        <span x-show="isLoading">Checking...</span>
+                        <span x-show="!isLoading">Send Verification Code</span>
+                        <span x-show="isLoading">Sending code...</span>
                     </button>
 
                     <div class="text-center">
@@ -192,16 +192,15 @@
             </div>
         </template>
 
-        <!-- Forgot Password - Step 2 -->
+        <!-- Forgot Password - Verify OTP -->
         <template x-if="mode === 'forgotStep2'">
             <div>
                 <div class="text-center mb-10">
                     <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
-                    <p class="text-black-500 text-sm font-medium">Reset Your Password</p>
+                    <p class="text-black-500 text-sm font-medium">Verify Your Email</p>
                 </div>
 
-                <form @submit.prevent="resetPassword" class="space-y-6">
-
+                <form @submit.prevent="verifyResetCode" class="space-y-6">
                     <div x-show="errorMessage" x-transition
                          class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px] mb-2 flex items-center gap-2">
                         <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -211,19 +210,67 @@
                     </div>
 
                     <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-[12px]">
+                        <span x-text="successMessage"></span>
+                        Enter the 6-digit code sent to <strong x-text="email"></strong>.
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="password-reset-code" class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">6-Digit Verification Code</label>
+                        <input type="text" id="password-reset-code" x-model="verificationCode" required
+                               inputmode="numeric" maxlength="6" pattern="[0-9]{6}"
+                               class="custom-input text-center tracking-[0.5em]" placeholder="000000">
+                    </div>
+
+                    <p class="text-center text-[12px] font-semibold text-gray-500">
+                        <span x-show="otpSecondsRemaining > 0">Code expires in <span class="text-[#800000]" x-text="formatOtpTime()"></span>.</span>
+                        <span x-show="otpSecondsRemaining === 0" class="text-red-600">The verification code has expired.</span>
+                    </p>
+
+                    <button type="submit" :disabled="isLoading || otpSecondsRemaining === 0" class="w-full ub-maroon-btn font-bold py-4 rounded-xl uppercase tracking-widest text-[12px] disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span x-show="!isLoading">Verify Code</span>
+                        <span x-show="isLoading">Verifying...</span>
+                    </button>
+
+                    <button x-show="otpSecondsRemaining === 0" type="button" @click="verifyEmail()" :disabled="isLoading"
+                            class="w-full text-[12px] font-semibold text-[#800000] hover:text-gray-800 py-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Send a new code
+                    </button>
+
+                    <button type="button" @click="switchToForgotStep1()" class="w-full text-[12px] font-semibold text-black-600 hover:text-gray-800 py-2 transition-colors duration-300">
+                        Back
+                    </button>
+                </form>
+            </div>
+        </template>
+
+        <!-- Forgot Password - Set New Password -->
+        <template x-if="mode === 'forgotStep3'">
+            <div>
+                <div class="text-center mb-10">
+                    <img src="{{ asset('img/ublogo.png') }}" alt="UB Logo" class="w-48 sm:w-70 h-auto mx-auto mb-1">
+                    <p class="text-black-500 text-sm font-medium">Choose a New Password</p>
+                </div>
+
+                <form @submit.prevent="resetPassword" class="space-y-6">
+                    <div x-show="errorMessage" x-transition
+                         class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-[12px]">
+                        <span x-text="errorMessage"></span>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-[12px]">
                         Resetting password for: <strong x-text="email"></strong>
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">New Password</label>
-                        <input :type="showPassword ? 'text' : 'password'" x-model="newPassword" required
-                               class="custom-input" placeholder="Enter new password">
+                        <label for="new-password" class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">New Password</label>
+                        <input :type="showPassword ? 'text' : 'password'" x-model="newPassword" id="new-password"
+                               required minlength="4" class="custom-input" placeholder="Enter new password">
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">Confirm Password</label>
-                        <input :type="showPassword ? 'text' : 'password'" x-model="confirmPassword" required
-                               class="custom-input" placeholder="Confirm new password">
+                        <label for="confirm-new-password" class="block text-[11px] font-bold text-black-700 uppercase tracking-wider ml-1">Confirm Password</label>
+                        <input :type="showPassword ? 'text' : 'password'" x-model="confirmPassword" id="confirm-new-password"
+                               required minlength="4" class="custom-input" placeholder="Confirm new password">
                     </div>
 
                     <div class="flex items-center cursor-pointer select-none" @click="showPassword = !showPassword">
@@ -237,10 +284,6 @@
                     <button type="submit" :disabled="isLoading" class="w-full ub-maroon-btn font-bold py-4 rounded-xl uppercase tracking-widest text-[12px] disabled:opacity-50 disabled:cursor-not-allowed">
                         <span x-show="!isLoading">Reset Password</span>
                         <span x-show="isLoading">Updating...</span>
-                    </button>
-
-                    <button type="button" @click="switchToForgotStep1()" class="w-full text-[12px] font-semibold text-black-600 hover:text-gray-800 py-2 transition-colors duration-300">
-                        Back
                     </button>
                 </form>
             </div>
@@ -270,31 +313,16 @@
                 mode: 'login',
                 email: '',
                 password: '',
+                verificationCode: '',
+                resetToken: '',
+                otpSecondsRemaining: 0,
+                otpTimer: null,
                 newPassword: '',
                 confirmPassword: '',
                 showPassword: false,
                 errorMessage: '',
+                successMessage: '',
                 isLoading: false,
-
-                users: {
-                    'waiter123@gmail.com': { password: 'admin123', role: 'waiter' },
-                    'manager123@gmail.com': { password: 'admin123', role: 'manager' }
-                },
-
-                init() {
-                    this.loadStoredUsers();
-                },
-
-                loadStoredUsers() {
-                    const stored = localStorage.getItem('updatedUsers');
-                    if (stored) {
-                        this.users = JSON.parse(stored);
-                    }
-                },
-
-                saveUsers() {
-                    localStorage.setItem('updatedUsers', JSON.stringify(this.users));
-                },
 
                 showError(message) {
                     this.errorMessage = message;
@@ -303,33 +331,69 @@
                     }, 2000);
                 },
 
+                formatOtpTime() {
+                    const minutes = Math.floor(this.otpSecondsRemaining / 60);
+                    const seconds = this.otpSecondsRemaining % 60;
+
+                    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                },
+
+                startOtpTimer() {
+                    clearInterval(this.otpTimer);
+                    this.otpSecondsRemaining = 60;
+                    this.otpTimer = setInterval(() => {
+                        if (this.otpSecondsRemaining > 0) {
+                            this.otpSecondsRemaining--;
+                        }
+
+                        if (this.otpSecondsRemaining === 0) {
+                            clearInterval(this.otpTimer);
+                        }
+                    }, 1000);
+                },
+
                 switchToLogin() {
+                    clearInterval(this.otpTimer);
                     this.mode = 'login';
                     this.email = '';
                     this.password = '';
+                    this.verificationCode = '';
+                    this.resetToken = '';
+                    this.otpSecondsRemaining = 0;
                     this.newPassword = '';
                     this.confirmPassword = '';
                     this.showPassword = false;
                     this.errorMessage = '';
+                    this.successMessage = '';
                     this.isLoading = false;
                 },
 
                 switchToForgot() {
+                    clearInterval(this.otpTimer);
                     this.mode = 'forgotStep1';
                     this.email = '';
                     this.password = '';
+                    this.verificationCode = '';
+                    this.resetToken = '';
+                    this.otpSecondsRemaining = 0;
                     this.newPassword = '';
                     this.confirmPassword = '';
                     this.showPassword = false;
                     this.errorMessage = '';
+                    this.successMessage = '';
                     this.isLoading = false;
                 },
 
                 switchToForgotStep1() {
+                    clearInterval(this.otpTimer);
                     this.mode = 'forgotStep1';
+                    this.verificationCode = '';
+                    this.resetToken = '';
+                    this.otpSecondsRemaining = 0;
                     this.newPassword = '';
                     this.confirmPassword = '';
                     this.errorMessage = '';
+                    this.successMessage = '';
                 },
 
                 async handleLogin() {
@@ -369,29 +433,80 @@
                     }
                 },
 
-                verifyEmail() {
+                async verifyEmail() {
                     this.errorMessage = '';
+                    this.successMessage = '';
 
                     if (!this.email) {
                         this.showError('Please enter your email');
                         return;
                     }
 
-                    const user = this.users[this.email];
+                    this.isLoading = true;
 
-                    if (!user) {
-                        this.showError('Email not found');
+                    try {
+                        const response = await fetch("{{ route('password-reset.send-code') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({ email: this.email })
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.message || Object.values(data.errors || {}).flat()[0] || 'Unable to send verification code.');
+                        }
+
+                        this.successMessage = data.message;
+                        this.verificationCode = '';
+                        this.mode = 'forgotStep2';
+                        this.startOtpTimer();
+                    } catch (error) {
+                        this.showError(error.message);
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                async verifyResetCode() {
+                    this.errorMessage = '';
+
+                    if (!/^\d{6}$/.test(this.verificationCode)) {
+                        this.showError('Enter the 6-digit verification code');
                         return;
                     }
 
                     this.isLoading = true;
-                    setTimeout(() => {
+
+                    try {
+                        const response = await fetch("{{ route('password-reset.verify-code') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({ email: this.email, code: this.verificationCode })
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.message || Object.values(data.errors || {}).flat()[0] || 'Unable to verify code.');
+                        }
+
+                        this.resetToken = data.reset_token;
+                        this.mode = 'forgotStep3';
+                    } catch (error) {
+                        this.showError(error.message);
+                    } finally {
                         this.isLoading = false;
-                        this.mode = 'forgotStep2';
-                    }, 500);
+                    }
                 },
 
-                resetPassword() {
+                async resetPassword() {
                     this.errorMessage = '';
 
                     if (!this.newPassword || !this.confirmPassword) {
@@ -410,12 +525,35 @@
                     }
 
                     this.isLoading = true;
-                    setTimeout(() => {
-                        this.users[this.email].password = this.newPassword;
-                        this.saveUsers();
-                        this.isLoading = false;
+
+                    try {
+                        const response = await fetch("{{ route('password-reset.reset') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                email: this.email,
+                                reset_token: this.resetToken,
+                                password: this.newPassword,
+                                password_confirmation: this.confirmPassword
+                            })
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.message || Object.values(data.errors || {}).flat()[0] || 'Unable to reset password.');
+                        }
+
+                        this.successMessage = data.message;
                         this.mode = 'forgotSuccess';
-                    }, 500);
+                    } catch (error) {
+                        this.showError(error.message);
+                    } finally {
+                        this.isLoading = false;
+                    }
                 }
             }
         }

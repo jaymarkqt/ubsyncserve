@@ -15,18 +15,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Manager',
-            'email' => 'manager@ubsyncserve.com',
-            'password' => bcrypt('manager123'),
-            'role' => 'manager',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'manager@ubsyncserve.com'],
+            [
+                'name' => 'Manager',
+                'password' => bcrypt('manager123'),
+                'role' => 'manager',
+            ],
+        );
 
-        User::create([
-            'name' => 'Waiter',
-            'email' => 'waiter@ubsyncserve.com',
-            'password' => bcrypt('waiter123'),
-            'role' => 'waiter',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'waiter@ubsyncserve.com'],
+            [
+                'name' => 'Waiter',
+                'password' => bcrypt('waiter123'),
+                'role' => 'waiter',
+            ],
+        );
+
+        $this->call(ProductSeeder::class);
     }
 }

@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>UB-SYNCSERVE | Waiter POS Terminal</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ asset('js/table-state.js') }}"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -96,7 +98,7 @@
                     <div class="menu-card bg-white p-5 flex flex-col border border-slate-100 rounded-[2rem] shadow-sm relative group">
                         
                         <div class="w-full h-44 mb-5 overflow-hidden rounded-[1.5rem] bg-slate-50 flex items-center justify-center p-4 relative">
-                            <img :src="'/img/' + p.img" 
+                            <img :src="p.img && (p.img.includes('data:') || p.img.includes('http')) ? p.img : (p.img ? '{{ asset('img') }}/' + p.img : 'https://placehold.co/400x400/f8fafc/800000?text=No+Image')" 
      :class="p.stock <= 0 ? 'opacity-90' : ''"
      class="w-full h-full object-contain drop-shadow-md group-hover:scale-105 transition-transform duration-500" 
      x-on:error="$el.src='https://placehold.co/400x400/f8fafc/800000?text=No+Image'">
@@ -306,8 +308,8 @@
 
             <div class="bg-slate-50 p-4 flex gap-3 border-t border-slate-200">
                 <button @click="closeOrderSummaryModal()" class="flex-1 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-lg text-xs hover:bg-slate-100 transition-all">Cancel</button>
-                <button @click="finalizeOrder()" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all">
-                    Send Order
+                <button @click="finalizeOrder()" :disabled="isSubmittingOrder" class="flex-1 py-2 maroon-gradient text-white font-semibold rounded-lg text-xs shadow-md hover:shadow-lg transition-all disabled:cursor-wait disabled:opacity-60">
+                    <span x-text="isSubmittingOrder ? 'Sending…' : 'Send Order'"></span>
                 </button>
             </div>
         </div>
@@ -336,30 +338,34 @@
             showCompleteOrderModal: false,
             showOrderSummaryModal: false,
             currentOrderId: '',
+            isSubmittingOrder: false,
 
-            initStore() {
-                this.loadProducts();
+            async initStore() {
+                try {
+                    await this.loadProducts();
+                } catch (error) {
+                    alert(error.message);
+                }
                 const params = new URLSearchParams(window.location.search);
                 this.tableNumber = params.get('table');
                 this.adults = parseInt(params.get('adults')) || 0;
                 this.children = parseInt(params.get('children')) || 0;
             },
 
-            loadProducts() {
-                const saved = localStorage.getItem('product_catalog');
-                if (saved) {
-                    try {
-                        this.products = JSON.parse(saved).map(p => ({
-                            ...p,
-                            qty: 1,
-                            selectedAddOns: []
-                        }));
-                    } catch (error) {
-                        this.products = [];
-                    }
-                } else {
-                    this.products = [];
+            async loadProducts() {
+                const response = await fetch('{{ route('products.index') }}', {
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Unable to load products.');
                 }
+
+                this.products = (await response.json()).map(p => ({
+                    ...p,
+                    qty: 1,
+                    selectedAddOns: []
+                }));
             },
 
             get filteredProducts() {
@@ -431,10 +437,7 @@
             closeCustomizeModal() { this.showModal = false; },
 
             getWaiterProductStock(product) {
-                if (!product.ingredients || product.ingredients.length === 0) {
-                    return product.stock || 0;
-                }
-                return product.ingredients.reduce((total, ing) => total + (ing.stock || 0), 0);
+                return Number(product.stock_quantity ?? product.stock ?? 0);
             },
 
             addToCart(product) {
@@ -503,36 +506,47 @@
                 this.showOrderSummaryModal = false;
             },
 
-            finalizeOrder() {
-                let tables = JSON.parse(localStorage.getItem('ub_tables') || '[]');
-                let products = JSON.parse(localStorage.getItem('product_catalog') || '[]');
+            async finalizeOrder() {
+                if (this.isSubmittingOrder) {
+                    return;
+                }
+                this.isSubmittingOrder = true;
                 let kitchenOrders = JSON.parse(localStorage.getItem('ub_kitchen_orders') || '[]');
 
-                let idx = tables.findIndex(t => t.id == this.tableNumber);
-
-                this.cart.forEach(item => {
-                    let pIdx = products.findIndex(p => p.id === item.id);
-                    if (pIdx !== -1) {
-                        products[pIdx].stock -= item.qty;
-                        // Deduct ingredients
-                        if (products[pIdx].ingredients) {
-                            products[pIdx].ingredients.forEach(ing => {
-                                ing.stock = Math.max(0, (ing.stock || 0) - item.qty);
-                            });
-                        }
-                    }
-                });
-                localStorage.setItem('product_catalog', JSON.stringify(products));
-
-                if (idx !== -1) {
-                    tables[idx].status = 'pending';
-                    tables[idx].adults = this.adults;
-                    tables[idx].children = this.children;
-                    tables[idx].orders = [...(tables[idx].orders || []), ...this.cart];
-                    tables[idx].bill = (tables[idx].bill || 0) + this.cartTotal;
-                    tables[idx].orderStatus = 'pending';
+                let stockResponse;
+                let stockResult;
+                try {
+                    stockResponse = await fetch('{{ route('orders.complete') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            table_number: this.tableNumber,
+                            adults: this.adults,
+                            children: this.children,
+                            items: this.cart.map(item => ({
+                                product_id: item.id,
+                                quantity: item.qty,
+                                add_ons: item.selectedAddOns || []
+                            }))
+                        })
+                    });
+                    stockResult = await stockResponse.json();
+                } catch (error) {
+                    this.isSubmittingOrder = false;
+                    alert(error.message || 'Unable to save the order. Please try again.');
+                    return;
                 }
-                localStorage.setItem('ub_tables', JSON.stringify(tables));
+
+                if (!stockResponse.ok) {
+                    this.isSubmittingOrder = false;
+                    alert(stockResult.message || 'Unable to complete order because inventory is insufficient.');
+                    return;
+                }
+                this.currentOrderId = stockResult.order_number;
 
                 const transaction = {
                     orderId: this.currentOrderId,
@@ -550,9 +564,15 @@
                 kitchenOrders.push(transaction);
                 localStorage.setItem('ub_kitchen_orders', JSON.stringify(kitchenOrders));
 
-                alert('Order successfully sent to stations!');
-                this.closeOrderSummaryModal();
-                window.location.href = "{{ route('waiter.dashboard') }}";
+                this.showOrderSummaryModal = false;
+                const notification = document.createElement('div');
+                notification.textContent = 'Order successfully sent to stations!';
+                notification.className = 'fixed top-5 right-5 z-[2000] rounded-xl bg-emerald-600 px-5 py-3 font-bold text-white shadow-xl';
+                document.body.appendChild(notification);
+                window.setTimeout(() => notification.remove(), 2500);
+                window.setTimeout(() => {
+                    window.location.href = "{{ route('waiter.dashboard') }}";
+                }, 700);
             }
         }
     }
