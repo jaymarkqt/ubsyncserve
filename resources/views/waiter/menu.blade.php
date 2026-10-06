@@ -287,22 +287,36 @@
                     </template>
                 </div>
 
+                <div class="space-y-3 pb-4 border-b border-slate-200">
+                    <label for="discount-type" class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Discount</label>
+                    <select id="discount-type" x-model="discountType" @change="orderError = ''" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                        <option value="">No discount</option>
+                        <option value="senior">Senior Citizen — 20%</option>
+                        <option value="pwd">PWD — 20%</option>
+                    </select>
+                    <p x-show="orderError" role="alert" class="rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700" x-text="orderError"></p>
+                </div>
+
                 <!-- Subtotal -->
                 <div class="flex justify-between items-center">
                     <span class="text-sm font-semibold text-slate-600">Subtotal:</span>
                     <span class="text-lg font-bold text-slate-900" x-text="formatCurrency(cartTotal)"></span>
                 </div>
 
+                <div x-show="discountAmount > 0" class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-emerald-700" x-text="(discountType === 'senior' ? 'Senior Citizen' : 'PWD') + ' discount (20%):'"></span>
+                    <span class="text-sm font-bold text-emerald-700" x-text="'−' + formatCurrency(discountAmount)"></span>
+                </div>
                 <!-- VAT 5% -->
                 <div class="flex justify-between items-center">
                     <span class="text-sm font-semibold text-slate-600">VAT (5%):</span>
-                    <span class="text-lg font-bold text-slate-900" x-text="formatCurrency(cartTotal * 0.05)"></span>
+                    <span class="text-lg font-bold text-slate-900" x-text="formatCurrency(vatAmount)"></span>
                 </div>
 
                 <!-- Total -->
                 <div class="border-t border-slate-200 pt-4 flex justify-between items-center">
                     <span class="text-sm font-bold text-slate-900 uppercase">Total:</span>
-                    <span class="text-2xl font-black text-[#800000]" x-text="formatCurrency(cartTotal + (cartTotal * 0.05))"></span>
+                    <span class="text-2xl font-black text-[#800000]" x-text="formatCurrency(grandTotal)"></span>
                 </div>
             </div>
 
@@ -339,6 +353,8 @@
             showOrderSummaryModal: false,
             currentOrderId: '',
             isSubmittingOrder: false,
+            discountType: '',
+            orderError: '',
 
             async initStore() {
                 try {
@@ -378,6 +394,22 @@
 
             get cartTotal() {
                 return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            },
+
+            get discountAmount() {
+                return this.discountType ? Math.round(this.cartTotal * 0.20 * 100) / 100 : 0;
+            },
+
+            get discountedSubtotal() {
+                return this.cartTotal - this.discountAmount;
+            },
+
+            get vatAmount() {
+                return Math.round(this.discountedSubtotal * 0.05 * 100) / 100;
+            },
+
+            get grandTotal() {
+                return this.discountedSubtotal + this.vatAmount;
             },
 
             formatCurrency(val) {
@@ -494,11 +526,43 @@
             },
 
             handleBackNavigation() {
+                this.leaveTerminal();
+            },
+
+            async leaveTerminal() {
+                if (this.isSubmittingOrder) {
+                    return;
+                }
+
+                if (this.tableNumber) {
+                    try {
+                        const tables = await window.tableStateApi.load();
+                        const table = tables.find(item => Number(item.id) === Number(this.tableNumber));
+                        const hasSavedOrders = table && (
+                            (table.orders || []).length > 0
+                            || Number(table.bill) > 0
+                            || ['reserved-advance', 'reserved-booking'].includes(table.status)
+                        );
+
+                        if (table && table.status === 'occupied' && !hasSavedOrders) {
+                            await window.tableStateApi.clear(this.tableNumber);
+                        }
+                    } catch (error) {
+                        alert(error.message || 'Unable to reset the table. Please try again.');
+                        return;
+                    }
+                }
+
+                this.cart = [];
+                this.discountType = '';
+                this.showOrderSummaryModal = false;
                 window.location.href = "{{ route('waiter.dashboard') }}";
             },
 
             completeOrder() {
                 this.currentOrderId = 'ORD-' + Date.now();
+                this.discountType = '';
+                this.orderError = '';
                 this.showOrderSummaryModal = true;
             },
 
@@ -516,34 +580,42 @@
                 let stockResponse;
                 let stockResult;
                 try {
+                    const formData = new FormData();
+                    if (this.tableNumber) {
+                        formData.append('table_number', this.tableNumber);
+                    }
+                    formData.append('adults', this.adults);
+                    formData.append('children', this.children);
+                    this.cart.forEach((item, index) => {
+                        formData.append(`items[${index}][product_id]`, item.id);
+                        formData.append(`items[${index}][quantity]`, item.qty);
+                        (item.selectedAddOns || []).forEach((addOn, addOnIndex) => {
+                            formData.append(`items[${index}][add_ons][${addOnIndex}][name]`, addOn.name);
+                        });
+                    });
+                    if (this.discountType) {
+                        formData.append('discount_type', this.discountType);
+                    }
+
                     stockResponse = await fetch('{{ route('orders.complete') }}', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Accept': 'application/json'
                         },
-                        body: JSON.stringify({
-                            table_number: this.tableNumber,
-                            adults: this.adults,
-                            children: this.children,
-                            items: this.cart.map(item => ({
-                                product_id: item.id,
-                                quantity: item.qty,
-                                add_ons: item.selectedAddOns || []
-                            }))
-                        })
+                        body: formData
                     });
                     stockResult = await stockResponse.json();
                 } catch (error) {
                     this.isSubmittingOrder = false;
-                    alert(error.message || 'Unable to save the order. Please try again.');
+                    this.orderError = error.message || 'Unable to save the order. Please try again.';
                     return;
                 }
 
                 if (!stockResponse.ok) {
                     this.isSubmittingOrder = false;
-                    alert(stockResult.message || 'Unable to complete order because inventory is insufficient.');
+                    const validationErrors = Object.values(stockResult.errors || {}).flat();
+                    this.orderError = validationErrors.join(' ') || stockResult.message || 'Unable to complete the order.';
                     return;
                 }
                 this.currentOrderId = stockResult.order_number;
@@ -551,7 +623,7 @@
                 const transaction = {
                     orderId: this.currentOrderId,
                     timestamp: new Date().toLocaleTimeString(),
-                    totalAmount: this.cartTotal,
+                    totalAmount: stockResult.total_amount,
                     tableId: this.tableNumber,
                     items: this.cart.map(item => ({
                         name: item.name,

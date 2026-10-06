@@ -3,6 +3,7 @@
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
@@ -27,7 +28,11 @@ test('waiter orders are saved and decrement product stock', function () {
     ]);
 
     $response->assertCreated()
-        ->assertJsonPath('total_amount', 230);
+        ->assertJsonPath('total_amount', 241.5)
+        ->assertJsonPath('subtotal_amount', 230)
+        ->assertJsonPath('discount_amount', 0)
+        ->assertJsonPath('vat_amount', 11.5)
+        ->assertJsonPath('grand_total_amount', 241.5);
 
     $this->assertDatabaseHas('products', [
         'id' => $product->id,
@@ -36,7 +41,7 @@ test('waiter orders are saved and decrement product stock', function () {
     $this->assertDatabaseHas('orders', [
         'order_number' => $response->json('order_number'),
         'table_number' => '4',
-        'total_amount' => 230,
+        'total_amount' => 241.5,
     ]);
     $this->assertDatabaseHas('order_items', [
         'product_id' => $product->id,
@@ -58,6 +63,59 @@ test('waiter orders are saved and decrement product stock', function () {
             'price' => 115,
             'addonName' => 'Cheese',
         ]]);
+});
+
+test('senior and pwd discounts apply immediately without an ID number', function (string $discountType) {
+    $product = Product::create([
+        'name' => 'Rice Bowl',
+        'selling_price' => 100,
+        'stock_quantity' => 5,
+    ]);
+
+    $response = $this->postJson(route('orders.complete'), [
+        'table_number' => '4',
+        'discount_type' => $discountType,
+        'items' => [
+            ['product_id' => $product->id, 'quantity' => 1],
+        ],
+    ]);
+
+    $response->assertCreated()
+        ->assertJsonPath('subtotal_amount', 100)
+        ->assertJsonPath('discount_amount', 20)
+        ->assertJsonPath('vat_amount', 4)
+        ->assertJsonPath('grand_total_amount', 84)
+        ->assertJsonPath('total_amount', 84);
+
+    $this->assertDatabaseHas('orders', [
+        'order_number' => $response->json('order_number'),
+        'total_amount' => 84,
+    ]);
+
+    $this->assertDatabaseHas('restaurant_tables', [
+        'table_number' => 4,
+        'bill' => 80,
+    ]);
+
+    $this->getJson(route('tables.index'))
+        ->assertSuccessful()
+        ->assertJsonPath('3.bill', 80)
+        ->assertJsonPath('3.orders.0.price', 100)
+        ->assertJsonPath('3.orders.0.discountType', $discountType)
+        ->assertJsonPath('3.orders.0.discountAmount', 20);
+})->with(['senior', 'pwd']);
+
+test('orders store no separate discount or ID fields', function () {
+    foreach ([
+        'subtotal_amount',
+        'discount_type',
+        'discount_id_image_path',
+        'discount_amount',
+        'vat_amount',
+        'grand_total_amount',
+    ] as $column) {
+        expect(Schema::hasColumn('orders', $column))->toBeFalse();
+    }
 });
 
 test('an order that exceeds available stock is not saved', function () {

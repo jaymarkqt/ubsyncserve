@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
@@ -55,124 +56,169 @@ class ProductController extends Controller
             'table_number' => ['nullable', 'integer', 'between:1,15'],
             'adults' => ['sometimes', 'integer', 'min:0'],
             'children' => ['sometimes', 'integer', 'min:0'],
+            'discount_type' => ['nullable', Rule::in(['senior', 'pwd'])],
         ]);
 
-        $order = DB::transaction(function () use ($data): Order {
-            $itemsByProduct = collect($data['items'])->groupBy('product_id');
-            $products = [];
+        $result = DB::transaction(function () use ($data): array {
+                $itemsByProduct = collect($data['items'])->groupBy('product_id');
+                $products = [];
 
-            foreach ($itemsByProduct as $productId => $items) {
-                $product = Product::query()->lockForUpdate()->findOrFail($productId);
-                $quantity = $items->sum('quantity');
-                if ($product->stock_quantity < $quantity) {
-                    throw ValidationException::withMessages([
-                        'items' => ["Not enough stock for {$product->name}."],
-                    ]);
-                }
-
-                $products[$productId] = $product;
-                $product->decrement('stock_quantity', $quantity);
-            }
-
-            $orderItems = collect($data['items'])->map(function (array $item) use ($products): array {
-                $product = $products[$item['product_id']];
-                $addOns = collect($item['add_ons'] ?? [])->map(function (array $requestedAddOn) use ($product): array {
-                    $addOn = collect($product->add_ons ?? [])
-                        ->firstWhere('name', $requestedAddOn['name']);
-
-                    if ($addOn === null) {
+                foreach ($itemsByProduct as $productId => $items) {
+                    $product = Product::query()->lockForUpdate()->findOrFail($productId);
+                    $quantity = $items->sum('quantity');
+                    if ($product->stock_quantity < $quantity) {
                         throw ValidationException::withMessages([
-                            'items' => ["Invalid add-on for {$product->name}."],
+                            'items' => ["Not enough stock for {$product->name}."],
                         ]);
                     }
 
+                    $products[$productId] = $product;
+                    $product->decrement('stock_quantity', $quantity);
+                }
+
+                $orderItems = collect($data['items'])->map(function (array $item) use ($products): array {
+                    $product = $products[$item['product_id']];
+                    $addOns = collect($item['add_ons'] ?? [])->map(function (array $requestedAddOn) use ($product): array {
+                        $addOn = collect($product->add_ons ?? [])
+                            ->firstWhere('name', $requestedAddOn['name']);
+
+                        if ($addOn === null) {
+                            throw ValidationException::withMessages([
+                                'items' => ["Invalid add-on for {$product->name}."],
+                            ]);
+                        }
+
+                        return [
+                            'name' => $addOn['name'],
+                            'price' => (float) ($addOn['price'] ?? 0),
+                        ];
+                    })->values()->all();
+                    $unitPrice = (float) $product->selling_price
+                        + collect($addOns)->sum('price');
+
                     return [
-                        'name' => $addOn['name'],
-                        'price' => (float) ($addOn['price'] ?? 0),
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $unitPrice,
+                        'add_ons' => $addOns,
+                        'line_total' => $unitPrice * $item['quantity'],
                     ];
-                })->values()->all();
-                $unitPrice = (float) $product->selling_price
-                    + collect($addOns)->sum('price');
+                });
+
+                $subtotalAmount = round((float) $orderItems->sum('line_total'), 2);
+                $discountAmount = isset($data['discount_type'])
+                    ? round($subtotalAmount * 0.20, 2)
+                    : 0.00;
+                $discountedAmount = $subtotalAmount - $discountAmount;
+                $vatAmount = round($discountedAmount * 0.05, 2);
+                $grandTotalAmount = round($discountedAmount + $vatAmount, 2);
+
+                $tableNumber = $data['table_number'] ?? null;
+                if ($tableNumber !== null) {
+                    $tableNumber = (int) $tableNumber;
+                    DB::table('restaurant_tables')->insertOrIgnore([
+                        'table_number' => $tableNumber,
+                        'status' => 'available',
+                        'orders' => json_encode([]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    $tableState = DB::table('restaurant_tables')
+                        ->where('table_number', $tableNumber)
+                        ->lockForUpdate()
+                        ->first();
+
+                    $existingOrders = json_decode($tableState->orders, true, flags: JSON_THROW_ON_ERROR);
+                    $allocatedDiscount = 0.00;
+                    $lastOrderItemIndex = $orderItems->count() - 1;
+                    $newTableOrders = $orderItems->values()->map(function (array $item, int $index) use (
+                        $data,
+                        $discountAmount,
+                        $subtotalAmount,
+                        $lastOrderItemIndex,
+                        &$allocatedDiscount
+                    ): array {
+                        $itemDiscount = 0.00;
+                        if (isset($data['discount_type'])) {
+                            $remainingDiscount = max(0, round($discountAmount - $allocatedDiscount, 2));
+                            $itemDiscount = $index === $lastOrderItemIndex
+                                ? $remainingDiscount
+                                : min(
+                                    $remainingDiscount,
+                                    $subtotalAmount > 0
+                                        ? round($item['line_total'] * $discountAmount / $subtotalAmount, 2)
+                                        : 0.00
+                                );
+                            $allocatedDiscount += $itemDiscount;
+                        }
+
+                        return [
+                            'name' => $item['product_name'],
+                            'qty' => $item['quantity'],
+                            'price' => $item['unit_price'],
+                            'addonName' => collect($item['add_ons'])->pluck('name')->implode(', ') ?: 'default',
+                            'discountType' => $data['discount_type'] ?? null,
+                            'discountAmount' => $itemDiscount,
+                        ];
+                    });
+                    $tableStatus = in_array($tableState->status, ['reserved-advance', 'reserved-booking'], true)
+                        ? $tableState->status
+                        : 'occupied';
+                    $adults = $data['adults'] ?? (int) $tableState->adults;
+                    $children = $data['children'] ?? (int) $tableState->children;
+                    if ($adults + $children === 0 && (int) $tableState->guests > 0) {
+                        $adults = (int) $tableState->adults;
+                        $children = (int) $tableState->children;
+                    }
+
+                    DB::table('restaurant_tables')
+                        ->where('table_number', $tableNumber)
+                        ->update([
+                            'status' => $tableStatus,
+                            'is_paid' => false,
+                            'adults' => $adults,
+                            'children' => $children,
+                            'guests' => $adults + $children,
+                            'bill' => (float) $tableState->bill + $discountedAmount,
+                            'orders' => json_encode(array_merge($existingOrders, $newTableOrders->all()), JSON_THROW_ON_ERROR),
+                            'start_time' => $tableState->start_time ?? now(),
+                            'updated_at' => now(),
+                        ]);
+                }
+
+                $order = Order::create([
+                    'order_number' => 'ORD-'.Str::upper((string) Str::uuid()),
+                    'table_number' => $tableNumber,
+                    'waiter_id' => Auth::id(),
+                    'status' => 'pending',
+                    'total_amount' => $grandTotalAmount,
+                ]);
+
+                foreach ($orderItems as $orderItem) {
+                    unset($orderItem['line_total']);
+                    $order->items()->create($orderItem);
+                }
 
                 return [
-                    'product_id' => $product->id,
-                    'product_name' => $product->name,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $unitPrice,
-                    'add_ons' => $addOns,
-                    'line_total' => $unitPrice * $item['quantity'],
+                    'order' => $order,
+                    'subtotal_amount' => $subtotalAmount,
+                    'discount_amount' => $discountAmount,
+                    'vat_amount' => $vatAmount,
+                    'grand_total_amount' => $grandTotalAmount,
                 ];
             });
 
-            $tableNumber = $data['table_number'] ?? null;
-            if ($tableNumber !== null) {
-                $tableNumber = (int) $tableNumber;
-                DB::table('restaurant_tables')->insertOrIgnore([
-                    'table_number' => $tableNumber,
-                    'status' => 'available',
-                    'orders' => json_encode([]),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                $tableState = DB::table('restaurant_tables')
-                    ->where('table_number', $tableNumber)
-                    ->lockForUpdate()
-                    ->first();
-
-                $existingOrders = json_decode($tableState->orders, true, flags: JSON_THROW_ON_ERROR);
-                $newTableOrders = $orderItems->map(fn (array $item): array => [
-                    'name' => $item['product_name'],
-                    'qty' => $item['quantity'],
-                    'price' => $item['unit_price'],
-                    'addonName' => collect($item['add_ons'])->pluck('name')->implode(', ') ?: 'default',
-                ]);
-                $tableStatus = in_array($tableState->status, ['reserved-advance', 'reserved-booking'], true)
-                    ? $tableState->status
-                    : 'occupied';
-                $adults = $data['adults'] ?? (int) $tableState->adults;
-                $children = $data['children'] ?? (int) $tableState->children;
-                if ($adults + $children === 0 && (int) $tableState->guests > 0) {
-                    $adults = (int) $tableState->adults;
-                    $children = (int) $tableState->children;
-                }
-
-                DB::table('restaurant_tables')
-                    ->where('table_number', $tableNumber)
-                    ->update([
-                        'status' => $tableStatus,
-                        'is_paid' => false,
-                        'adults' => $adults,
-                        'children' => $children,
-                        'guests' => $adults + $children,
-                        'bill' => (float) $tableState->bill + $orderItems->sum('line_total'),
-                        'orders' => json_encode(array_merge($existingOrders, $newTableOrders->all()), JSON_THROW_ON_ERROR),
-                        'start_time' => $tableState->start_time ?? now(),
-                        'updated_at' => now(),
-                    ]);
-            }
-
-            $order = Order::create([
-                'order_number' => 'ORD-'.Str::upper((string) Str::uuid()),
-                'table_number' => $tableNumber,
-                'waiter_id' => Auth::id(),
-                'status' => 'pending',
-                'total_amount' => $orderItems->sum('line_total'),
-            ]);
-
-            foreach ($orderItems as $orderItem) {
-                unset($orderItem['line_total']);
-                $order->items()->create($orderItem);
-            }
-
-            return $order;
-        });
-
         return response()->json([
             'message' => 'Order saved and inventory updated.',
-            'order_id' => $order->id,
-            'order_number' => $order->order_number,
-            'total_amount' => (float) $order->total_amount,
+            'order_id' => $result['order']->id,
+            'order_number' => $result['order']->order_number,
+            'total_amount' => (float) $result['order']->total_amount,
+            'subtotal_amount' => $result['subtotal_amount'],
+            'discount_amount' => $result['discount_amount'],
+            'vat_amount' => $result['vat_amount'],
+            'grand_total_amount' => $result['grand_total_amount'],
         ], 201);
     }
 

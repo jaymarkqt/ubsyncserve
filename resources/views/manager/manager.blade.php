@@ -228,6 +228,21 @@
                         maximumFractionDigits: 2
                     });
                 },
+
+                selectedDiscountSummary() {
+                    const discountedItems = (this.selectedTable?.orders || []).filter(item => item.discountType);
+                    const types = [...new Set(discountedItems.map(item => item.discountType))];
+
+                    return {
+                        hasDiscount: types.length > 0,
+                        label: types.map(type => type === 'senior' ? 'Senior Citizen' : 'PWD').join(' / '),
+                        amount: discountedItems.reduce((total, item) => total + Number(item.discountAmount || 0), 0)
+                    };
+                },
+
+                selectedGrossSubtotal() {
+                    return Number(this.selectedTable?.bill || 0) + this.selectedDiscountSummary().amount;
+                },
               
      
 
@@ -256,7 +271,7 @@ async loadTablesFromStorage() {
                     // Process each table
                     const updatedTables = tables.map(t => {
                         const tableOrders = t.orders || [];
-                        let calculatedBill = tableOrders.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                        const calculatedBill = Number(t.bill || 0);
                         const status = ['occupied', 'paid', 'reserved-advance', 'reserved-booking'].includes(t.status)
                             ? t.status
                             : (tableOrders.length > 0 ? 'occupied' : 'available');
@@ -579,25 +594,29 @@ async clearTable(tableId) {
                         let tableIndex = tables.findIndex(t => t.id == this.selectedTable.tableNumber);
 
                         if (tableIndex !== -1) {
+                            const table = tables[tableIndex];
                             // Burahin yung order base sa index
-                            tables[tableIndex].orders.splice(index, 1);
-                            
-                            // I-compute ulit ang Running Total Bill
-                            tables[tableIndex].bill = tables[tableIndex].orders.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                            table.orders.splice(index, 1);
+
+                            table.bill = table.orders.reduce(
+                                (sum, item) => sum + (item.price * item.qty) - Number(item.discountAmount || 0),
+                                0
+                            );
 
                             // Kung naubos na ang order ng table, gawin ulit 'available' ang table at isara ang Order Modal
-                            if (tables[tableIndex].orders.length === 0) {
-                                tables[tableIndex].status = 'available';
-                                tables[tableIndex].adults = 0;
-                                tables[tableIndex].children = 0;
-                                tables[tableIndex].guests = 0;
-                                tables[tableIndex].isPaid = false;
-                                tables[tableIndex].startTime = null;
+                            if (table.orders.length === 0) {
+                                table.status = 'available';
+                                table.adults = 0;
+                                table.children = 0;
+                                table.guests = 0;
+                                table.isPaid = false;
+                                table.bill = 0;
+                                table.startTime = null;
                                 this.showOrderModal = false;
                             }
 
                             // I-save pabalik sa storage at i-refresh ang tables
-                            await window.tableStateApi.save([tables[tableIndex]]);
+                            await window.tableStateApi.save([table]);
                             await this.loadTablesFromStorage();
                         }
                 },

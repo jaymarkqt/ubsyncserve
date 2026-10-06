@@ -289,7 +289,7 @@
                             throw new Error(validationMessage || result.message || 'Unable to submit your order.');
                         }
 
-                        this.serverSubtotal = Number(result.total_amount);
+                        this.serverSubtotal = Number(result.subtotal_amount);
                         const subtotal = this.cartTotal;
                         this.orderComplete = true;
 

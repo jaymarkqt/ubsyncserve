@@ -167,7 +167,11 @@
                 <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 mb-6">
                     <div class="flex justify-between items-center pb-3 border-b border-dashed border-slate-300 mb-3">
                         <span class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Subtotal</span>
-                        <span class="text-lg font-black text-slate-700 tracking-tight" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                        <span class="text-lg font-black text-slate-700 tracking-tight" x-text="formatCurrency(selectedGrossSubtotal())"></span>
+                    </div>
+                    <div x-show="selectedDiscountSummary().hasDiscount" class="flex justify-between items-center pb-3 border-b border-dashed border-slate-300 mb-3">
+                        <span class="text-xs font-bold text-emerald-700 uppercase tracking-[0.2em]" x-text="selectedDiscountSummary().label + ' Discount (20%)'"></span>
+                        <span class="text-sm font-bold text-emerald-700 tracking-tight" x-text="'−' + formatCurrency(selectedDiscountSummary().amount)"></span>
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b border-dashed border-slate-300 mb-3">
                         <span class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">VAT (5%)</span>
@@ -327,7 +331,11 @@
                 <div class="bg-orange-50/50 rounded-2xl p-5 border border-orange-100 mb-6">
                     <div class="flex justify-between items-center pb-3 border-b border-dashed border-orange-200 mb-3">
                         <span class="text-xs font-bold text-orange-800 uppercase tracking-[0.2em]">Subtotal</span>
-                        <span class="text-lg font-black text-slate-700 tracking-tight" x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                        <span class="text-lg font-black text-slate-700 tracking-tight" x-text="formatCurrency(selectedGrossSubtotal())"></span>
+                    </div>
+                    <div x-show="selectedDiscountSummary().hasDiscount" class="flex justify-between items-center pb-3 border-b border-dashed border-orange-200 mb-3">
+                        <span class="text-xs font-bold text-emerald-700 uppercase tracking-[0.2em]" x-text="selectedDiscountSummary().label + ' Discount (20%)'"></span>
+                        <span class="text-sm font-bold text-emerald-700 tracking-tight" x-text="'−' + formatCurrency(selectedDiscountSummary().amount)"></span>
                     </div>
                     <div class="flex justify-between items-center pb-3 border-b border-dashed border-orange-200 mb-3">
                         <span class="text-xs font-bold text-orange-800 uppercase tracking-[0.2em]">VAT (5%)</span>
@@ -419,7 +427,11 @@
                     <div class="mb-6 pb-4 border-b-2 border-dashed border-black">
                         <div class="flex justify-between font-black text-sm text-black mb-2">
                             <span>SUBTOTAL:</span>
-                            <span x-text="formatCurrency(selectedTable?.bill || 0)"></span>
+                            <span x-text="formatCurrency(selectedGrossSubtotal())"></span>
+                        </div>
+                        <div x-show="selectedDiscountSummary().hasDiscount" class="flex justify-between font-bold text-xs text-black mb-2">
+                            <span x-text="selectedDiscountSummary().label + ' DISCOUNT (20%):'"></span>
+                            <span x-text="'−' + formatCurrency(selectedDiscountSummary().amount)"></span>
                         </div>
                         <div class="flex justify-between font-bold text-xs text-black mb-2">
                             <span>VAT (5%):</span>
